@@ -30,43 +30,30 @@ namespace Backend\Base\Utilities;
  *
  * @package Utility
  */
-class TwigRender implements \Backend\Base\Interfaces\RenderUtility
+class TwigRender
+    extends \Backend\Base\Utilities\Render
+    implements \Backend\Base\Interfaces\RenderUtility
 {
-    /**
-     * @var Core\View The view used to render
-     */
-    protected $_view = null;
-
     /**
      * @var Twig The twig used to render
      */
     protected $_twig = null;
 
-    public function __construct(\Backend\Core\View $view = null)
-    {
-        if ($view) {
-            $this->setView($view);
-        }
-    }
-
-    public function setView(\Backend\Core\View $view)
+    public function __construct()
     {
         require_once('Twig/Autoloader.php');
         \Twig_Autoloader::register();
-
-        $this->_view = $view;
         $loader      = new \Twig_Loader_Filesystem($this->_view->templateLocations);
         $this->_twig = new \Twig_Environment($loader);
+        parent::__construct();
     }
 
     public function file($template, array $values = array())
     {
-        if (!$this->_view) {
-            return false;
-        }
+        $file = $this->templateFile($template);
 
-        $values = array_merge($this->_view->getVariables(), $values);
+        $values = array_merge($this->getVariables(), $values);
 
-        return $this->_twig->render($template, $values);
+        return $this->_twig->render($file, $values);
     }
 }

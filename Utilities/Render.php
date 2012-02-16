@@ -33,26 +33,65 @@ namespace Backend\Base\Utilities;
 class Render implements \Backend\Base\Interfaces\RenderUtility
 {
     /**
-     * @var Core\View The view used to render
+     * Location for template files. List them in order of preference
+     * @var array
      */
-    protected $_view = null;
+    protected $_templateLocations = array();
 
-    public function __construct(\Backend\Core\View $view = null)
+    /**
+     * This contains the variables bound to the renderer
+     * @var array
+     */
+    protected $_variables = array();
+
+    public function __construct()
     {
-        $this->_view = $view;
+        $this->templateLocations = array(
+            SOURCE_FOLDER . 'templates/',
+            BACKEND_FOLDER . 'templates/',
+        );
+
+        $this->templateLocations = array_filter($this->templateLocations, 'file_exists');
     }
 
-    public function setView(\Backend\Core\View $view)
+    /**
+     * Bind a variable to the renderer
+     *
+     * @param string The name of the variable
+     * @param mixed The value of the variable
+     * @param boolean Set to false to honor previously set values
+     */
+    public function bind($name, $value, $overwrite = true)
     {
-        $this->_view = $view;
+        if ($overwrite || !array_key_exists($name, $this->_variables)) {
+            $this->_variables[$name] = $value;
+        }
+        return $this->_variables[$name];
+    }
+
+    /**
+     * Get the value of a variable
+     *
+     * @param string The name of the variable
+     * @return mixed The value of the variable
+     */
+    public function get($name)
+    {
+        return array_key_exists($name, $this->_variables) ? $this->_variables[$name] : null;
+    }
+
+    /**
+     * Get all of the bound variables
+     *
+     * @return array An array of all the variables bound to the renderer
+     */
+    public function getVariables()
+    {
+        return $this->_variables;
     }
 
     public function file($template, array $values = array())
     {
-        if (!$this->_view) {
-            return false;
-        }
-
         $file = $this->templateFile($template);
         if (!$file) {
             //TODO Throw an exception, make a fuss?
@@ -80,15 +119,9 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
      */
     protected function templateFile($template)
     {
-        if (substr($template, -4) != '.php') {
-            if (substr($template, -4 != '.tpl')) {
-                $template .= '.tpl';
-            }
-            $template .= '.php';
-        }
         $locations = array();
-        if (!empty($this->_view->templateLocations) && is_array($this->_view->templateLocations)) {
-            $locations = array_unique(array_merge($locations, $this->_view->templateLocations));
+        if (!empty($this->templateLocations) && is_array($this->_templateLocations)) {
+            $locations = array_unique(array_merge($locations, $this->_templateLocations));
         }
         foreach ($locations as $location) {
             if (file_exists($location . $template)) {

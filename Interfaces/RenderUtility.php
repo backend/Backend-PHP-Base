@@ -34,17 +34,8 @@ interface RenderUtility
 {
     /**
      * Constructor for the Rendering Utility
-     *
-     * @param \Backend\Core\View The view currently being used to render the request
      */
-    public function __construct(\Backend\Core\View $view = null);
-
-    /**
-     * Set the view for the Renderer
-     *
-     * @param \Backend\Core\View The view to use the render the request
-     */
-    public function setView(\Backend\Core\View $view);
+    public function __construct();
 
     /**
      * Render the specified file

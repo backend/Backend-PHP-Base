@@ -38,24 +38,11 @@ class Html extends \Backend\Core\View
      */
     public static $handledFormats = array('html', 'htm', 'text/html', 'application/xhtml+xml');
 
-    /**
-     * Location for template files. List them in order of preference
-     * @var array
-     */
-    public $templateLocations = array();
-
     function __construct()
     {
         ob_start();
 
         //self::setupConstants();
-
-        $this->templateLocations = array(
-            APP_FOLDER . 'templates/',
-            BACKEND_FOLDER . 'templates/',
-        );
-
-        $this->templateLocations = array_filter($this->templateLocations, 'file_exists');
 
         parent::__construct();
     }
