@@ -44,11 +44,11 @@ class Html extends \Backend\Core\View
      */
     public $templateLocations = array();
 
-    function __construct($renderer = null)
+    function __construct()
     {
         ob_start();
 
-        self::setupConstants();
+        //self::setupConstants();
 
         $this->templateLocations = array(
             APP_FOLDER . 'templates/',
@@ -57,7 +57,7 @@ class Html extends \Backend\Core\View
 
         $this->templateLocations = array_filter($this->templateLocations, 'file_exists');
 
-        parent::__construct($renderer);
+        parent::__construct();
     }
 
     /**
