@@ -56,4 +56,13 @@ class TwigRender
 
         return $this->_twig->render($file, $values);
     }
+
+    protected function templateFileName($template)
+    {
+        if (substr($template, -5) != '.twig') {
+            $template .= '.twig';
+        }
+        return $template;
+    }
+
 }

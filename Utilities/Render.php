@@ -46,12 +46,12 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
 
     public function __construct()
     {
-        $this->templateLocations = array(
+        $this->_templateLocations = array(
             SOURCE_FOLDER . 'templates/',
             BACKEND_FOLDER . 'templates/',
         );
 
-        $this->templateLocations = array_filter($this->templateLocations, 'file_exists');
+        $this->_templateLocations = array_filter($this->_templateLocations, 'file_exists');
     }
 
     /**
@@ -90,23 +90,23 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
         return $this->_variables;
     }
 
-    public function file($template, array $values = array())
+    public function file($template, array $r_values = array())
     {
-        $file = $this->templateFile($template);
-        if (!$file) {
+        $r_file = $this->templateFile($template);
+        if (!$r_file) {
             //TODO Throw an exception, make a fuss?
             \Backend\Core\Application::log('Missing Template: ' . $template, 4);
             return false;
         }
 
         //TODO Add Caching
-
         ob_start();
-        include($file);
+        extract($r_values);
+        include($r_file);
         $result = ob_get_clean();
 
         //Substitute Variables into the templates
-        $result = $this->parseVariables($result, $values);
+        $result = $this->parseVariables($result, $r_values);
 
         return $result;
     }
@@ -119,8 +119,9 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
      */
     protected function templateFile($template)
     {
+        $template = $this->templateFileName($template);
         $locations = array();
-        if (!empty($this->templateLocations) && is_array($this->_templateLocations)) {
+        if (!empty($this->_templateLocations) && is_array($this->_templateLocations)) {
             $locations = array_unique(array_merge($locations, $this->_templateLocations));
         }
         foreach ($locations as $location) {
@@ -129,6 +130,14 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
             }
         }
         return false;
+    }
+    
+    protected function templateFileName($template)
+    {
+        if (substr($template, -8) != '.tpl.php') {
+            $template .= '.tpl.php';
+        }
+        return $template;
     }
 
     /**
@@ -142,7 +151,6 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
      */
     function parseVariables($string, array $values = array())
     {
-        $values = array_merge($this->_view->getVariables(), $values);
         foreach ($values as $name => $value) {
             if (is_string($name) && is_string($value)) {
                 $search[] = '#' . $name . '#';
