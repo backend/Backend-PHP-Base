@@ -41,20 +41,21 @@ class TwigRender
 
     public function __construct()
     {
+        parent::__construct();
         require_once('Twig/Autoloader.php');
         \Twig_Autoloader::register();
-        $loader      = new \Twig_Loader_Filesystem($this->_view->templateLocations);
+        $loader      = new \Twig_Loader_Filesystem($this->_templateLocations);
         $this->_twig = new \Twig_Environment($loader);
-        parent::__construct();
     }
 
     public function file($template, array $values = array())
     {
-        $file = $this->templateFile($template);
+        //Use templateFileName instead of templateFile. Twig handles it's own locations
+        $file = $this->templateFileName($template);
 
         $values = array_merge($this->getVariables(), $values);
 
-        return $this->_twig->render($file, $values);
+        return $this->_twig->render(basename($file), $values);
     }
 
     protected function templateFileName($template)

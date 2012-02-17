@@ -37,12 +37,17 @@ class Html extends \Backend\Core\View
      * @var array
      */
     public static $handledFormats = array('html', 'htm', 'text/html', 'application/xhtml+xml');
+    
+    /**
+     * @var array An array of commonly used values
+     */
+    protected $_values = array();
 
     function __construct()
     {
         ob_start();
 
-        //self::setupConstants();
+        self::setupConstants();
 
         parent::__construct();
     }
@@ -78,60 +83,56 @@ class Html extends \Backend\Core\View
         } else {
             define('SITE_SUB_FOLDER', '/');
         }
-        $this->bind('SITE_SUB_FOLDER', SITE_SUB_FOLDER);
+        $this->_values['SITE_SUB_FOLDER'] = SITE_SUB_FOLDER;
 
         //Parse the current URL to get the SITE_DOMAIN
         $domain = !empty($url['host']) ? $url['host'] : 'localhost';
         define('SITE_DOMAIN', $domain);
-        $this->bind('SITE_DOMAIN', SITE_DOMAIN);
+        $this->_values['SITE_DOMAIN'] = SITE_DOMAIN;
 
         //Use SITE_DOMAIN and SITE_SUB_FOLDER to create a SITE_LINK
         $scheme = !empty($_SERVER['HTTPS']) ? 'https://' : 'http://';
         $url = SITE_DOMAIN . SITE_SUB_FOLDER;
         define('SITE_LINK', $scheme . $url);
-        $this->bind('SITE_LINK', SITE_LINK);
+        $this->_values['SITE_LINK'] = SITE_LINK;
     }
 
     function transform($result)
     {
-        $render = \Backend\Core\Application::getTool('Render');
-            /*ob_start();
-            $file = $exception->getFile() . ': ' . $exception->getLine();
-            var_dump($exception->getTrace());
-            echo 'Could not handle exception: ' . $exception->getMessage() . PHP_EOL . 'in ' . $file;
-            */
-
-        $variables = array();
+        $this->_values['buffered'] = ob_get_clean();
         //Check for an exception
-        if ($result instanceof \Exception) {
-            $content = $render->file(
-                'exception.tpl.php',
-                array('title' => 'Exception: ' . get_class($result), 'exception' => $result)
-            );
-        } else {
-            //Get a Title
-            $title = $this->get('title');
-            if (empty($title)) {
-                if (is_object($result)) {
-                    $title = get_class($result);
-                } else if (is_array($result)) {
-                    $title = 'Array(' . count($result) . ')';
-                } else {
-                    $title = (string)$result;
-                }
-                $this->bind('title', 'Result: ' . $title);
-            }
-            $content = $result;
+        if (is_object($result)) {
+            return $this->transformObject($result);
         }
-
-        //Get buffered output
-        $buffered = ob_get_clean();
-
-        $result = $render->file(
+        
+        $this->_values['content'] = $result;
+        $result = \Backend\Core\Application::getTool('Render')->file(
             'index',
-            array('content' => $content, 'buffered' => $buffered)
+            $this->_values
         );
         
         return new \Backend\Core\Response(array($result), 200);
+    }
+    
+    protected function transformObject($object)
+    {
+        $template = 'base.html.twig';
+        $values   = $this->_values;
+        switch (true) {
+        case $object instanceof \Renderable:
+            $template = $object->getTemplate();
+            $values   = array_merge($values, $object->getValues());
+            break;
+        case $object instanceof \Exception:
+            $template            = 'exception';
+            $values['title']     = 'Exception: ' . get_class($object);
+            $values['exception'] = $object;
+            break;
+        }
+        $result = \Backend\Core\Application::getTool('Render')->file(
+            $template,
+            $values
+        );
+        return new \Backend\Core\Response($result, 200);
     }
 }
