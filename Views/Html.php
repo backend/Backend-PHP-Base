@@ -92,13 +92,22 @@ class Html extends \Backend\Core\View
         $this->bind('SITE_LINK', SITE_LINK);
     }
 
-    function output()
+    function transform($result)
     {
-        $result = $this->get('result');
+        $render = \Backend\Core\Application::getTool('Render');
+            /*ob_start();
+            $file = $exception->getFile() . ': ' . $exception->getLine();
+            var_dump($exception->getTrace());
+            echo 'Could not handle exception: ' . $exception->getMessage() . PHP_EOL . 'in ' . $file;
+            */
+
+        $variables = array();
         //Check for an exception
         if ($result instanceof \Exception) {
-            $title   = 'Exception: ' . get_class($result);
-            $content = $this->render('exception.tpl.php');
+            $content = $render->file(
+                'exception.tpl.php',
+                array('title' => 'Exception: ' . get_class($result), 'exception' => $result)
+            );
         } else {
             //Get a Title
             $title = $this->get('title');
@@ -114,12 +123,15 @@ class Html extends \Backend\Core\View
             }
             $content = $result;
         }
-        $this->bind('content', $content);
 
         //Get buffered output
         $buffered = ob_get_clean();
-        $this->bind('buffered', $buffered);
 
-        echo $this->render('index.tpl.php');
+        $result = $render->file(
+            'index',
+            array('content' => $content, 'buffered' => $buffered)
+        );
+        
+        return new \Backend\Core\Response(array($result), 200);
     }
 }
