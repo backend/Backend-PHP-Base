@@ -28,6 +28,8 @@ namespace Backend\Base\Utilities;
 /**
  * An object that can be Rendered by the Render Utility
  *
+ * Return a Renderable object from a Controller if you want to specify what template to render
+ *
  * @package Utility
  */
 class Renderable

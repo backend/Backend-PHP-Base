@@ -32,16 +32,4 @@ namespace Backend\Base;
  */
 class Application extends \Backend\Core\Application
 {
-    /**
-     * The constructor for the class
-     *
-     * @param Core\View The view for the application
-     */
-    function __construct(View $view = null)
-    {
-        if (!self::$_constructed) {
-            self::registerNamespace('Base');
-        }
-        parent::__construct($view);
-    }
 }

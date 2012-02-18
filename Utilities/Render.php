@@ -46,10 +46,15 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
 
     public function __construct()
     {
-        $this->_templateLocations = array(
-            SOURCE_FOLDER . 'templates/',
-            BACKEND_FOLDER . 'templates/',
-        );
+        $this->_templateLocations = array();
+        //Check Application Folder
+        $this->_templateLocations += glob(SOURCE_FOLDER . '*/*/templates/', \GLOB_ONLYDIR);
+
+        //Add Project wide templates
+        $this->_templateLocations[] = PROJECT_FOLDER . 'templates/';
+
+        //Check Vendor Folder
+        $this->_templateLocations += glob(VENDOR_FOLDER . '*/*/templates/', \GLOB_ONLYDIR);
 
         $this->_templateLocations = array_filter($this->_templateLocations, 'file_exists');
     }
@@ -122,9 +127,9 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
         $template = $this->templateFileName($template);
         $locations = array();
         if (!empty($this->_templateLocations) && is_array($this->_templateLocations)) {
-            $locations = array_unique(array_merge($locations, $this->_templateLocations));
+            $locations = array_merge($locations, $this->_templateLocations);
         }
-        foreach ($locations as $location) {
+        foreach (array_unique($locations) as $location) {
             if (file_exists($location . $template)) {
                 return $location . $template;
             }
