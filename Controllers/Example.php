@@ -1,12 +1,13 @@
 <?php
 namespace Backend\Base\Controllers;
 
-class Example implements \Backend\Core\Interfaces\ControllerInterface
+class Example extends \Backend\Core\Controller
 {
     public function homeAction() {
         return 'Some string';
     }
 
-    public function getAction($id) {
+    public function paramsAction($id, $another = false) {
+        var_dump($id, $another);
     }
 }
