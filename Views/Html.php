@@ -69,27 +69,22 @@ class Html extends \Backend\Core\View
             $url .= '?' . $_SERVER['QUERY_STRING'];
         }
 
-        //Parse the current URL to get the SITE_SUB_FOLDER
-        $url = parse_url($url);
-        $folder = !empty($url['path']) ? $url['path'] : '/';
-        if (substr($folder, -1) != '/' && substr($folder, -1) != '\\') {
-            $folder = dirname($folder);
-        }
-        if ($folder != '.') {
-            if (substr($folder, -9) == 'index.php') {
-                $folder = substr($folder, 0, strlen($folder) - 9);
-            }
-            if (substr($folder, -1) != '/') {
-                $folder .= '/';
-            }
-            define('SITE_SUB_FOLDER', $folder);
+        if (array_key_exists('SCRIPT_NAME', $_SERVER)) {
+            $folder = $_SERVER['SCRIPT_NAME'];
         } else {
-            define('SITE_SUB_FOLDER', '/');
+            //TODO:
         }
+        $folder = preg_replace('/\/index.php.*/', '/', $folder);
+        if (substr($folder, -1) != '/') {
+            $folder .= '/';
+        }
+
+        define('SITE_SUB_FOLDER', $folder);
         $this->_values['SITE_SUB_FOLDER'] = SITE_SUB_FOLDER;
 
         //Parse the current URL to get the SITE_DOMAIN
-        $domain = !empty($url['host']) ? $url['host'] : 'localhost';
+        $urlParts = parse_url($url);
+        $domain = !empty($urlParts['host']) ? $urlParts['host'] : 'localhost';
         define('SITE_DOMAIN', $domain);
         $this->_values['SITE_DOMAIN'] = SITE_DOMAIN;
 
