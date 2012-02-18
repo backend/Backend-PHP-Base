@@ -76,7 +76,10 @@ class Html extends \Backend\Core\View
             $folder = dirname($folder);
         }
         if ($folder != '.') {
-            if (substr($folder, strlen($folder) - 1) != '/') {
+            if (substr($folder, -9) == 'index.php') {
+                $folder = substr($folder, 0, strlen($folder) - 9);
+            }
+            if (substr($folder, -1) != '/') {
                 $folder .= '/';
             }
             define('SITE_SUB_FOLDER', $folder);

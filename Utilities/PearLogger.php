@@ -31,7 +31,7 @@ namespace Backend\Base\Utilities;
  * @package Utilities
  */
 require_once('Log.php');
-class PearLogger implements \Backend\Core\Interfaces\LoggingObserver
+class PearLogger implements \Backend\Core\Interfaces\LoggingObserverInterface
 {
     /**
      * @var Log The instance of the PEAR Log class we'll use to log
