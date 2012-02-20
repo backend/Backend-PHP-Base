@@ -95,10 +95,10 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
         return $this->_variables;
     }
 
-    public function file($template, array $r_values = array())
+    public function file($template, array $rValues = array())
     {
-        $r_file = $this->templateFile($template);
-        if (!$r_file) {
+        $rFile = $this->templateFile($template);
+        if (!$rFile) {
             //TODO Throw an exception, make a fuss?
             \Backend\Core\Application::log('Missing Template: ' . $template, 4);
             return false;
@@ -106,12 +106,12 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
 
         //TODO Add Caching
         ob_start();
-        extract($r_values);
-        include($r_file);
+        extract($rValues);
+        include($rFile);
         $result = ob_get_clean();
 
         //Substitute Variables into the templates
-        $result = $this->parseVariables($result, $r_values);
+        $result = $this->parseVariables($result, $rValues);
 
         return $result;
     }
@@ -136,7 +136,7 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
         }
         return false;
     }
-    
+
     protected function templateFileName($template)
     {
         if (substr($template, -8) != '.tpl.php') {

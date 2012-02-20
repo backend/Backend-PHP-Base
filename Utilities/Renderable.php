@@ -34,9 +34,9 @@ namespace Backend\Base\Utilities;
  */
 class Renderable
 {
-    
+
     protected $_template = 'index';
-    
+
     protected $_values = array();
 
     function __construct($template, array $values = array())
@@ -44,37 +44,35 @@ class Renderable
         $this->_template = $template;
         $this->_values = $values;
     }
-    
+
     public function getTemplate()
     {
         return $this->_template;
     }
-    
+
     public function setTemplate($template)
     {
         $this->_template = $template;
     }
-    
+
     public function getValues()
     {
         return $this->_values;
     }
-    
+
     public function setValue($name, $value)
     {
         $this->_values[$name] = $value;
     }
-    
+
     public function setValues(array $values)
     {
         $this->_values = $values;
     }
-    
+
     public function __toString()
     {
-        return \Backend\Core\Application::getTool('Render')->file(
-            $this->_template,
-            $this->_values
-        );
+        return \Backend\Core\Application::getTool('Render')
+            ->file($this->_template, $this->_values);
     }
 }

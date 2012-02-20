@@ -37,7 +37,7 @@ class Html extends \Backend\Core\View
      * @var array
      */
     public static $handledFormats = array('html', 'htm', 'text/html', 'application/xhtml+xml');
-    
+
     /**
      * @var array An array of commonly used values
      */
@@ -102,16 +102,14 @@ class Html extends \Backend\Core\View
         if (is_object($result)) {
             return $this->transformObject($result);
         }
-        
+
         $this->_values['content'] = $result;
-        $result = \Backend\Core\Application::getTool('Render')->file(
-            'index',
-            $this->_values
-        );
-        
+        $result = \Backend\Core\Application::getTool('Render')
+            ->file('index', $this->_values);
+
         return new \Backend\Core\Response(array($result), 200);
     }
-    
+
     protected function transformObject($object)
     {
         $template = 'base.html.twig';
@@ -127,10 +125,8 @@ class Html extends \Backend\Core\View
             $values['exception'] = $object;
             break;
         }
-        $result = \Backend\Core\Application::getTool('Render')->file(
-            $template,
-            $values
-        );
+        $result = \Backend\Core\Application::getTool('Render')
+            ->file($template, $values);
         return new \Backend\Core\Response($result, 200);
     }
 }
