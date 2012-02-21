@@ -33,17 +33,32 @@ namespace Backend\Base\Bindings;
 abstract class DatabaseBinding extends Binding
 {
     /**
-     * @var PDO The database connection this binding binds to
+     * @var string The name of the connection / binding
      */
-    protected $_connection = null;
+    protected $_name;
 
+    /**
+     * @var string The table the binding is bound to
+     */
+    protected $_table;
     /**
      * The constructor for the class
      *
-     * @param PDO The database connection to use in the binding
+     * @param string The name of the database connection to use in the binding
      */
-    function __construct(\PDO $connection)
+    public function __construct($database, $table)
     {
-        $this->_connection = $connection;
+        $this->_name  = $database;
+        $this->_table = $table;
+
+        $config      = \Backend\Core\Application::getTool('Config');
+        $dbSettings  = $config->get('database', $this->_name);
+        if (!$dbSettings) {
+            throw new \Exception('Unknown Database: ' . $this->_name);
+        }
+
+        $this->init($dbSettings['connection']);
     }
+
+    protected abstract function init(array $options);
 }
