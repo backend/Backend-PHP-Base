@@ -1,5 +1,4 @@
 <?php
-namespace Backend\Base\Models;
 /**
  * File defining \Base\BoundModel
  *
@@ -30,73 +29,40 @@ namespace Backend\Base\Models;
  *
  * @package Models
  */
-abstract class BoundModel extends \Backend\Core\Model implements \Backend\Core\Interfaces\RestModel
+namespace Backend\Base\Models;
+use \Backend\Base\Utilities\BindingFactory;
+
+abstract class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfaces\RestModel
 {
     /**
-     * @var Binding The source for the model
+     * @var Binding The binding for the model
      */
-    protected $_source = null;
+    protected static $_binding = null;
 
     /**
      * The constructor for the class
      *
      * @param Binding The source for the model
      */
-    public function __construct(Bindings\Binding $source)
+    public function __construct($id, \Backend\Base\Bindings\Binding $binding = null)
     {
-        $this->_source = $source;
-    }
-
-    /**
-     * Create an instance of the model on the source
-     *
-     * @param mixed The identifier to use when creating the instance on the source
-     * @param array Any additional arguments to pass when creating the instance
-     */
-    public function createAction($identifier, array $parameters = array())
-    {
-        return $this->_source->create($identifier, $arguments);
-    }
-
-    /**
-     * Read the model from the source
-     *
-     * @param mixed The identifier to use when reading the instance from the source
-     * @param array Any additional arguments to pass when readin the instance
-     */
-    public function readAction($identifier, array $arguments = array())
-    {
-        if ($identifier == 0) {
-            //Return a list
-            return $this->_source->find();
-        } else {
-            return $this->_source->read($identifier);
+        if (is_null($binding)) {
+            $binding = call_user_func(array(get_called_class(), 'getBinding'));
         }
+        self::$_binding = $binding;
     }
 
-    /**
-     * Update the model on the source
-     *
-     * @param mixed The identifier to use when update the instance on the source
-     * @param array Any additional arguments to pass when updating the instance
-     */
-    public function updateAction($identifier, array $arguments = array())
+    public static function getBinding()
     {
-        return $this->_source->update($identifier, $arguments);;
-    }
-
-    /**
-     * Delete the model from the source
-     *
-     * @param mixed The identifier to use when deleting the instance from the source
-     * @param array Any additional arguments to pass when deleting the instance
-     */
-    public function deleteAction($identifier, array $arguments = array())
-    {
-        $this->_source->bind($identifier);
-        if (!$this->_source->isBound()) {
-            throw new InvalidBindingInstanceException();
+        if (!self::$_binding) {
+            self::$_binding = BindingFactory::build(get_called_class());
         }
-        return $this->_source->delete($arguments);;
+        return self::$_binding;
+    }
+
+    public static function findAll()
+    {
+        $binding = self::getBinding();
+        return $binding->find();
     }
 }
