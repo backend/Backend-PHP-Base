@@ -54,10 +54,12 @@ class BindingFactory
             $binding = new $binding['type']($connection, $table);
             break;
         case is_subclass_of($binding['type'], 'URLBinding'):
+            throw new \Exception('Unimplemented');
             break;
         default:
             throw new \Exception('Unknown Binding Type: ' . $binding['type']);
             break;
         }
+        return $binding;
     }
 }
