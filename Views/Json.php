@@ -1,5 +1,4 @@
 <?php
-namespace Backend\Base\Views;
 /**
  * File defining \Base\Views\Json
  *
@@ -25,6 +24,8 @@ namespace Backend\Base\Views;
  *
  * @package ViewFiles
  */
+namespace Backend\Base\Views;
+use \Backend\Core\Decorators\JsonDecorator, \Backend\Core\Interfaces\DecorableInterface;
 /**
  * Output a request in JavaScript Object Notation
  *
@@ -36,13 +37,26 @@ class Json extends \Backend\Core\View
      * Handle JSON requests
      * @var array
      */
-    public static $handledFormats = array('json', 'text/json');
+    public static $handledFormats = array('json', 'text/json', 'application/json');
 
-    function output()
+    public function transform($result)
     {
-        echo json_encode($this->_variables['result']);
-        if (BERequest::from_cli()) {
-            echo PHP_EOL;
+        if ($result instanceof \Backend\Core\Response) {
+            $response = $result;
+            $body     = $response->getBody();
+        } else {
+            $response = new \Backend\Core\Response();
+            $body     = $result;
         }
+        $response->addHeader('X-Backend-View', get_class($this));
+
+        if ($body instanceof DecorableInterface) {
+            $body = new JsonDecorator($body);
+            $body = $body->_toJson();
+        } else {
+            $body = json_encode($body);
+        }
+        $response->setBody($body);
+        return $response;
     }
 }

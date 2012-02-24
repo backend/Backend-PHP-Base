@@ -95,19 +95,38 @@ class Html extends \Backend\Core\View
         $this->_values['SITE_LINK'] = SITE_LINK;
     }
 
-    function transform($result)
+    public function transform($result)
+    {
+        if ($result instanceof \Backend\Core\Response) {
+            $response = $result;
+            $body     = $response->getBody();
+        } else {
+            $response = new \Backend\Core\Response();
+            $body     = $result;
+        }
+        $response->addHeader('X-Backend-View', get_class($this));
+
+        if (!is_string($body)) {
+            $body = $this->transformBody($body);
+        }
+        $response->setBody($body);
+        return $response;
+    }
+
+    protected function transformBody($body)
     {
         $this->_values['buffered'] = ob_get_clean();
-        //Check for an exception
-        if (is_object($result)) {
-            return $this->transformObject($result);
+        //Check for an Object
+        if (is_object($body)) {
+            $body = $this->transformObject($body);
+        } else {
+            if (is_array($body)) {
+                $body = var_export($body, true);
+            }
+            $this->_values['content'] = $body;
+            $body = \Backend\Core\Application::getTool('Render')->file('index', $this->_values);
         }
-
-        $this->_values['content'] = $result;
-        $result = \Backend\Core\Application::getTool('Render')
-            ->file('index', $this->_values);
-
-        return new \Backend\Core\Response(array($result), 200);
+        return $body;
     }
 
     protected function transformObject($object)
@@ -125,8 +144,6 @@ class Html extends \Backend\Core\View
             $values['exception'] = $object;
             break;
         }
-        $result = \Backend\Core\Application::getTool('Render')
-            ->file($template, $values);
-        return new \Backend\Core\Response($result, 200);
+        return \Backend\Core\Application::getTool('Render')->file($template, $values);
     }
 }
