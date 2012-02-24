@@ -27,42 +27,125 @@
 /**
  * Abstract class for models that are bound to a specific source
  *
+ * @todo Define behaviour when the _identifier is changed
+ * @todo Enable custom identifiers, or _identifier bound to a normal property
  * @package Models
  */
 namespace Backend\Base\Models;
 use \Backend\Base\Utilities\BindingFactory;
 
-abstract class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfaces\RestModel
+class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfaces\RestModel
 {
+    /**
+     * @var boolean Property to show if the model has changed since it's last commit / read
+     */
+    protected $_changed = false;
+
+    /**
+     * @var mixed The identifier for the model
+     */
+    protected $_identifier = null;
+
     /**
      * @var Binding The binding for the model
      */
-    protected static $_binding = null;
+    protected $_binding = null;
 
     /**
      * The constructor for the class
      *
+     * @param mixed The identifier for the model
      * @param Binding The source for the model
      */
-    public function __construct($id, \Backend\Base\Bindings\Binding $binding = null)
+    public function __construct($identifier = null, \Backend\Base\Bindings\Binding $binding = null)
     {
         if (is_null($binding)) {
-            $binding = call_user_func(array(get_called_class(), 'getBinding'));
+            $binding = $this->getBinding();
         }
-        self::$_binding = $binding;
+        $this->_binding    = $binding;
+        $this->_identifier = $identifier;
+        if ($this->_identifier) {
+            $this->read();
+            $this->_changed = false;
+        }
+        $this->_decorators[] = '\Backend\Core\Decorators\JsonDecorator';
     }
 
-    public static function getBinding()
+    public function __set($propertyName, $value)
     {
-        if (!self::$_binding) {
-            self::$_binding = BindingFactory::build(get_called_class());
+        $result = parent::__set($propertyName, $value);
+        $this->_changed = true;
+        return $result;
+    }
+
+    public function populate(array $properties)
+    {
+        $result = parent::populate($properties);
+        $this->_changed = true;
+        return $result;
+    }
+
+    public static function create(array $data)
+    {
+        //Bit of a hack to make this static
+        $className = get_called_Class();
+        $object    = new $className();
+        $object->populate($data);
+        return $object->update();
+    }
+
+    public function read()
+    {
+        if (!$this->_identifier)
+        {
+            throw new \Exception('Cannot load unidentifier Bound Model');
         }
-        return self::$_binding;
+        $binding = $this->getBinding();
+        $data    = $binding->read($this->_identifier);
+        return $this->populate($data);
+    }
+
+    /**
+     * Update the Bound Model on it's source.
+     *
+     * Bound Models aren't persisted on their source until the commit function is called
+     */
+    public function update()
+    {
+        if (!$this->_changed) {
+            return $this;
+        }
+        $binding = $this->getBinding();
+        if ($this->_identifier) {
+            $binding->update($this->_identifier, $this->getProperties());
+        } else {
+            $data = $binding->create($this->getProperties());
+            $this->_identifier = $data['id'];
+        }
+        $this->_changed = false;
+        return $this;
+    }
+
+    public function destroy()
+    {
+        $binding = $this->getBinding();
+        return $binding->delete($this->_identifier);
     }
 
     public static function findAll()
     {
-        $binding = self::getBinding();
+        //Bit of a hack to make this static
+        $className = get_called_Class();
+        $object    = new $className();
+        $binding   = $object->getBinding();
         return $binding->find();
+    }
+
+    public function getBinding()
+    {
+        if (!$this->_binding) {
+            $this->_binding = BindingFactory::build(get_called_class());
+        }
+        return $this->_binding;
     }
 }
