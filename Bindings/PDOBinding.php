@@ -70,9 +70,9 @@ class PDOBinding extends DatabaseBinding
         $this->_connection = new \PDO($dsn, $username, $password);
     }
 
-    protected function executeStatement($statement)
+    protected function executeStatement($statement, array $parameters = array())
     {
-        if ($statement && $statement->execute()) {
+        if ($statement && $statement->execute($parameters)) {
             return $statement;
         } else {
             $info = $this->_connection->errorInfo();
@@ -80,9 +80,9 @@ class PDOBinding extends DatabaseBinding
         }
     }
 
-    public function executeQuery($query)
+    public function executeQuery($query, array $parameters = array())
     {
-        return $this->executeStatement($this->_connection->prepare($query));
+        return $this->executeStatement($this->_connection->prepare($query), $parameters);
     }
 
     public function find(array $conditions = array(), array $options = array())
@@ -94,6 +94,20 @@ class PDOBinding extends DatabaseBinding
 
     public function create($data)
     {
+        $query  = 'INSERT INTO ' . $this->_table;
+        $params = array();
+        $values = array();
+        $names  = array();
+        foreach ($data as $name => $value) {
+            $params[':' . $name] = $value;
+            $names[]  = $name;
+            $values[] = ':' . $name;
+        }
+        $query .= ' (' . implode(', ', $names) . ') VALUES (' . implode(', ', $values) . ')';
+        if ($this->executeQuery($query, $params)) {
+            return $this->read($this->executeQuery('SELECT last_insert_rowid()')->fetchColumn());
+        }
+        return false;
     }
 
     public function read($identifier)
