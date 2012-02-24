@@ -1,7 +1,7 @@
 <?php
 namespace Backend\Base\Controllers;
 
-class Example extends \Backend\Core\Controller
+class ExamplesController extends \Backend\Core\Controller
 {
     public function homeAction() {
         return 'Some string';
