@@ -2,75 +2,73 @@
 /**
  * File defining \Base\BoundModel
  *
- * Copyright (c) 2011 JadeIT cc
- * @license http://www.opensource.org/licenses/mit-license.php
+ * PHP Version 5.3
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * @package ModelFiles
- */
-/**
- * Abstract class for models that are bound to a specific source
- *
- * @todo Define behaviour when the _identifier is changed
- * @todo Enable custom identifiers, or _identifier bound to a normal property
- * @package Models
+ * @category  Backend
+ * @package   Base
+ * @author    J Jurgens du Toit <jrgns@backend-php.net>
+ * @copyright 2011 - 2012 Jade IT (cc)
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link      http://backend-php.net
  */
 namespace Backend\Base\Models;
 use \Backend\Base\Utilities\BindingFactory;
-
+/**
+ * Class for models that are bound to a specific source
+ *
+ * @category Backend
+ * @package  Base
+ * @author   J Jurgens du Toit <jrgns@jrgns.net>
+ * @license  http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link     http://backend-php.net
+ * @todo Enable custom identifiers
+ * @todo getters and setters for $_binding and $_changed
+ */
 class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfaces\RestModel
 {
     /**
-     * @var boolean Property to show if the model has changed since it's last commit / read
+     * @var boolean Property to show if the Model has changed since it's last commit / read
      */
-    protected $_changed = false;
+    private $_changed = false;
 
     /**
-     * @var mixed The identifier for the model
+     * @var Binding The binding for the Model
      */
-    protected $_identifier = null;
+    private $_binding = null;
 
     /**
-     * @var Binding The binding for the model
+     * @var mixed The identifier for the Model
      */
-    protected $_binding = null;
+    protected $id = null;
 
     /**
      * The constructor for the class
      *
-     * @param mixed The identifier for the model
-     * @param Binding The source for the model
+     * @param mixed   $id      The identifier for the Model
+     * @param Binding $binding The source for the Model
      */
-    public function __construct($identifier = null, \Backend\Base\Bindings\Binding $binding = null)
+    public function __construct($id = null, \Backend\Base\Bindings\Binding $binding = null)
     {
         if (is_null($binding)) {
             $binding = $this->getBinding();
         }
         $this->_binding    = $binding;
-        $this->_identifier = $identifier;
-        if ($this->_identifier) {
+        $this->id = $id;
+        if ($this->id) {
             $this->read();
             $this->_changed = false;
         }
         $this->_decorators[] = '\Backend\Core\Decorators\JsonDecorator';
     }
 
+    /**
+     * Magic __set function
+     *
+     * @param string $propertyName The name of the property being set
+     * @param mixed  $value        The value of the property being set
+     *
+     * @return BoundModel The current Model
+     */
     public function __set($propertyName, $value)
     {
         $result = parent::__set($propertyName, $value);
@@ -78,6 +76,40 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
         return $result;
     }
 
+    /**
+     * Get the identifier for the Model
+     *
+     * @return mixed The identifier for the Model
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set the identifier for the Model
+     *
+     * This will trigger a refresh of the model
+     *
+     * @param mixed $id The identifier for the Model
+     *
+     * @return BoundModel The current Model
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this->read();
+    }
+
+    /**
+     * Populate the Model with the specified properties.
+     *
+     * The function will use any `set` functions defined.
+     *
+     * @param array $properties An array containing the properties for the model
+     *
+     * @return Object The object that was populated
+     */
     public function populate(array $properties)
     {
         $result = parent::populate($properties);
@@ -85,6 +117,13 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
         return $result;
     }
 
+    /**
+     * Create the Model on it's source
+     *
+     * @param array $data The data that should be used to create the Model
+     *
+     * @return BoundModel The current Model
+     */
     public static function create(array $data)
     {
         //Bit of a hack to make this static
@@ -94,14 +133,18 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
         return $object->update();
     }
 
+    /**
+     * Populate the Model by reading from it's source
+     *
+     * @return BoundModel The current Model
+     */
     public function read()
     {
-        if (!$this->_identifier)
-        {
-            throw new \Exception('Cannot load unidentifier Bound Model');
+        if (!$this->id) {
+            throw new \Exception('Cannot load unidentified Bound Model');
         }
         $binding = $this->getBinding();
-        $data    = $binding->read($this->_identifier);
+        $data    = $binding->read($this->id);
         return $this->populate($data);
     }
 
@@ -109,6 +152,8 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
      * Update the Bound Model on it's source.
      *
      * Bound Models aren't persisted on their source until the commit function is called
+     *
+     * @return BoundModel The current Model
      */
     public function update()
     {
@@ -116,22 +161,35 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
             return $this;
         }
         $binding = $this->getBinding();
-        if ($this->_identifier) {
-            $binding->update($this->_identifier, $this->getProperties());
+        if ($this->id) {
+            $binding->update($this->id, $this->getProperties());
         } else {
             $data = $binding->create($this->getProperties());
-            $this->_identifier = $data['id'];
+            $this->id = $data['id'];
         }
         $this->_changed = false;
         return $this;
     }
 
+    /**
+     * Destroy the Bound Model on it's source.
+     *
+     * @return boolean If the Model was succesfully destroyed or not
+     */
     public function destroy()
     {
+        if (!$this->id) {
+            throw new \Exception('Cannot load unidentified Bound Model');
+        }
         $binding = $this->getBinding();
-        return $binding->delete($this->_identifier);
+        return $binding->delete($this->id);
     }
 
+    /**
+     * Get a list of all the representations of the Model
+     *
+     * @return array An array of representations of the Model
+     */
     public static function findAll()
     {
         //Bit of a hack to make this static
@@ -141,6 +199,11 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
         return $binding->find();
     }
 
+    /**
+     * Get the Bound Model's Binding
+     *
+     * @return Binding The Bound Model's Binding
+     */
     public function getBinding()
     {
         if (!$this->_binding) {

@@ -2,57 +2,56 @@
 /**
  * File defining \Base\Views\Json
  *
- * Copyright (c) 2011 JadeIT cc
- * @license http://www.opensource.org/licenses/mit-license.php
+ * PHP Version 5.3
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * @package ViewFiles
+ * @category  Backend
+ * @package   Base/Views
+ * @author    J Jurgens du Toit <jrgns@backend-php.net>
+ * @copyright 2011 - 2012 Jade IT (cc)
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link      http://backend-php.net
  */
 namespace Backend\Base\Views;
-use \Backend\Core\Decorators\JsonDecorator, \Backend\Core\Interfaces\DecorableInterface;
+use \Backend\Core\Response;
+use \Backend\Core\Decorators\JsonDecorator;
+use \Backend\Core\Interfaces\DecorableInterface;
 /**
  * Output a request in JavaScript Object Notation
  *
- * @package Views
+ * @category Backend
+ * @package  Base/Views
+ * @author   J Jurgens du Toit <jrgns@backend-php.net>
+ * @license  http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link     http://backend-php.net
  */
 class Json extends \Backend\Core\View
 {
     /**
-     * Handle JSON requests
-     * @var array
+     * @var array Handle JSON requests
      */
     public static $handledFormats = array('json', 'text/json', 'application/json');
 
+    /**
+     * Transform the result into a Response Object containing the JSON encoded result
+     *
+     * @param mixed $result The result to transform
+     *
+     * @return Response The result transformed into a JSON encoded Response
+     */
     public function transform($result)
     {
-        if ($result instanceof \Backend\Core\Response) {
+        if ($result instanceof Response) {
             $response = $result;
             $body     = $response->getBody();
         } else {
-            $response = new \Backend\Core\Response();
+            $response = new Response();
             $body     = $result;
         }
         $response->addHeader('X-Backend-View', get_class($this));
 
         if ($body instanceof DecorableInterface) {
             $body = new JsonDecorator($body);
-            $body = $body->_toJson();
+            $body = $body->toJson();
         } else {
             $body = json_encode($body);
         }
