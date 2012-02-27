@@ -1,65 +1,67 @@
 <?php
-namespace Backend\Base\Views;
 /**
  * File defining \Base\Views\Html
  *
- * Copyright (c) 2011 JadeIT cc
- * @license http://www.opensource.org/licenses/mit-license.php
+ * PHP Version 5.3
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * @package ViewFiles
+ * @category   Backend
+ * @package    Base
+ * @subpackage Views
+ * @author     J Jurgens du Toit <jrgns@backend-php.net>
+ * @copyright  2011 - 2012 Jade IT (cc)
+ * @license    http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link       http://backend-php.net
  */
+namespace Backend\Base\Views;
 /**
  * Output a request as HTML.
  *
- * @package Views
+ * @category   Backend
+ * @package    Base
+ * @subpackage Views
+ * @author     J Jurgens du Toit <jrgns@backend-php.net>
+ * @license    http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link       http://backend-php.net
  */
 class Html extends \Backend\Core\View
 {
     /**
-     * Handle HTML requests
-     * @var array
+     * @var array Handle HTML requests
      */
-    public static $handledFormats = array('html', 'htm', 'text/html', 'application/xhtml+xml');
+    public static $handledFormats = array(
+        'html', 'htm', 'text/html', 'application/xhtml+xml'
+    );
 
     /**
      * @var array An array of commonly used values
      */
-    protected $_values = array();
+    protected $values = array();
 
+    /**
+     * Constructor for the object
+     */
     function __construct()
     {
         ob_start();
 
-        self::setupConstants();
+        self::_setupConstants();
 
         parent::__construct();
     }
 
     /**
-     * Set up a number of constants / variables to make creating and parsing templates easier.
+     * Set up a number of constants / variables to make creating and parsing
+     * templates easier.
+     *
+     * @return null
      */
-    private function setupConstants()
+    private function _setupConstants()
     {
         //Get the current URL
         $url = 'http';
-        if ($_SERVER['SERVER_PORT'] == 443 || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')) {
+        if ($_SERVER['SERVER_PORT'] == 443
+            || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
+        ) {
             $url .= 's';
         }
         $url .= '://' . $_SERVER['HTTP_HOST'];
@@ -80,21 +82,29 @@ class Html extends \Backend\Core\View
         }
 
         define('SITE_SUB_FOLDER', $folder);
-        $this->_values['SITE_SUB_FOLDER'] = SITE_SUB_FOLDER;
+        $this->values['SITE_SUB_FOLDER'] = SITE_SUB_FOLDER;
 
         //Parse the current URL to get the SITE_DOMAIN
         $urlParts = parse_url($url);
         $domain = !empty($urlParts['host']) ? $urlParts['host'] : 'localhost';
         define('SITE_DOMAIN', $domain);
-        $this->_values['SITE_DOMAIN'] = SITE_DOMAIN;
+        $this->values['SITE_DOMAIN'] = SITE_DOMAIN;
 
         //Use SITE_DOMAIN and SITE_SUB_FOLDER to create a SITE_LINK
         $scheme = !empty($_SERVER['HTTPS']) ? 'https://' : 'http://';
         $url = SITE_DOMAIN . SITE_SUB_FOLDER;
         define('SITE_LINK', $scheme . $url);
-        $this->_values['SITE_LINK'] = SITE_LINK;
+        $this->values['SITE_LINK'] = SITE_LINK;
     }
 
+    /**
+     * Transform the result into a Response Object containing the result as HTML
+     *
+     * @param mixed $result The result to transform
+     *
+     * @return Response The result transformed into a HTML Response
+     * @todo Add HTML related headers such as content type and encoding
+     */
     public function transform($result)
     {
         if ($result instanceof \Backend\Core\Response) {
@@ -113,9 +123,16 @@ class Html extends \Backend\Core\View
         return $response;
     }
 
+    /**
+     * Transform the Body of the response
+     *
+     * @param mixed $body The body to transform
+     *
+     * @return string The transformed body
+     */
     protected function transformBody($body)
     {
-        $this->_values['buffered'] = ob_get_clean();
+        $this->values['buffered'] = ob_get_clean();
         //Check for an Object
         if (is_object($body)) {
             $body = $this->transformObject($body);
@@ -123,16 +140,24 @@ class Html extends \Backend\Core\View
             if (is_array($body)) {
                 $body = var_export($body, true);
             }
-            $this->_values['content'] = $body;
-            $body = \Backend\Core\Application::getTool('Render')->file('index', $this->_values);
+            $this->values['content'] = $body;
+            $body = \Backend\Core\Application::getTool('Render')
+                ->file('index', $this->values);
         }
         return $body;
     }
 
+    /**
+     * Transform an object into a renderable string
+     *
+     * @param object $object The object to transform
+     *
+     * @return string The object transformed into a string
+     */
     protected function transformObject($object)
     {
         $template = 'base.html.twig';
-        $values   = $this->_values;
+        $values   = $this->values;
         switch (true) {
         case $object instanceof \Renderable:
             $template = $object->getTemplate();
@@ -144,6 +169,7 @@ class Html extends \Backend\Core\View
             $values['exception'] = $object;
             break;
         }
-        return \Backend\Core\Application::getTool('Render')->file($template, $values);
+        return \Backend\Core\Application::getTool('Render')
+            ->file($template, $values);
     }
 }
