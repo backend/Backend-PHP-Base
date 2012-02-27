@@ -13,6 +13,9 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Views;
+use \Backend\Core\Response;
+use \Backend\Core\Application;
+use \Backend\Base\Utilities\Renderable;
 /**
  * Output a request as HTML.
  *
@@ -107,11 +110,11 @@ class Html extends \Backend\Core\View
      */
     public function transform($result)
     {
-        if ($result instanceof \Backend\Core\Response) {
+        if ($result instanceof Response) {
             $response = $result;
             $body     = $response->getBody();
         } else {
-            $response = new \Backend\Core\Response();
+            $response = new Response();
             $body     = $result;
         }
         $response->addHeader('X-Backend-View', get_class($this));
@@ -141,7 +144,7 @@ class Html extends \Backend\Core\View
                 $body = var_export($body, true);
             }
             $this->values['content'] = $body;
-            $body = \Backend\Core\Application::getTool('Render')
+            $body = Application::getTool('Render')
                 ->file('index', $this->values);
         }
         return $body;
@@ -159,7 +162,7 @@ class Html extends \Backend\Core\View
         $template = 'base.html.twig';
         $values   = $this->values;
         switch (true) {
-        case $object instanceof \Renderable:
+        case $object instanceof Renderable:
             $template = $object->getTemplate();
             $values   = array_merge($values, $object->getValues());
             break;
@@ -169,7 +172,7 @@ class Html extends \Backend\Core\View
             $values['exception'] = $object;
             break;
         }
-        return \Backend\Core\Application::getTool('Render')
+        return Application::getTool('Render')
             ->file($template, $values);
     }
 }
