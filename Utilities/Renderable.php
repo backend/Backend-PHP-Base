@@ -1,78 +1,117 @@
 <?php
-namespace Backend\Base\Utilities;
 /**
  * File defining Base\Utilities\Renderable
  *
- * Copyright (c) 2011 JadeIT cc
- * @license http://www.opensource.org/licenses/mit-license.php
+ * PHP Version 5.3
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * @package UtilityFiles
+ * @category  Backend
+ * @package   Base/Utilities
+ * @author    J Jurgens du Toit <jrgns@backend-php.net>
+ * @copyright 2011 - 2012 Jade IT (cc)
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link      http://backend-php.net
  */
+namespace Backend\Base\Utilities;
 /**
  * An object that can be Rendered by the Render Utility
  *
  * Return a Renderable object from a Controller if you want to specify what template to render
  *
- * @package Utility
+ * @category Backend
+ * @package  Base/Utilities
+ * @author   J Jurgens du Toit <jrgns@jrgns.net>
+ * @license  http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link     http://backend-php.net
  */
 class Renderable
 {
+    /**
+     * @var string The template to render
+     */
+    protected $template = 'index';
 
-    protected $_template = 'index';
+    /**
+     * @var array The values to use when rendering the template
+     */
+    protected $values = array();
 
-    protected $_values = array();
-
+    /**
+     * The constructor for the object
+     *
+     * @param string $template The name of the template for the object
+     * @param array  $values   The values to use when rendering the template
+     */
     function __construct($template, array $values = array())
     {
-        $this->_template = $template;
-        $this->_values = $values;
+        $this->template = $template;
+        $this->values = $values;
     }
 
+    /**
+     * Get the filename of the current template
+     *
+     * @return string The filename of the template
+     */
     public function getTemplate()
     {
-        return $this->_template;
+        return $this->template;
     }
 
+    /**
+     * Set the template
+     *
+     * @param string $template The filename of the template
+     *
+     * @return null
+     */
     public function setTemplate($template)
     {
-        $this->_template = $template;
+        $this->template = $template;
     }
 
+    /**
+     * Get the current values
+     *
+     * @return array The current values
+     */
     public function getValues()
     {
-        return $this->_values;
+        return $this->values;
     }
 
+    /**
+     * Set a single value to be used when rendering the template
+     *
+     * @param string $name  The name of the value being set
+     * @param mixed  $value The value of the value being set
+     *
+     * @return null
+     */
     public function setValue($name, $value)
     {
-        $this->_values[$name] = $value;
+        $this->values[$name] = $value;
     }
 
+    /**
+     * Set the values to be used when rendering the template
+     *
+     * @param array $values The new values
+     *
+     * @return null
+     */
     public function setValues(array $values)
     {
-        $this->_values = $values;
+        $this->values = $values;
     }
 
+    /**
+     * The magic function that converts the object to a string
+     *
+     * @return string The rendered template
+     */
     public function __toString()
     {
         return \Backend\Core\Application::getTool('Render')
-            ->file($this->_template, $this->_values);
+            ->file($this->template, $this->values);
     }
 }

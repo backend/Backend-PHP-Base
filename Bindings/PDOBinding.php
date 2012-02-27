@@ -2,42 +2,42 @@
 /**
  * File defining PDOBinding
  *
- * Copyright (c) 2011 JadeIT cc
- * @license http://www.opensource.org/licenses/mit-license.php
+ * PHP Version 5.3
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * @package BindingFiles
+ * @category   Backend
+ * @package    Base
+ * @subpackage Bindings
+ * @author     J Jurgens du Toit <jrgns@backend-php.net>
+ * @copyright  2011 - 2012 Jade IT (cc)
+ * @license    http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link       http://backend-php.net
  */
+namespace Backend\Base\Bindings;
 /**
  * PDO Connection Binding
  *
- * @package Binding
+ * @category   Backend
+ * @package    Base
+ * @subpackage Bindings
+ * @author     J Jurgens du Toit <jrgns@jrgns.net>
+ * @license    http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link       http://backend-php.net
+ * @todo This is a rudimentary implementation of the PDOBinding. It can be improved a lot.
  */
-namespace Backend\Base\Bindings;
-
 class PDOBinding extends DatabaseBinding
 {
     /**
      * @var PDO The PDO connection for this binding
      */
-    protected $_connection;
+    protected $connection;
 
+    /**
+     * Initialize the connection
+     *
+     * @param array $connection The connection information for the binding
+     *
+     * @return null
+     */
     protected function init(array $connection)
     {
         if (empty($connection['driver'])) {
@@ -67,31 +67,64 @@ class PDOBinding extends DatabaseBinding
             $dsn = $driver . ':' . urldecode(http_build_query($connection, '', ';'));
             break;
         }
-        $this->_connection = new \PDO($dsn, $username, $password);
+        $this->connection = new \PDO($dsn, $username, $password);
     }
 
+    /**
+     * Execute a statement on the current connection
+     *
+     * @param PDOStatement $statement  The statement to execute
+     * @param array        $parameters The parameters to use when executing the statement
+     *
+     * @return PDOStatement The statement after executing it
+     */
     protected function executeStatement($statement, array $parameters = array())
     {
         if ($statement && $statement->execute($parameters)) {
             return $statement;
         } else {
-            $info = $this->_connection->errorInfo();
+            $info = $this->connection->errorInfo();
             throw new \Exception('PDO Error: ' . $info[2] . ' (' . $info[0] . ')');
         }
     }
 
+    /**
+     * Execute a query on the current connection
+     *
+     * @param string $query      The query to execute
+     * @param array  $parameters The parameters to use when executing the query
+     *
+     * @return PDOStatement The statement of the query that was executed
+     */
     public function executeQuery($query, array $parameters = array())
     {
-        return $this->executeStatement($this->_connection->prepare($query), $parameters);
+        return $this->executeStatement($this->connection->prepare($query), $parameters);
     }
 
+    /**
+     * Find a specified instances of the resource
+     *
+     * Don't specify any criteria to retrieve a full list of instances.
+     *
+     * @param array $conditions An array of conditions on which to filter the list
+     * @param array $options    An array of options
+     *
+     * @todo Implement conditions
+     * @return array An array of representations of the resource
+     */
     public function find(array $conditions = array(), array $options = array())
     {
         $query = 'SELECT * FROM ' . $this->_table;
-        //TODO: Return the statement as it's an iterator?
         return $this->executeQuery($query)->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Create an instance of the source, and return the instance
+     *
+     * @param mixed $data A respresentation of the data with which to create the instance
+     *
+     * @return mixed A respresentation of the created instance of the resource if succesful.
+     */
     public function create($data)
     {
         $query  = 'INSERT INTO ' . $this->_table;
@@ -110,24 +143,47 @@ class PDOBinding extends DatabaseBinding
         return false;
     }
 
+    /**
+     * Read a specified instance of the source, and return the instance
+     *
+     * @param mixed $identifier The unique identifier for the instance.
+     *
+     * @return mixed A respresentation of the specified instance of the resource.
+     */
     public function read($identifier)
     {
         $query = 'SELECT * FROM ' . $this->_table . ' WHERE `id` = :id';
-        $stmt  = $this->_connection->prepare($query);
+        $stmt  = $this->connection->prepare($query);
         if ($stmt->execute(array(':id' => $identifier))) {
             return $stmt->fetch(\PDO::FETCH_ASSOC);
         }
         return false;
     }
 
+    /**
+     * Update the specified instance of the resource
+     *
+     * @param mixed $identifier The unique identifier for the instance.
+     * @param mixed $data       A respresentation of the data with which to update the instance
+     *
+     * @todo Implement this
+     * @return mixed A respresentation of the updated instance of the resource if succesful.
+     */
     public function update($identifier, $data)
     {
     }
 
+     /**
+     * Delete the specified instance of the resource
+     *
+     * @param mixed $identifier The unique identifier for the instance.
+     *
+     * @return boolean If the deletion was succesful or not.
+     */
     public function delete($identifier)
     {
         $query = 'DELETE FROM ' . $this->_table . ' WHERE `id` = :id';
-        $stmt  = $this->_connection->prepare($query);
+        $stmt  = $this->connection->prepare($query);
         return (bool)$stmt->execute(array(':id' => $identifier));
     }
 }

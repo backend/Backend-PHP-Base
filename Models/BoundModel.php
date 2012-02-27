@@ -4,23 +4,25 @@
  *
  * PHP Version 5.3
  *
- * @category  Backend
- * @package   Base
- * @author    J Jurgens du Toit <jrgns@backend-php.net>
- * @copyright 2011 - 2012 Jade IT (cc)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- * @link      http://backend-php.net
+ * @category   Backend
+ * @package    Base
+ * @subpackage Models
+ * @author     J Jurgens du Toit <jrgns@backend-php.net>
+ * @copyright  2011 - 2012 Jade IT (cc)
+ * @license    http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link       http://backend-php.net
  */
 namespace Backend\Base\Models;
 use \Backend\Base\Utilities\BindingFactory;
 /**
  * Class for models that are bound to a specific source
  *
- * @category Backend
- * @package  Base
- * @author   J Jurgens du Toit <jrgns@jrgns.net>
- * @license  http://www.opensource.org/licenses/mit-license.php MIT License
- * @link     http://backend-php.net
+ * @category   Backend
+ * @package    Base
+ * @subpackage Models
+ * @author     J Jurgens du Toit <jrgns@jrgns.net>
+ * @license    http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link       http://backend-php.net
  * @todo Enable custom identifiers
  * @todo getters and setters for $_binding and $_changed
  */
