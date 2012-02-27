@@ -14,6 +14,7 @@
  */
 namespace Backend\Base\Models;
 use \Backend\Base\Utilities\BindingFactory;
+use \Backend\Base\Bindings\Binding;
 /**
  * Class for models that are bound to a specific source
  *
@@ -24,7 +25,6 @@ use \Backend\Base\Utilities\BindingFactory;
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @link       http://backend-php.net
  * @todo Enable custom identifiers
- * @todo getters and setters for $_binding and $_changed
  */
 class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfaces\RestModel
 {
@@ -34,7 +34,7 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
     private $_changed = false;
 
     /**
-     * @var Binding The binding for the Model
+     * @var \Backend\Base\Bindings\Binding The binding for the Model
      */
     private $_binding = null;
 
@@ -49,7 +49,7 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
      * @param mixed   $id      The identifier for the Model
      * @param Binding $binding The source for the Model
      */
-    public function __construct($id = null, \Backend\Base\Bindings\Binding $binding = null)
+    public function __construct($id = null, Binding $binding = null)
     {
         if (is_null($binding)) {
             $binding = $this->getBinding();
@@ -57,8 +57,7 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
         $this->_binding    = $binding;
         $this->id = $id;
         if ($this->id) {
-            $this->read();
-            $this->_changed = false;
+            $this->setId($id);
         }
         $this->_decorators[] = '\Backend\Core\Decorators\JsonDecorator';
     }
@@ -99,8 +98,13 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
      */
     public function setId($id)
     {
-        $this->id = $id;
-        return $this->read();
+        //Don't set the ID and read if it's the same as the current ID
+        if ($id != $this->id) {
+            $this->id = $id;
+            return $this->read();
+        } else {
+            return $this;
+        }
     }
 
     /**
@@ -115,7 +119,7 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
     public function populate(array $properties)
     {
         $result = parent::populate($properties);
-        $this->_changed = true;
+        $this->setChanged(true);
         return $result;
     }
 
@@ -159,7 +163,7 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
      */
     public function update()
     {
-        if (!$this->_changed) {
+        if (!$this->getChanged()) {
             return $this;
         }
         $binding = $this->getBinding();
@@ -169,7 +173,7 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
             $data = $binding->create($this->getProperties());
             $this->id = $data['id'];
         }
-        $this->_changed = false;
+        $this->setChanged(false);
         return $this;
     }
 
@@ -204,7 +208,7 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
     /**
      * Get the Bound Model's Binding
      *
-     * @return Binding The Bound Model's Binding
+     * @return \Backend\Base\Bindings\Binding The Bound Model's Binding
      */
     public function getBinding()
     {
@@ -212,5 +216,39 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
             $this->_binding = BindingFactory::build(get_called_class());
         }
         return $this->_binding;
+    }
+
+    /**
+     * Set the Bound Model's Binding
+     *
+     * @param \Backend\Base\Bindings\Binding $binding The Bound Model's Binding
+     *
+     * @return null;
+     */
+    public function setBinding(Binding $binding)
+    {
+        $this->_binding = $binding;
+    }
+
+    /**
+     * Get the Bound Model's Changed state
+     *
+     * @return boolean If the Bound Model was changed since it's last sync / update
+     */
+    public function getChanged()
+    {
+        return $this->_changed;
+    }
+
+    /**
+     * Set the Bound Model's Changed state
+     *
+     * @param boolean $changed The new changed state for the Bound Model
+     *
+     * @return null
+     */
+    public function setChanged($changed)
+    {
+        $this->_changed = $changed;
     }
 }
