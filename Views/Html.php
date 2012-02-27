@@ -41,7 +41,7 @@ class Html extends \Backend\Core\View
     protected $values = array();
 
     /**
-     * Constructor for the object
+     * The constructor for the object
      */
     function __construct()
     {

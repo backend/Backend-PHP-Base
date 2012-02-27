@@ -1,62 +1,54 @@
 <?php
-namespace Backend\Base\Utilities;
 /**
  * File defining Base\Utilities\Render
  *
- * Copyright (c) 2011 JadeIT cc
- * @license http://www.opensource.org/licenses/mit-license.php
+ * PHP Version 5.3
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * @package UtilityFiles
+ * @category   Backend
+ * @package    Base
+ * @subpackage Utilities
+ * @author     J Jurgens du Toit <jrgns@backend-php.net>
+ * @copyright  2011 - 2012 Jade IT (cc)
+ * @license    http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link       http://backend-php.net
  */
+namespace Backend\Base\Utilities;
 /**
- * Render templates
+ * The basic Render class.
  *
- * @package Utility
+ * @category   Backend
+ * @package    Base
+ * @subpackage Utilities
+ * @author     J Jurgens du Toit <jrgns@backend-php.net>
+ * @license    http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link       http://backend-php.net
  */
 class Render implements \Backend\Base\Interfaces\RenderUtility
 {
     /**
-     * Location for template files. List them in order of preference
-     * @var array
+     * @var array Location for template files. List them in order of preference
      */
-    protected $_templateLocations = array();
+    protected $templateLocations = array();
 
     /**
-     * This contains the variables bound to the renderer
-     * @var array
+     * @var array This contains the variables bound to the renderer
      */
-    protected $_variables = array();
+    protected $variables = array();
 
     public function __construct()
     {
-        $this->_templateLocations = array();
+        $this->templateLocations = array();
         //Check Application Folder
-        $this->_templateLocations += glob(SOURCE_FOLDER . '*/*/templates/', \GLOB_ONLYDIR);
+        $this->templateLocations += glob(SOURCE_FOLDER . '*/*/templates/', \GLOB_ONLYDIR);
 
         //Add Project wide templates
-        $this->_templateLocations[] = PROJECT_FOLDER . 'templates/';
+        $this->templateLocations[] = PROJECT_FOLDER . 'templates/';
 
         //Check Vendor Folder
-        $this->_templateLocations += glob(VENDOR_FOLDER . '*/*/templates/', \GLOB_ONLYDIR);
+        $this->templateLocations += glob(VENDOR_FOLDER . '*/*/templates/', \GLOB_ONLYDIR);
 
-        $this->_templateLocations = array_filter($this->_templateLocations, 'file_exists');
+        //Check if they exist
+        $this->templateLocations = array_filter($this->templateLocations, 'file_exists');
     }
 
     /**
@@ -68,10 +60,10 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
      */
     public function bind($name, $value, $overwrite = true)
     {
-        if ($overwrite || !array_key_exists($name, $this->_variables)) {
-            $this->_variables[$name] = $value;
+        if ($overwrite || !array_key_exists($name, $this->variables)) {
+            $this->variables[$name] = $value;
         }
-        return $this->_variables[$name];
+        return $this->variables[$name];
     }
 
     /**
@@ -82,7 +74,7 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
      */
     public function get($name)
     {
-        return array_key_exists($name, $this->_variables) ? $this->_variables[$name] : null;
+        return array_key_exists($name, $this->variables) ? $this->variables[$name] : null;
     }
 
     /**
@@ -92,7 +84,7 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
      */
     public function getVariables()
     {
-        return $this->_variables;
+        return $this->variables;
     }
 
     public function file($template, array $rValues = array())
@@ -126,8 +118,8 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
     {
         $template = $this->templateFileName($template);
         $locations = array();
-        if (!empty($this->_templateLocations) && is_array($this->_templateLocations)) {
-            $locations = array_merge($locations, $this->_templateLocations);
+        if (!empty($this->templateLocations) && is_array($this->templateLocations)) {
+            $locations = array_merge($locations, $this->templateLocations);
         }
         foreach (array_unique($locations) as $location) {
             if (file_exists($location . $template)) {
