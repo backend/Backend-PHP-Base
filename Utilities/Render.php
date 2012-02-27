@@ -35,6 +35,11 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
      */
     protected $variables = array();
 
+    /**
+     * The constructor for the object
+     *
+     * The template locations for the Renderer is set in this method
+     */
     public function __construct()
     {
         $this->templateLocations = array();
@@ -54,9 +59,11 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
     /**
      * Bind a variable to the renderer
      *
-     * @param string The name of the variable
-     * @param mixed The value of the variable
-     * @param boolean Set to false to honor previously set values
+     * @param string  $name      The name of the variable
+     * @param mixed   $value     The value of the variable
+     * @param boolean $overwrite Set to false to honor previously set values
+     *
+     * @return The value of the bound value
      */
     public function bind($name, $value, $overwrite = true)
     {
@@ -69,7 +76,8 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
     /**
      * Get the value of a variable
      *
-     * @param string The name of the variable
+     * @param string $name The name of the variable
+     *
      * @return mixed The value of the variable
      */
     public function get($name)
@@ -87,6 +95,14 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
         return $this->variables;
     }
 
+    /**
+     * Render the specified template, using the given values
+     *
+     * @param string $template The template to render
+     * @param array  $rValues  The values to use to render the template
+     *
+     * @return string The rendered template
+     */
     public function file($template, array $rValues = array())
     {
         $rFile = $this->templateFile($template);
@@ -99,7 +115,7 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
         //TODO Add Caching
         ob_start();
         extract($rValues);
-        include($rFile);
+        include $rFile;
         $result = ob_get_clean();
 
         //Substitute Variables into the templates
@@ -111,7 +127,8 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
     /**
      * Get the file name for the specified template
      *
-     * @param string The name of the template
+     * @param string $template The name of the template
+     *
      * @return string The absolute path to the template file to render
      */
     protected function templateFile($template)
@@ -129,6 +146,13 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
         return false;
     }
 
+    /**
+     * Convert the template name to a filename
+     *
+     * @param string $template The name of the template
+     *
+     * @return string The filename for the template
+     */
     protected function templateFileName($template)
     {
         if (substr($template, -8) != '.tpl.php') {
@@ -142,8 +166,9 @@ class Render implements \Backend\Base\Interfaces\RenderUtility
      *
      * The values currently bound to the view will be used.
      *
-     * @param string The string to check for variable names
-     * @param array Extra variables to consider
+     * @param string $string The string to check for variable names
+     * @param array  $values Extra variables to consider
+     *
      * @return string The string with the variables replaced
      */
     function parseVariables($string, array $values = array())

@@ -34,20 +34,33 @@ class TwigRender
 
     /**
      * The constructor for the object
+     *
+     * The template locations for the Renderer is set in this method
      */
     public function __construct()
     {
         parent::__construct();
         array_unshift($this->templateLocations, SOURCE_FOLDER);
-        require_once('Twig/Autoloader.php');
+        if (!class_exists('\Twig_Autoloader')) {
+            include_once 'Twig/Autoloader.php';
+        }
         \Twig_Autoloader::register();
         $loader     = new \Twig_Loader_Filesystem($this->templateLocations);
         $this->twig = new \Twig_Environment($loader);
     }
 
+    /**
+     * Render the specified template, using the given values
+     *
+     * @param string $template The template to render
+     * @param array  $values   The values to use to render the template
+     *
+     * @return string The rendered template
+     */
     public function file($template, array $values = array())
     {
-        //Use templateFileName instead of templateFile. Twig handles it's own locations
+        //Use templateFileName instead of templateFile.
+        //Twig handles it's own locations
         $file = $this->templateFileName($template);
 
         $values = array_merge($this->getVariables(), $values);
@@ -55,6 +68,13 @@ class TwigRender
         return $this->twig->render($file, $values);
     }
 
+    /**
+     * Get the file name for the specified template
+     *
+     * @param string $template The name of the template
+     *
+     * @return string The template file to render
+     */
     protected function templateFileName($template)
     {
         if (substr($template, -5) != '.twig') {
@@ -63,5 +83,4 @@ class TwigRender
         $template = str_replace('\\', DIRECTORY_SEPARATOR, $template);
         return $template;
     }
-
 }
