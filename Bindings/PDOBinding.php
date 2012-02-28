@@ -51,7 +51,7 @@ class PDOBinding extends DatabaseBinding
         } else {
             $username = '';
         }
-        if (array_key_exists('username', $connection)) {
+        if (array_key_exists('password', $connection)) {
             $password = $connection['password'];
             unset($connection['password']);
         } else {
