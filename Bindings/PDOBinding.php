@@ -114,7 +114,7 @@ class PDOBinding extends DatabaseBinding
      */
     public function find(array $conditions = array(), array $options = array())
     {
-        $query = 'SELECT * FROM ' . $this->_table;
+        $query = 'SELECT * FROM ' . $this->table;
         return $this->executeQuery($query)->fetchAll(\PDO::FETCH_ASSOC);
     }
 
@@ -127,7 +127,7 @@ class PDOBinding extends DatabaseBinding
      */
     public function create($data)
     {
-        $query  = 'INSERT INTO ' . $this->_table;
+        $query  = 'INSERT INTO ' . $this->table;
         $params = array();
         $values = array();
         $names  = array();
@@ -152,7 +152,7 @@ class PDOBinding extends DatabaseBinding
      */
     public function read($identifier)
     {
-        $query = 'SELECT * FROM ' . $this->_table . ' WHERE `id` = :id';
+        $query = 'SELECT * FROM ' . $this->table . ' WHERE `id` = :id';
         $stmt  = $this->connection->prepare($query);
         if ($stmt->execute(array(':id' => $identifier))) {
             return $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -182,7 +182,7 @@ class PDOBinding extends DatabaseBinding
      */
     public function delete($identifier)
     {
-        $query = 'DELETE FROM ' . $this->_table . ' WHERE `id` = :id';
+        $query = 'DELETE FROM ' . $this->table . ' WHERE `id` = :id';
         $stmt  = $this->connection->prepare($query);
         return (bool)$stmt->execute(array(':id' => $identifier));
     }

@@ -23,7 +23,7 @@ namespace Backend\Base\Utilities;
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @link       http://backend-php.net
  */
-class Render implements \Backend\Base\Interfaces\RenderUtility
+class Render implements \Backend\Base\Interfaces\RenderUtilityInterface
 {
     /**
      * @var array Location for template files. List them in order of preference

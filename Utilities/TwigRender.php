@@ -25,7 +25,7 @@ namespace Backend\Base\Utilities;
  */
 class TwigRender
     extends \Backend\Base\Utilities\Render
-    implements \Backend\Base\Interfaces\RenderUtility
+    implements \Backend\Base\Interfaces\RenderUtilityInterface
 {
     /**
      * @var Twig The twig used to render templates
