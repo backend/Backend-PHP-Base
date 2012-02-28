@@ -43,13 +43,13 @@ class Html extends \Backend\Core\View
     /**
      * The constructor for the object
      */
-    function __construct()
+    function __construct(\Backend\Core\Request $request)
     {
         ob_start();
 
-        self::_setupConstants();
+        parent::__construct($request);
 
-        parent::__construct();
+        self::_setupConstants();
     }
 
     /**
@@ -60,43 +60,18 @@ class Html extends \Backend\Core\View
      */
     private function _setupConstants()
     {
-        //Get the current URL
-        $url = 'http';
-        if ($_SERVER['SERVER_PORT'] == 443
-            || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
-        ) {
-            $url .= 's';
-        }
-        $url .= '://' . $_SERVER['HTTP_HOST'];
+        $urlParts = parse_url($this->request->getSitePath());
 
-        $url .= $_SERVER['PHP_SELF'];
-        if (!empty($_SERVER['QUERY_STRING'])) {
-            $url .= '?' . $_SERVER['QUERY_STRING'];
-        }
-
-        if (array_key_exists('SCRIPT_NAME', $_SERVER)) {
-            $folder = $_SERVER['SCRIPT_NAME'];
-        } else {
-            //TODO:
-        }
-        $folder = preg_replace('/\/index.php.*/', '/', $folder);
-        if (substr($folder, -1) != '/') {
-            $folder .= '/';
-        }
-
-        define('SITE_SUB_FOLDER', $folder);
+        define('SITE_SUB_FOLDER', $urlParts['path']);
         $this->values['SITE_SUB_FOLDER'] = SITE_SUB_FOLDER;
 
-        //Parse the current URL to get the SITE_DOMAIN
-        $urlParts = parse_url($url);
-        $domain = !empty($urlParts['host']) ? $urlParts['host'] : 'localhost';
-        define('SITE_DOMAIN', $domain);
+        define('SITE_DOMAIN', $urlParts['host']);
         $this->values['SITE_DOMAIN'] = SITE_DOMAIN;
 
-        //Use SITE_DOMAIN and SITE_SUB_FOLDER to create a SITE_LINK
-        $scheme = !empty($_SERVER['HTTPS']) ? 'https://' : 'http://';
-        $url = SITE_DOMAIN . SITE_SUB_FOLDER;
-        define('SITE_LINK', $scheme . $url);
+        define('SITE_PATH', $this->request->getSitePath());
+        $this->values['SITE_PATH'] = SITE_PATH;
+
+        define('SITE_LINK', $this->request->getSiteUrl());
         $this->values['SITE_LINK'] = SITE_LINK;
     }
 
