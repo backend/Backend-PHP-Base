@@ -13,8 +13,10 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Views;
+use \Backend\Core\Request;
 use \Backend\Core\Response;
 use \Backend\Core\Application;
+use \Backend\Core\Decorators\PrettyExceptionDecorator;
 use \Backend\Base\Utilities\Renderable;
 /**
  * Output a request as HTML.
@@ -42,8 +44,10 @@ class Html extends \Backend\Core\View
 
     /**
      * The constructor for the object
+     *
+     * @param Request $request The Request to associate with the view
      */
-    function __construct(\Backend\Core\Request $request)
+    function __construct(Request $request)
     {
         ob_start();
 
@@ -143,8 +147,8 @@ class Html extends \Backend\Core\View
             break;
         case $object instanceof \Exception:
             $template            = 'exception';
-            $values['title']     = 'Exception: ' . get_class($object);
-            $values['exception'] = $object;
+            $values['title']     = get_class($object) . ' - ' . substr($object->getMessage(), 0, 100);
+            $values['exception'] = new PrettyExceptionDecorator($object);
             break;
         }
         return Application::getTool('Render')

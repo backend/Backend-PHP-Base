@@ -27,11 +27,18 @@ use \Backend\Core\Response;
 class Cli extends \Backend\Core\View
 {
     /**
-     * Handle CLI requests
-     * @var array
+     * @var array Handle CLI requests
      */
     public static $handledFormats = array('cli');
 
+    /**
+     * Transform the result into a Response Object containing the result for output
+     * on a Command Line Interface
+     *
+     * @param mixed $result The result to transform
+     *
+     * @return Response The result transformed into a CLI appropriate Response
+     */
     function transform($result)
     {
         $result = 'Result:' . PHP_EOL;

@@ -39,13 +39,25 @@ class ExamplesController extends \Backend\Core\Controller
     /**
      * A function showing how to render a template
      *
-     * @param The result returned from homeAction
+     * @param mixed $result The result returned from homeAction
      *
      * @return \Backend\Base\Utilities\Renderable
      */
     public function homeHtml($result)
     {
         return new Renderable('home', array('result' => $result));
+    }
+
+    /**
+     * A function showing how to render a template
+     *
+     * @param mixed $result The result returned from homeAction
+     *
+     * @return \Backend\Base\Utilities\Renderable
+     */
+    public function homeCli($result)
+    {
+        return $result;
     }
 
     /**
