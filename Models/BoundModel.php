@@ -56,7 +56,7 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
         }
         $this->_binding = $binding;
         $this->setId($id);
-        $this->_decorators[] = '\Backend\Core\Decorators\JsonDecorator';
+        $this->addDecorator('\Backend\Core\Decorators\JsonDecorator');
     }
 
     /**
