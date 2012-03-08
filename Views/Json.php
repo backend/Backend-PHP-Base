@@ -54,6 +54,8 @@ class Json extends \Backend\Core\View
         if ($body instanceof DecorableInterface) {
             $body = new JsonDecorator($body);
             $body = $body->toJson();
+        } else if (is_callable(array($body, 'toJson'))) {
+            $body = $body->toJson();
         } else {
             $body = json_encode($body);
         }
