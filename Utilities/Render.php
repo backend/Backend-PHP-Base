@@ -44,13 +44,13 @@ class Render implements \Backend\Base\Interfaces\RenderUtilityInterface
     {
         $this->templateLocations = array();
         //Check Application Folder
-        $this->templateLocations += glob(SOURCE_FOLDER . '*/*/templates/', \GLOB_ONLYDIR);
+        $this->templateLocations = array_merge($this->templateLocations, glob(SOURCE_FOLDER. '*/*/templates/', \GLOB_ONLYDIR));
 
         //Add Project wide templates
         $this->templateLocations[] = PROJECT_FOLDER . 'templates/';
 
         //Check Vendor Folder
-        $this->templateLocations += glob(VENDOR_FOLDER . '*/*/templates/', \GLOB_ONLYDIR);
+        $this->templateLocations = array_merge($this->templateLocations, glob(VENDOR_FOLDER . '*/*/templates/', \GLOB_ONLYDIR));
 
         //Check if they exist
         $this->templateLocations = array_filter($this->templateLocations, 'file_exists');
