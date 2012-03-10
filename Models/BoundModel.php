@@ -29,7 +29,7 @@ use \Backend\Base\Bindings\Binding;
 class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfaces\RestModel
 {
     /**
-     * @var boolean Property to show if the Model has changed since it's last commit / read
+     * @var boolean Property to show if the Model has changed since it's last update / read
      */
     private $_changed = false;
 
@@ -70,7 +70,7 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
     public function __set($propertyName, $value)
     {
         $result = parent::__set($propertyName, $value);
-        $this->_changed = true;
+        $this->setChanged(true);
         return $result;
     }
 
@@ -130,7 +130,7 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
     public static function create(array $data)
     {
         //Bit of a hack to make this static
-        $className = get_called_Class();
+        $className = get_called_class();
         $object    = new $className();
         $object->populate($data);
         return $object->update();
@@ -154,7 +154,7 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
     /**
      * Update the Bound Model on it's source.
      *
-     * Bound Models aren't persisted on their source until the commit function is called
+     * If no changes were made to the model, no update call will be made to the Binding
      *
      * @return BoundModel The current Model
      */
