@@ -171,6 +171,19 @@ class PDOBinding extends DatabaseBinding
      */
     public function update($identifier, $data)
     {
+        $query  = 'UPDATE ' . $this->table . ' SET ';
+        $params = array();
+        $values = array();
+        foreach ($data as $name => $value) {
+            $params[':' . $name] = $value;
+            $values[] = $name . ' = :' . $name;
+        }
+        $query .= implode(', ', $values) . ' WHERE id = :identifier';
+        $params[':identifier'] = $identifier;
+        if ($this->executeQuery($query, $params)) {
+            return $this->read($identifier);
+        }
+        return false;
     }
 
      /**
