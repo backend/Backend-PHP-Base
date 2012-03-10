@@ -98,10 +98,12 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
         //Don't set the ID and read if it's the same as the current ID
         if ($id != $this->id) {
             $this->id = $id;
-            return $this->read();
-        } else {
-            return $this;
+            if (!$this->read()) {
+                //Set the id to null if the read is unsuccesful
+                $this->id = null;
+            }
         }
+        return $this;
     }
 
     /**
@@ -147,8 +149,11 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
             throw new \Exception('Cannot load unidentified Bound Model');
         }
         $binding = $this->getBinding();
-        $data    = $binding->read($this->id);
-        return $this->populate($data);
+        if ($data = $binding->read($this->id)) {
+            return $this->populate($data);
+        } else {
+            return false;
+        }
     }
 
     /**
