@@ -138,7 +138,7 @@ class Html extends \Backend\Core\View
      */
     protected function transformObject($object)
     {
-        $template = 'base.html.twig';
+        $template = 'base.twig';
         $values   = $this->values;
         switch (true) {
         case $object instanceof Renderable:

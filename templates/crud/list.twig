@@ -1,1 +1,16 @@
-CRUD List
+{% extends "index.twig" %}
+
+{% block body %}
+    <div class="container">
+        <h1>{{ component }} List</h1>
+        <table>
+        {% for row in list %}
+            <tr>
+            {% for value in row %}
+                <td>{{ value }}</td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+{% endblock %}

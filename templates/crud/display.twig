@@ -1,1 +1,10 @@
-CRUD display
+{% extends "index.twig" %}
+
+{% block body %}
+    <div class="container">
+        <h1>{{ component|default("Component") }} CRUD Display</h1>
+        {% for key,value in result.getProperties %}
+            <label>{{ key }}</label>{{ value }}<br>
+        {% endfor %}
+    </div>
+{% endblock %}
