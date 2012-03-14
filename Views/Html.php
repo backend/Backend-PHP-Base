@@ -53,6 +53,10 @@ class Html extends \Backend\Core\View
 
         parent::__construct($request);
 
+        //Get configured values
+        $config = Application::getTool('Config');
+        $this->values = $config->get('application', 'values');
+
         self::_setupConstants();
     }
 
