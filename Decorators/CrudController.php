@@ -46,21 +46,21 @@ class CrudController extends Decorator
     public function createAction()
     {
         //Check for already defined function
-        if (is_callable(array($this->object, 'createAction'))) {
-            return $this->object->createAction();
+        if ($object = $this->isCallable('createAction')) {
+            return $object->createAction();
         }
 
         $data = $this->getRequest()->getPayload();
-        if (is_callable(array($this->object, 'createPrepare'))) {
-            $data = $this->object->createPrepare($data);
+        if ($object = $this->isCallable('createPrepare')) {
+            $data = $object->createPrepare($data);
             if ($data instanceof Response) {
                 return $data;
             }
         }
-        $modelName = \Backend\Core\Controller::getModelName($this->object);
+        $modelName = \Backend\Core\Controller::getModelName($this->getOriginalObject());
         $model     = call_user_func(array($modelName, 'create'), $data);
-        if (is_callable(array($this->object, 'createModify'))) {
-            $model = $this->object->createModify($model);
+        if ($object = $this->isCallable('createModify')) {
+            $model = $object->createModify($model);
             if ($model instanceof Response) {
                 return $model;
             }
@@ -80,8 +80,8 @@ class CrudController extends Decorator
     public function createHtml($result)
     {
         //Check for already defined function
-        if (is_callable(array($this->object, 'createHtml'))) {
-            return $this->object->createHtml($result);
+        if ($object = $this->isCallable('createHtml')) {
+            return $object->createHtml($result);
         }
         if ($result instanceof Response && $result->getStatusCode() == 201) {
             //TODO Fix this redirect. We will need to reverse Routes
@@ -99,12 +99,12 @@ class CrudController extends Decorator
     public function readAction($identifier)
     {
         //Check for already defined function
-        if (is_callable(array($this->object, 'readAction'))) {
-            return $this->object->readAction();
+        if ($object = $this->isCallable('readAction')) {
+            return $object->readAction();
         }
 
-        if (is_callable(array($this->object, 'readPrepare'))) {
-            $result = $this->object->readPrepare($identifier);
+        if ($object = $this->isCallable('readPrepare')) {
+            $result = $object->readPrepare($identifier);
             if ($result instanceof Response) {
                 return $result;
             }
@@ -114,8 +114,8 @@ class CrudController extends Decorator
             //the specified Resource doesn't exist
             return new Response('Not Found', 404);
         }
-        if (is_callable(array($this->object, 'readModify'))) {
-            $result = $this->object->readModify($model);
+        if ($object = $this->isCallable('readModify')) {
+            $result = $object->readModify($model);
             if ($result instanceof Response) {
                 return $result;
             }
@@ -133,14 +133,14 @@ class CrudController extends Decorator
     public function readHtml($result)
     {
         //Check for already defined function
-        if (is_callable(array($this->object, 'readHtml'))) {
-            return $this->object->readHtml($result);
+        if ($object = $this->isCallable('readHtml')) {
+            return $object->readHtml($result);
         }
 
         if ($result instanceof Response) {
             return $result;
         }
-        $modelName = explode('\\', \Backend\Core\Controller::getModelName($this->object));
+        $modelName = explode('\\', \Backend\Core\Controller::getModelName($this->getOriginalObject()));
         $modelName = end($modelName);
         return new Renderable('crud/display', array('result' => $result->getOriginalObject(), 'component' => $modelName));
     }
@@ -153,14 +153,14 @@ class CrudController extends Decorator
     public function listAction()
     {
         //Check for already defined function
-        if (is_callable(array($this->object, 'listAction'))) {
-            return $this->object->listAction();
+        if ($object = $this->isCallable('listAction')) {
+            return $object->listAction();
         }
 
-        $modelName = \Backend\Core\Controller::getModelName($this->object);
+        $modelName = \Backend\Core\Controller::getModelName($this->getOriginalObject());
         $result = call_user_func(array($modelName, 'findAll'));
-        if (is_callable(array($this->object, 'readModify'))) {
-            $result = $this->object->readModify($result);
+        if ($object = $this->isCallable('listModify')) {
+            $result = $object->readModify($result);
             if ($result instanceof Response) {
                 return $result;
             }
@@ -178,11 +178,11 @@ class CrudController extends Decorator
     public function listHtml($result)
     {
         //Check for already defined function
-        if (is_callable(array($this->object, 'listHtml'))) {
-            return $this->object->listHtml($result);
+        if ($object = $this->isCallable('listHtml')) {
+            return $object->listHtml($result);
         }
 
-        $modelName = explode('\\', \Backend\Core\Controller::getModelName($this->object));
+        $modelName = explode('\\', \Backend\Core\Controller::getModelName($this->getOriginalObject()));
         $modelName = end($modelName);
         return new Renderable('crud/list', array('list' => $result, 'component' => $modelName));
     }
@@ -197,8 +197,8 @@ class CrudController extends Decorator
     public function updateAction($identifier)
     {
         //Check for already defined function
-        if (is_callable(array($this->object, 'updateAction'))) {
-            return $this->object->updateAction();
+        if ($object = $this->isCallable('updateAction')) {
+            return $object->updateAction();
         }
 
         $model = $this->getModel($identifier);
@@ -208,8 +208,8 @@ class CrudController extends Decorator
         }
 
         $data = $this->getRequest()->getPayload();
-        if (is_callable(array($this->object, 'updatePrepare'))) {
-            $data = $this->object->updatePrepare($data);
+        if ($object = $this->isCallable('updatePrepare')) {
+            $data = $object->updatePrepare($data);
             if ($data instanceof Response) {
                 return $data;
             }
@@ -217,8 +217,8 @@ class CrudController extends Decorator
         //Populate the model and update
         $model->populate($data);
         $model->update();
-        if (is_callable(array($this->object, 'updateModify'))) {
-            $model = $this->object->updateModify($model);
+        if ($object = $this->isCallable('updateModify')) {
+            $model = $object->updateModify($model);
             if ($model instanceof Response) {
                 return $model;
             }
@@ -236,8 +236,8 @@ class CrudController extends Decorator
     public function updateHtml($result)
     {
         //Check for already defined function
-        if (is_callable(array($this->object, 'updateHtml'))) {
-            return $this->object->updateHtml($result);
+        if ($object = $this->isCallable('updateHtml')) {
+            return $object->updateHtml($result);
         }
         if ($result instanceof Response && $result->getStatusCode() == 204) {
             //TODO Fix this redirect. We will need to reverse Routes
@@ -255,12 +255,12 @@ class CrudController extends Decorator
     public function deleteAction($identifier)
     {
         //Check for already defined function
-        if (is_callable(array($this->object, 'deleteAction'))) {
-            return $this->object->deleteAction($identifier);
+        if ($object = $this->isCallable('deleteAction')) {
+            return $object->deleteAction($identifier);
         }
 
-        if (is_callable(array($this->object, 'deletePrepare'))) {
-            $identifier = $this->object->deletePrepare($identifier);
+        if ($object = $this->isCallable('deletePrepare')) {
+            $identifier = $object->deletePrepare($identifier);
             if ($identifier instanceof Response) {
                 return $identifier;
             }
@@ -273,8 +273,8 @@ class CrudController extends Decorator
         }
 
         $model->destroy();
-        if (is_callable(array($this->object, 'deleteModify'))) {
-            $model = $this->object->deleteModify($model);
+        if ($object = $this->isCallable('deleteModify')) {
+            $model = $object->deleteModify($model);
             if ($model instanceof Response) {
                 return $model;
             }
@@ -292,8 +292,8 @@ class CrudController extends Decorator
     public function deleteHtml($result)
     {
         //Check for already defined function
-        if (is_callable(array($this->object, 'deleteHtml'))) {
-            return $this->object->deleteHtml($result);
+        if ($object = $this->isCallable('deleteHtml')) {
+            return $object->deleteHtml($result);
         }
         if ($result instanceof Response && $result->getStatusCode() == 204) {
             //TODO Fix this redirect. We will need to reverse Routes
