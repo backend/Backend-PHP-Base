@@ -151,7 +151,11 @@ class Html extends \Backend\Core\View
             break;
         case $object instanceof \Exception:
             $template            = 'exception';
-            $values['title']     = get_class($object) . ' - ' . substr($object->getMessage(), 0, 100);
+            $values['title']     = get_class($object);
+            $values['message']   = $object->getMessage();
+            if (property_exists('xdebug_message', $object)) {
+                $values['xdebug_message'] = $object->xdebug_message;
+            }
             $values['exception'] = new PrettyExceptionDecorator($object);
             break;
         }
