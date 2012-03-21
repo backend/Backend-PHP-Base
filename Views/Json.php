@@ -31,7 +31,7 @@ class Json extends \Backend\Core\View
     /**
      * @var array Handle JSON requests
      */
-    public static $handledFormats = array('json', 'text/json', 'application/json');
+    public static $handledFormats = array('json', 'text/json', 'application/json', 'text/javascript');
 
     /**
      * Transform the result into a Response Object containing the JSON encoded result

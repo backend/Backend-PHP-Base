@@ -83,7 +83,7 @@ class PDOBinding extends DatabaseBinding
         if ($statement && $statement->execute($parameters)) {
             return $statement;
         } else {
-            $info = $this->connection->errorInfo();
+            $info = $statement->errorInfo();
             throw new \Exception('PDO Error: ' . $info[2] . ' (' . $info[0] . ')');
         }
     }
@@ -138,7 +138,7 @@ class PDOBinding extends DatabaseBinding
         }
         $query .= ' (' . implode(', ', $names) . ') VALUES (' . implode(', ', $values) . ')';
         if ($this->executeQuery($query, $params)) {
-            return $this->read($this->executeQuery('SELECT last_insert_rowid()')->fetchColumn());
+            return $this->read($this->connection->lastInsertId());
         }
         return false;
     }
