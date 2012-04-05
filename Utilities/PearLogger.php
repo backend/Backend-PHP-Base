@@ -13,7 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Utilities;
-use \Backend\Core\Utilities\LogMessage;
+use \Backend\Core\Utilities\ApplicationEvent;
 require_once 'Log.php';
 /**
  * A Logging Observer using the PEAR::Log class
@@ -53,38 +53,44 @@ class PearLogger implements \Backend\Core\Interfaces\LoggingObserverInterface
     /**
      * Update method called by subjects being observed
      *
-     * @param SplSubject $message The subject, which should be a LogMessage
+     * @param SplSubject $subject The subject, which should be a LogMessage
      *
      * @return null
      */
-    public function update(\SplSubject $message)
+    public function update(\SplSubject $subject)
     {
         if (!$this->logger) {
             return false;
         }
-        if (!($message instanceof LogMessage)) {
-            return false;
+        switch (true) {
+        case $subject instanceof \Backend\Core\Application:
+            $message = get_class($subject) . ' entered state [' . $subject->getState() . ']';
+            $level   = ApplicationEvent::SEVERITY_DEBUG;
+            break;
+        case $subject instanceof ApplicationEvent:
+            switch ($subject->getSeverity()) {
+            case $subject::SEVERITY_CRITICAL:
+                $level = \PEAR_LOG_EMERG;
+                break;
+            case $subject::SEVERITY_WARNING:
+                $level = \PEAR_LOG_CRIT;
+                break;
+            case $subject::SEVERITY_IMPORTANT:
+                $level = \PEAR_LOG_WARNING;
+                break;
+            case $subject::SEVERITY_DEBUG:
+                $level = \PEAR_LOG_DEBUG;
+                break;
+            case $subject::SEVERITY_INFORMATION:
+                $level = \PEAR_LOG_INFO;
+                break;
+            default:
+                $level = $subject->getSeverity();
+                break;
+            }
+            $message = $subject->getName();
+            break;
         }
-        switch ($message->getLevel()) {
-        case $message::LEVEL_CRITICAL:
-            $level = \PEAR_LOG_EMERG;
-            break;
-        case $message::LEVEL_WARNING:
-            $level = \PEAR_LOG_CRIT;
-            break;
-        case $message::LEVEL_IMPORTANT:
-            $level = \PEAR_LOG_WARNING;
-            break;
-        case $message::LEVEL_DEBUGGING:
-            $level = \PEAR_LOG_DEBUG;
-            break;
-        case $message::LEVEL_INFORMATION:
-            $level = \PEAR_LOG_INFO;
-            break;
-        default:
-            $level = $message->getLevel();
-            break;
-        }
-        $this->logger->log($message->getMessage(), $level);
+        $this->logger->log($message, $level);
     }
 }

@@ -93,6 +93,9 @@ class Html extends \Backend\Core\View
      */
     public function transform($result)
     {
+        if (!Application::getTool('Render')) {
+            return parent::transform($result);
+        }
         if ($result instanceof Response) {
             $response = $result;
             $body     = $response->getBody();
@@ -159,7 +162,6 @@ class Html extends \Backend\Core\View
             $values['exception'] = new PrettyExceptionDecorator($object);
             break;
         }
-        return Application::getTool('Render')
-            ->file($template, $values);
+        return Application::getTool('Render')->file($template, $values);
     }
 }
