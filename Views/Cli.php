@@ -42,7 +42,7 @@ class Cli extends \Backend\Core\View
     function transform($result)
     {
         $result = 'Result:' . PHP_EOL;
-        $result .= var_export($result, $true);
+        $result .= var_export($result, true);
         $result .= PHP_EOL;
         $response = new Response($result, 200);
         $response->addHeader('X-Backend-View', get_class($this));
