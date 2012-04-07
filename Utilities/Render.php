@@ -13,6 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Utilities;
+use Backend\Core\Utilities\ApplicationEvent;
 /**
  * The basic Render class.
  *
