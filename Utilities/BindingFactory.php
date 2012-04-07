@@ -47,6 +47,17 @@ class BindingFactory
         if (empty($binding['type'])) {
             throw new \Exception('Missing Type for Binding for ' . $modelName);
         }
+
+        $bindingClass = $binding['type'];
+        unset($binding['type']);
+
+        if (empty($binding['connection'])) {
+            $binding['connection'] = 'default';
+        }
+
+        $bindingObj = new $bindingClass($binding);
+        return $bindingObj;
+
         $connection = empty($binding['connection']) ? 'default'                      : $binding['connection'];
         $table      = empty($binding['table'])      ? Strings::tableName($modelName) : $binding['table'];
 
@@ -54,7 +65,7 @@ class BindingFactory
         case is_subclass_of($binding['type'], '\Backend\Base\Bindings\DatabaseBinding'):
             $binding = new $binding['type']($connection, $table);
             break;
-        case is_subclass_of($binding['type'], 'URLBinding'):
+        case is_subclass_of($binding['type'], '\Backend\Base\Bindings\URLBinding'):
             throw new \Exception('Unimplemented');
             break;
         default:

@@ -32,6 +32,20 @@ class PDOBinding extends DatabaseBinding
     protected $connection;
 
     /**
+     * @var string The name of the table this binding operates on
+     */
+    protected $table;
+
+    public function __construct($settings)
+    {
+        parent::__construct($settings);
+        if (empty($settings['table'])) {
+            throw new \Exception('Missing Table for Binding ' . get_class($this));
+        }
+        $this->table = $settings['table'];
+    }
+
+    /**
      * Initialize the connection
      *
      * @param array $connection The connection information for the binding
@@ -68,6 +82,8 @@ class PDOBinding extends DatabaseBinding
             break;
         }
         $this->connection = new \PDO($dsn, $username, $password);
+
+        $this->table = $settings['table'];
     }
 
     /**

@@ -27,18 +27,17 @@ use \Backend\Core\Application;
  */
 abstract class DatabaseBinding extends Binding
 {
-    /**
-     * @var string The name of the table this binding operates on
-     */
-    protected $table;
-
-    public function __construct($connection, $table)
+    public function __construct($settings)
     {
+        $connection = empty($settings['connection']) ? 'default' : $settings['connection'];
+
         $config = Application::getTool('Config');
         $settings = $config->get('database', $connection);
+        if (empty($settings['connection'])) {
+            throw new \Exception('No Database settings for ' . $connection);
+        }
         $this->init($settings['connection']);
 
-        $this->table = $table;
     }
 
     protected abstract function init(array $connection);
