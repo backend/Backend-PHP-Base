@@ -34,7 +34,14 @@ class DoctrineBinding extends DatabaseBinding
 
     protected $entityName;
 
-    public function __construct($settings)
+    /**
+     * The constructor for the object.
+     *
+     * The settings array must contain at least the name of the entity to bind to.
+     *
+     * @param array $settings The settings for the Doctrine Binding
+     */
+    public function __construct(array $settings)
     {
         parent::__construct($settings);
         if (empty($settings['entity'])) {
@@ -43,10 +50,17 @@ class DoctrineBinding extends DatabaseBinding
         $this->entityName = $settings['entity'];
     }
 
-    protected function init(array $settings)
+    /**
+     * Initialize the connection
+     *
+     * @param array $connection The connection information for the binding
+     *
+     * @return Object The current object 
+     */
+    protected function init(array $connection)
     {
         //Setup Doctrine
-        require_once "Doctrine/ORM/Tools/Setup.php";
+        include_once "Doctrine/ORM/Tools/Setup.php";
         \Doctrine\ORM\Tools\Setup::registerAutoloadPEAR();
         $isDevMode = (Application::getSiteState() != 'production');
         $config    = \Doctrine\ORM\Tools\Setup::createYAMLMetadataConfiguration(
@@ -55,7 +69,7 @@ class DoctrineBinding extends DatabaseBinding
         );
 
         // obtaining the entity manager
-        $this->manager = EntityManager::create($settings, $config);
+        $this->manager = EntityManager::create($connection, $config);
     }
 
     /**

@@ -28,7 +28,9 @@ namespace Backend\Base\Interfaces;
 interface AuthenticatorInterface
 {
     /**
-     * Authenticate the user
+     * Authenticate the request
+     *
+     * @return mixed Either false, true, or a Response Object
      */
     public function authenticate();
 }

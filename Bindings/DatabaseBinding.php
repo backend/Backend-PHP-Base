@@ -27,7 +27,12 @@ use \Backend\Core\Application;
  */
 abstract class DatabaseBinding extends Binding
 {
-    public function __construct($settings)
+    /**
+     * The constructor for the object.
+     *
+     * @param array $settings The settings for the Database Connection
+     */
+    public function __construct(array $settings)
     {
         $connection = empty($settings['connection']) ? 'default' : $settings['connection'];
 
@@ -40,5 +45,12 @@ abstract class DatabaseBinding extends Binding
 
     }
 
+    /**
+     * Initialize the connection
+     *
+     * @param array $connection The connection information for the binding
+     *
+     * @return Object The current object 
+     */
     protected abstract function init(array $connection);
 }

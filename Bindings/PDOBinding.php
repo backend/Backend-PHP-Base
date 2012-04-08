@@ -36,7 +36,14 @@ class PDOBinding extends DatabaseBinding
      */
     protected $table;
 
-    public function __construct($settings)
+    /**
+     * The constructor for the object.
+     *
+     * The settings array should contain at least the name of the table to use.
+     *
+     * @param array $settings The settings for the PDO Connection
+     */
+    public function __construct(array $settings)
     {
         parent::__construct($settings);
         if (empty($settings['table'])) {
@@ -50,7 +57,7 @@ class PDOBinding extends DatabaseBinding
      *
      * @param array $connection The connection information for the binding
      *
-     * @return null
+     * @return Object The current object 
      */
     protected function init(array $connection)
     {
@@ -84,6 +91,8 @@ class PDOBinding extends DatabaseBinding
         $this->connection = new \PDO($dsn, $username, $password);
 
         $this->table = $settings['table'];
+
+        return $this;
     }
 
     /**

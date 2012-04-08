@@ -41,17 +41,16 @@ class ProtectedController extends Decorator
     /**
      * The constructor for the decorator
      *
-     * @param \Backend\Core\Interfaces\DecorableInterface    $decorable     The object to decorate
+     * @param \Backend\Core\Interfaces\DecorableInterface    $object        The object to decorate
      * @param \Backend\Core\Interfaces\AuthenticatorProvider $authenticator The Authenticator Provider
      * @param \Backend\Core\Interfaces\AccessControlProvider $accessControl The Access Control Provider
      */
     function __construct(DecorableInterface $object,
         AuthenticatorProviderInterface $authenticator = null,
         AccessControlProviderInterface $accessControl = null
-    )
-    {
+    ) {
         $this->authenticator = $authenticator ?: Application::getTool('AuthenticatorProvider');
-        $this->accessControl  = $accessControl  ?: Application::getTool('AccessControlProvider');
+        $this->accessControl = $accessControl ?: Application::getTool('AccessControlProvider');
         parent::__construct($object);
     }
 
