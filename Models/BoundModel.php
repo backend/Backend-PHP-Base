@@ -165,7 +165,7 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
      */
     public function update()
     {
-        if (!$this->getChanged()) {
+        if (!$this->hasChanged()) {
             return $this;
         }
         $binding = $this->getBinding();
@@ -237,7 +237,7 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
      *
      * @return boolean If the Bound Model was changed since it's last sync / update
      */
-    public function getChanged()
+    public function hasChanged()
     {
         return $this->_changed;
     }
