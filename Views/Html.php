@@ -70,16 +70,24 @@ class Html extends \Backend\Core\View
     {
         $urlParts = parse_url($this->request->getSitePath());
 
-        define('SITE_SUB_FOLDER', $urlParts['path']);
+        if (!defined('SITE_SUB_FOLDER')) {
+            define('SITE_SUB_FOLDER', $urlParts['path']);
+        }
         $this->values['SITE_SUB_FOLDER'] = SITE_SUB_FOLDER;
 
-        define('SITE_DOMAIN', $urlParts['host']);
+        if (!defined('SITE_DOMAIN')) {
+            define('SITE_DOMAIN', $urlParts['host']);
+        }
         $this->values['SITE_DOMAIN'] = SITE_DOMAIN;
 
-        define('SITE_PATH', $this->request->getSitePath());
+        if (!defined('SITE_PATH')) {
+            define('SITE_PATH', $this->request->getSitePath());
+        }
         $this->values['SITE_PATH'] = SITE_PATH;
 
-        define('SITE_LINK', $this->request->getSiteUrl());
+        if (!defined('SITE_LINK')) {
+            define('SITE_LINK', $this->request->getSiteUrl());
+        }
         $this->values['SITE_LINK'] = SITE_LINK;
     }
 
