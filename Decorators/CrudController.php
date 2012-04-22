@@ -24,7 +24,7 @@ use \Backend\Base\Utilities\Renderable;
  *
  * The execution of the different functions can be overridden by defining the
  * Action function (eg. readAction) in the decorated object, or modified by
- * defining Prepare (readPrepare) and / or Modify (readModift) methods. If the
+ * defining Prepare (readPrepare) and / or Modify (readModify) methods. If the
  * Prepare or Modify methods return an instance of \Backend\Core\Response, that
  * response is immediately returned.
  *
@@ -160,7 +160,7 @@ class CrudController extends Decorator
         $modelName = \Backend\Core\Controller::getModelName($this->getOriginalObject());
         $result = call_user_func(array($modelName, 'findAll'));
         if ($object = $this->isCallable('listModify')) {
-            $result = $object->readModify($result);
+            $result = $object->listModify($result);
             if ($result instanceof Response) {
                 return $result;
             }

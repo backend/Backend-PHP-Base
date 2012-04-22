@@ -27,6 +27,17 @@ use \Backend\Base\Utilities\Renderable;
 class ExamplesController extends \Backend\Core\Controller
 {
     /**
+     * Contructor for the Controller.
+     *
+     * Decorate this Controller with CRUD functionality
+     */
+    public function __construct(Request $request = null)
+    {
+        $this->addDecorator('\Backend\Base\Decorators\CrudController');
+        parent::__construct($request);
+    }
+
+    /**
      * The home function
      *
      * @return string Some string
