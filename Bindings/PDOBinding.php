@@ -90,8 +90,6 @@ class PDOBinding extends DatabaseBinding
         }
         $this->connection = new \PDO($dsn, $username, $password);
 
-        $this->table = $connection['table'];
-
         return $this;
     }
 
