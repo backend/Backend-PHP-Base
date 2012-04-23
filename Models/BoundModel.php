@@ -26,7 +26,7 @@ use \Backend\Base\Bindings\Binding;
  * @link       http://backend-php.net
  * @todo Enable custom identifiers
  */
-class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfaces\RestModel
+class BoundModel extends \Backend\Core\Model
 {
     /**
      * @var boolean Property to show if the Model has changed since it's last update / read
@@ -56,7 +56,6 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
         }
         $this->_binding = $binding;
         $this->setId($id);
-        $this->addDecorator('\Backend\Core\Decorators\JsonDecorator');
     }
 
     /**
@@ -215,7 +214,7 @@ class BoundModel extends \Backend\Core\Model //implements \Backend\Core\Interfac
     public function getBinding()
     {
         if (!$this->_binding) {
-            $this->_binding = BindingFactory::build(get_called_class());
+            $this->_binding = BindingFactory::build(get_class($this));
         }
         return $this->_binding;
     }
