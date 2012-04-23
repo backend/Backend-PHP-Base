@@ -36,6 +36,8 @@ class PDOBinding extends DatabaseBinding
      */
     protected $table;
 
+    protected $className;
+
     /**
      * The constructor for the object.
      *
@@ -49,7 +51,8 @@ class PDOBinding extends DatabaseBinding
         if (empty($settings['table'])) {
             throw new \Exception('Missing Table for Binding ' . get_class($this));
         }
-        $this->table = $settings['table'];
+        $this->table     = $settings['table'];
+        $this->className = $settings['class'];
     }
 
     /**
@@ -138,7 +141,7 @@ class PDOBinding extends DatabaseBinding
     public function find(array $conditions = array(), array $options = array())
     {
         $query = 'SELECT * FROM ' . $this->table;
-        return $this->executeQuery($query)->fetchAll(\PDO::FETCH_ASSOC);
+        return $this->executeQuery($query)->fetchAll(\PDO::FETCH_CLASS|\PDO::FETCH_PROPS_LATE, $this->className);
     }
 
     /**
