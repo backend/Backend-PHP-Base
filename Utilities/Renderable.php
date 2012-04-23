@@ -62,11 +62,12 @@ class Renderable
      *
      * @param string $template The filename of the template
      *
-     * @return null
+     * @return The current object
      */
     public function setTemplate($template)
     {
         $this->template = $template;
+        return $this;
     }
 
     /**
@@ -85,11 +86,12 @@ class Renderable
      * @param string $name  The name of the value being set
      * @param mixed  $value The value of the value being set
      *
-     * @return null
+     * @return The current object
      */
     public function setValue($name, $value)
     {
         $this->values[$name] = $value;
+        return $this;
     }
 
     /**
@@ -97,11 +99,27 @@ class Renderable
      *
      * @param array $values The new values
      *
-     * @return null
+     * @return The current object
      */
     public function setValues(array $values)
     {
         $this->values = $values;
+        return $this;
+    }
+
+    /**
+     * Add multiple values to be used when rendering the template
+     *
+     * Values already in the collection will be overwritten
+     *
+     * @param array $values The values to append
+     *
+     * @return The current object
+     */
+    public function addValues(array $values)
+    {
+        $this->values = array_merge($this->values, $values);
+        return $this;
     }
 
     /**
