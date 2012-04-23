@@ -44,10 +44,7 @@ class DoctrineBinding extends DatabaseBinding
     public function __construct(array $settings)
     {
         parent::__construct($settings);
-        if (empty($settings['entity'])) {
-            throw new \Exception('Missing Entity for Binding ' . get_class($this));
-        }
-        $this->entityName = $settings['entity'];
+        $this->entityName = $settings['class'];
     }
 
     /**

@@ -38,8 +38,8 @@ class BindingFactory
     public static function build($modelName)
     {
         $modelName = is_object($modelName) ? get_class($modelName) : $modelName;
-        $fileName = PROJECT_FOLDER . 'configs/bindings.yaml';
-        $bindings = new \Backend\Core\Utilities\Config($fileName);
+        $fileName  = PROJECT_FOLDER . 'configs/bindings.yaml';
+        $bindings  = new \Backend\Core\Utilities\Config($fileName);
 
         if (!($binding = $bindings->get($modelName))) {
             throw new \Exception('No binding setup for ' . $modelName);
@@ -51,27 +51,16 @@ class BindingFactory
         $bindingClass = $binding['type'];
         unset($binding['type']);
 
+        //Use the Class we're checking for
+        if (empty($binding['class'])) {
+            $binding['class'] = $modelName;
+        }
+        //Use the Default Connection
         if (empty($binding['connection'])) {
             $binding['connection'] = 'default';
         }
 
         $bindingObj = new $bindingClass($binding);
         return $bindingObj;
-
-        $connection = empty($binding['connection']) ? 'default'                      : $binding['connection'];
-        $table      = empty($binding['table'])      ? Strings::tableName($modelName) : $binding['table'];
-
-        switch (true) {
-        case is_subclass_of($binding['type'], '\Backend\Base\Bindings\DatabaseBinding'):
-            $binding = new $binding['type']($connection, $table);
-            break;
-        case is_subclass_of($binding['type'], '\Backend\Base\Bindings\URLBinding'):
-            throw new \Exception('Unimplemented');
-            break;
-        default:
-            throw new \Exception('Unknown Binding Type: ' . $binding['type']);
-            break;
-        }
-        return $binding;
     }
 }
