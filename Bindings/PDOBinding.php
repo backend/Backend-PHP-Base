@@ -13,6 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Bindings;
+use Backend\Core\Utilities\ApplicationEvent;
 /**
  * PDO Connection Binding
  *
@@ -106,6 +107,7 @@ class PDOBinding extends DatabaseBinding
      */
     protected function executeStatement($statement, array $parameters = array())
     {
+        new ApplicationEvent('PDOBinding: ' . $statement->queryString, ApplicationEvent::SEVERITY_INFORMATION);
         if ($statement && $statement->execute($parameters)) {
             return $statement;
         } else {
@@ -141,6 +143,12 @@ class PDOBinding extends DatabaseBinding
     public function find(array $conditions = array(), array $options = array())
     {
         $query = 'SELECT * FROM ' . $this->table;
+        if (array_key_exists('order', $options)) {
+            $query .= ' ORDER BY ' . $options['order'];
+        }
+        if (array_key_exists('limit', $options)) {
+            $query .= ' LIMIT ' . $options['limit'];
+        }
         return $this->executeQuery($query)->fetchAll(\PDO::FETCH_CLASS|\PDO::FETCH_PROPS_LATE, $this->className);
     }
 
@@ -179,8 +187,7 @@ class PDOBinding extends DatabaseBinding
     public function read($identifier)
     {
         $query = 'SELECT * FROM ' . $this->table . ' WHERE `id` = :id';
-        $stmt  = $this->connection->prepare($query);
-        if ($stmt->execute(array(':id' => $identifier))) {
+        if ($stmt = $this->executeQuery($query, array(':id' => $identifier))) {
             return $stmt->fetch(\PDO::FETCH_ASSOC);
         }
         return false;
@@ -222,7 +229,6 @@ class PDOBinding extends DatabaseBinding
     public function delete($identifier)
     {
         $query = 'DELETE FROM ' . $this->table . ' WHERE `id` = :id';
-        $stmt  = $this->connection->prepare($query);
-        return (bool)$stmt->execute(array(':id' => $identifier));
+        return (bool)$stmt->executeQuery($query, array(':id' => $identifier));
     }
 }
