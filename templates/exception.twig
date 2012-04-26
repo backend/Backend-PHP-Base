@@ -13,7 +13,7 @@
         {% else %}
             <pre class="loud">{{ exception }}
 {% for line in exception.trace %}
-    {{ loop.length - loop.index0 }}. {% if line.file|length > 0 %}{{ line.file }} [ {{ line.line }} ] - {% endif %}{{ line.class }}{{ line.type }}{{ line.function }}
+    {{ loop.length - loop.index0 }}. {% if line.file|length > 0 %}{{ line.file }} [ {{ line.line }} ] - {% endif %}{{ line.class }}{{ line.type }}{{ line.function }}()
 {% endfor %}
 </pre>
         {% endif %}

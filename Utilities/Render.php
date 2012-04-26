@@ -108,7 +108,6 @@ class Render implements \Backend\Base\Interfaces\RenderUtilityInterface
     {
         $rFile = $this->templateFile($template);
         if (!$rFile) {
-            //TODO Throw an exception, make a fuss?
             new ApplicationEvent('Missing Template: ' . $template, ApplicationEvent::SEVERITY_DEBUG);
             return false;
         }
