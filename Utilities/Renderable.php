@@ -129,7 +129,7 @@ class Renderable
      */
     public function __toString()
     {
-        return \Backend\Core\Application::getTool('Render')
+        return \Backend\Core\Utilities\ServiceLocator::get('backend.Render')
             ->file($this->template, $this->values);
     }
 }

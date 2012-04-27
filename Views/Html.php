@@ -15,9 +15,9 @@
 namespace Backend\Base\Views;
 use \Backend\Core\Request;
 use \Backend\Core\Response;
-use \Backend\Core\Application;
 use \Backend\Core\Decorators\PrettyExceptionDecorator;
 use \Backend\Base\Utilities\Renderable;
+use \Backend\Core\Utilities\ServiceLocator;
 /**
  * Output a request as HTML.
  *
@@ -54,7 +54,7 @@ class Html extends \Backend\Core\View
         parent::__construct($request);
 
         //Get configured values
-        $config = Application::getTool('Config');
+        $config = ServiceLocator::get('backend.Config');
         $this->values = $config->get('application', 'values');
 
         self::_setupConstants();
@@ -101,7 +101,7 @@ class Html extends \Backend\Core\View
      */
     public function transform($result)
     {
-        if (!Application::getTool('Render')) {
+        if (!ServiceLocator::has('backend.Render')) {
             return parent::transform($result);
         }
         if ($result instanceof Response) {
@@ -138,7 +138,7 @@ class Html extends \Backend\Core\View
                 $body = var_export($body, true);
             }
             $this->values['content'] = $body;
-            $body = Application::getTool('Render')
+            $body = ServiceLocator::get('backend.Render')
                 ->file('index', $this->values);
         }
         return $body;
@@ -170,6 +170,6 @@ class Html extends \Backend\Core\View
             $values['exception'] = new PrettyExceptionDecorator($object);
             break;
         }
-        return Application::getTool('Render')->file($template, $values);
+        return ServiceLocator::get('backend.Render')->file($template, $values);
     }
 }
