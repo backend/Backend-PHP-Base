@@ -13,7 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Bindings;
-use \Backend\Core\Application;
+use \Backend\Core\Utilities\ServiceLocator;
 /**
  * Database Connection Binding
  *
@@ -36,7 +36,7 @@ abstract class DatabaseBinding extends Binding
     {
         $connection = empty($settings['connection']) ? 'default' : $settings['connection'];
 
-        $config = Application::getTool('Config');
+        $config = ServiceLocator::get('backend.Config');
         $settings = $config->get('database', $connection);
         if (empty($settings['connection'])) {
             throw new \Exception('No Database settings for ' . $connection);
