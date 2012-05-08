@@ -30,7 +30,7 @@ use Doctrine\ORM\EntityManager;
  */
 class DoctrineBinding extends DatabaseBinding
 {
-    protected $manager;
+    protected $em;
 
     protected $entityName;
 
@@ -66,7 +66,7 @@ class DoctrineBinding extends DatabaseBinding
         );
 
         // obtaining the entity manager
-        $this->manager = EntityManager::create($connection, $config);
+        $this->em = EntityManager::create($connection, $config);
     }
 
     /**
@@ -81,7 +81,7 @@ class DoctrineBinding extends DatabaseBinding
      */
     public function find(array $conditions = array(), array $options = array())
     {
-        return $this->manager->getRepository($this->entityName)->findAll();
+        return $this->em->getRepository($this->entityName)->findAll();
     }
 
     /**
@@ -93,6 +93,10 @@ class DoctrineBinding extends DatabaseBinding
      */
     public function create($data)
     {
+        $entity = new $this->entityName();
+        $entity->populate($data);
+        $this->em->persist($entity);
+        $this->em->flush();
     }
 
     /**
