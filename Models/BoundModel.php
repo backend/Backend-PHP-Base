@@ -170,12 +170,11 @@ class BoundModel extends \Backend\Core\Model
         $binding = $this->getBinding();
         if ($this->id) {
             $binding->update($this);
+            $this->setChanged(false);
+            return $this;
         } else {
-            $data = $binding->create($this);
-            $this->id = $data['id'];
+            return $binding->create($this);
         }
-        $this->setChanged(false);
-        return $this;
     }
 
     /**
