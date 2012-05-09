@@ -33,10 +33,17 @@ class PDOBinding extends DatabaseBinding
     protected $connection;
 
     /**
-     * @var string The name of the table this binding operates on
+     * The name of the table this binding operates on.
+     *
+     * @var string 
      */
     protected $table;
 
+    /**
+     * The name of the class this binding operates on.
+     *
+     * @var string
+     */
     protected $className;
 
     /**
@@ -155,12 +162,13 @@ class PDOBinding extends DatabaseBinding
     /**
      * Create an instance of the source, and return the instance
      *
-     * @param mixed $data A respresentation of the data with which to create the instance
+     * @param \Backend\Core\Interfaces\ModelInterface $model The model to create
      *
-     * @return mixed A respresentation of the created instance of the resource if succesful.
+     * @return \Backend\Core\Interfaces\ModelInterface The created model if successful.
      */
-    public function create($data)
+    public function create(\Backend\Core\Interfaces\ModelInterface $model)
     {
+        $data   = $model->getProperties();
         $query  = 'INSERT INTO ' . $this->table;
         $params = array();
         $values = array();
@@ -182,7 +190,7 @@ class PDOBinding extends DatabaseBinding
      *
      * @param mixed $identifier The unique identifier for the instance.
      *
-     * @return mixed A respresentation of the specified instance of the resource.
+     * @return \Backend\Core\Interfaces\ModelInterface The identified model if successful.
      */
     public function read($identifier)
     {
@@ -196,14 +204,14 @@ class PDOBinding extends DatabaseBinding
     /**
      * Update the specified instance of the resource
      *
-     * @param mixed $identifier The unique identifier for the instance.
-     * @param mixed $data       A respresentation of the data with which to update the instance
+     * @param \Backend\Core\Interfaces\ModelInterface $model The model to update
      *
-     * @todo Implement this
-     * @return mixed A respresentation of the updated instance of the resource if succesful.
+     * @return \Backend\Core\Interfaces\ModelInterface The updated model if successful.
      */
-    public function update($identifier, $data)
+    public function update(\Backend\Core\Interfaces\ModelInterface $model)
     {
+        $data       = $model->getProperties();
+        $identifier = $model->getId();
         $query  = 'UPDATE ' . $this->table . ' SET ';
         $params = array();
         $values = array();
@@ -222,12 +230,13 @@ class PDOBinding extends DatabaseBinding
      /**
      * Delete the specified instance of the resource
      *
-     * @param mixed $identifier The unique identifier for the instance.
+     * @param \Backend\Core\Interfaces\ModelInterface $model The model to delete
      *
      * @return boolean If the deletion was succesful or not.
      */
-    public function delete($identifier)
+    public function delete(\Backend\Core\Interfaces\ModelInterface $model)
     {
+        $identifier = $model->getId();
         $query = 'DELETE FROM ' . $this->table . ' WHERE `id` = :id';
         return (bool)$stmt->executeQuery($query, array(':id' => $identifier));
     }

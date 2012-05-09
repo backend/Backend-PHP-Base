@@ -169,9 +169,9 @@ class BoundModel extends \Backend\Core\Model
         }
         $binding = $this->getBinding();
         if ($this->id) {
-            $binding->update($this->id, $this->getProperties());
+            $binding->update($this);
         } else {
-            $data = $binding->create($this->getProperties());
+            $data = $binding->create($this);
             $this->id = $data['id'];
         }
         $this->setChanged(false);
@@ -189,7 +189,7 @@ class BoundModel extends \Backend\Core\Model
             throw new \Exception('Cannot load unidentified Bound Model');
         }
         $binding = $this->getBinding();
-        return $binding->delete($this->id);
+        return $binding->delete($this);
     }
 
     /**

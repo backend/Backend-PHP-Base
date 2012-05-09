@@ -42,37 +42,36 @@ abstract class Binding
     /**
      * Create an instance of the source, and return the instance
      *
-     * @param mixed $data A respresentation of the data with which to create the instance
+     * @param \Backend\Core\Interfaces\ModelInterface $model The model to create
      *
-     * @return mixed A respresentation of the created instance of the resource if succesful.
+     * @return \Backend\Core\Interfaces\ModelInterface The created model if successful.
      */
-    abstract public function create($data);
+    abstract public function create(\Backend\Core\Interfaces\ModelInterface $model);
 
     /**
      * Read a specified instance of the source, and return the instance
      *
      * @param mixed $identifier The unique identifier for the instance.
      *
-     * @return mixed A respresentation of the specified instance of the resource.
+     * @return \Backend\Core\Interfaces\ModelInterface The identified model if successful.
      */
     abstract public function read($identifier);
 
     /**
      * Update the specified instance of the resource
      *
-     * @param mixed $identifier The unique identifier for the instance.
-     * @param mixed $data       A respresentation of the data with which to update the instance
+     * @param \Backend\Core\Interfaces\ModelInterface $model The model to update
      *
-     * @return mixed A respresentation of the updated instance of the resource if succesful.
+     * @return \Backend\Core\Interfaces\ModelInterface The updated model if successful.
      */
-    abstract public function update($identifier, $data);
+    abstract public function update(\Backend\Core\Interfaces\ModelInterface $model);
 
     /**
      * Delete the specified instance of the resource
      *
-     * @param mixed $identifier The unique identifier for the instance.
+     * @param \Backend\Core\Interfaces\ModelInterface $model The model to delete
      *
      * @return boolean If the deletion was succesful or not.
      */
-    abstract public function delete($identifier);
+    abstract public function delete(\Backend\Core\Interfaces\ModelInterface $model);
 }

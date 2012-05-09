@@ -19,6 +19,9 @@ use Doctrine\ORM\EntityManager;
  * Binding for Doctrine connections.
  *
  * This class assumes that you installed Doctrine using PEAR.
+ *     pear channel-discover pear.doctrine-project.org
+ *     pear channel-discover pear.symfony.com
+ *     pear install --alldeps doctrine/DoctrineORM
  *
  * @category   Backend
  * @package    Base
@@ -87,16 +90,15 @@ class DoctrineBinding extends DatabaseBinding
     /**
      * Create an instance of the source, and return the instance
      *
-     * @param mixed $data A respresentation of the data with which to create the instance
+     * @param \Backend\Core\Interfaces\ModelInterface $model The model to create
      *
-     * @return mixed A respresentation of the created instance of the resource if succesful.
+     * @return \Backend\Core\Interfaces\ModelInterface The created model if successful.
      */
-    public function create($data)
+    public function create(\Backend\Core\Interfaces\ModelInterface $model)
     {
-        $entity = new $this->entityName();
-        $entity->populate($data);
-        $this->em->persist($entity);
+        $this->em->persist($model);
         $this->em->flush();
+        return $this->read($model->getId());
     }
 
     /**
@@ -104,7 +106,7 @@ class DoctrineBinding extends DatabaseBinding
      *
      * @param mixed $identifier The unique identifier for the instance.
      *
-     * @return mixed A respresentation of the specified instance of the resource.
+     * @return \Backend\Core\Interfaces\ModelInterface The identified model if successful.
      */
     public function read($identifier)
     {
@@ -113,23 +115,22 @@ class DoctrineBinding extends DatabaseBinding
     /**
      * Update the specified instance of the resource
      *
-     * @param mixed $identifier The unique identifier for the instance.
-     * @param mixed $data       A respresentation of the data with which to update the instance
+     * @param \Backend\Core\Interfaces\ModelInterface $model The model to update
      *
-     * @return mixed A respresentation of the updated instance of the resource if succesful.
+     * @return \Backend\Core\Interfaces\ModelInterface The updated model if successful.
      */
-    public function update($identifier, $data)
+    public function update(\Backend\Core\Interfaces\ModelInterface $model)
     {
     }
 
     /**
      * Delete the specified instance of the resource
      *
-     * @param mixed $identifier The unique identifier for the instance.
+     * @param \Backend\Core\Interfaces\ModelInterface $model The model to delete
      *
      * @return boolean If the deletion was succesful or not.
      */
-    public function delete($identifier)
+    public function delete(\Backend\Core\Interfaces\ModelInterface $model)
     {
     }
 }
