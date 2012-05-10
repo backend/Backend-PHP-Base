@@ -36,7 +36,7 @@ class BoundModel extends \Backend\Core\Model
     /**
      * @var \Backend\Base\Bindings\Binding The binding for the Model
      */
-    private $_binding = null;
+    private static $_binding = null;
 
     /**
      * @var mixed The identifier for the Model
@@ -44,17 +44,14 @@ class BoundModel extends \Backend\Core\Model
     protected $id = null;
 
     /**
-     * The constructor for the class
+     * The constructor for the class.
      *
-     * @param mixed   $id      The identifier for the Model
-     * @param Binding $binding The source for the Model
+     * This should rarely be used, rather use the static create function.
+     *
+     * @param mixed $id The identifier for the Model
      */
-    public function __construct($id = null, Binding $binding = null)
+    public function __construct($id = null)
     {
-        if (is_null($binding)) {
-            $binding = $this->getBinding();
-        }
-        $this->_binding = $binding;
         $this->setId($id);
     }
 
@@ -130,23 +127,20 @@ class BoundModel extends \Backend\Core\Model
      */
     public static function create(array $data)
     {
-        //Bit of a hack to make this static
-        $className = get_called_class();
-        $object    = new $className();
-        $object->populate($data);
-        return $object->update();
+        $binding = self::getBinding();
+        return $binding->create($data);
     }
 
     /**
      * Populate the Model by reading from it's source
      *
+     * @param mixed $identifier The unique identifier for the instance, or an
+     * array containing criteria on which to search for the resource.
+     *
      * @return BoundModel The current Model
      */
-    public function read()
+    public static function read($identifier)
     {
-        if (!$this->id) {
-            throw new \Exception('Cannot load unidentified Bound Model');
-        }
         $binding = $this->getBinding();
         if ($data = $binding->read($this->id)) {
             return $this->populate($data);
@@ -167,14 +161,10 @@ class BoundModel extends \Backend\Core\Model
         if (!$this->hasChanged()) {
             return $this;
         }
-        $binding = $this->getBinding();
-        if ($this->id) {
-            $binding->update($this);
-            $this->setChanged(false);
-            return $this;
-        } else {
-            return $binding->create($this);
-        }
+        $binding = self::getBinding();
+        $binding->update($this);
+        $this->setChanged(false);
+        return $this;
     }
 
     /**
@@ -210,12 +200,12 @@ class BoundModel extends \Backend\Core\Model
      *
      * @return \Backend\Base\Bindings\Binding The Bound Model's Binding
      */
-    public function getBinding()
+    public static function getBinding()
     {
-        if (!$this->_binding) {
-            $this->_binding = BindingFactory::build(get_class($this));
+        if (!self::$_binding) {
+            self::$_binding = BindingFactory::build(get_called_class());
         }
-        return $this->_binding;
+        return self::$_binding;
     }
 
     /**
@@ -225,9 +215,9 @@ class BoundModel extends \Backend\Core\Model
      *
      * @return null;
      */
-    public function setBinding(Binding $binding)
+    public static function setBinding(Binding $binding)
     {
-        $this->_binding = $binding;
+        self::$_binding = $binding;
     }
 
     /**
