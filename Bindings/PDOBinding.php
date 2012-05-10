@@ -137,15 +137,14 @@ class PDOBinding extends DatabaseBinding
     }
 
     /**
-     * Find a specified instances of the resource
+     * Find multiple instances of the resource.
      *
      * Don't specify any criteria to retrieve a full list of instances.
      *
-     * @param array $conditions An array of conditions on which to filter the list
-     * @param array $options    An array of options
+     * @param array $conditions An array of conditions on which to filter the list.
+     * @param array $options    An array of options.
      *
-     * @todo Implement conditions
-     * @return array An array of representations of the resource
+     * @return array An array of representations of the resource.
      */
     public function find(array $conditions = array(), array $options = array())
     {
@@ -160,15 +159,15 @@ class PDOBinding extends DatabaseBinding
     }
 
     /**
-     * Create an instance of the source, and return the instance
+     * Create an instance on the source, and return the instance.
      *
-     * @param \Backend\Core\Interfaces\ModelInterface $model The model to create
+     * @param array $data The data to create a new resource.
      *
-     * @return \Backend\Core\Interfaces\ModelInterface The created model if successful.
+     * @return \Backend\Core\Interfaces\ModelInterface The created model.
+     * @throws \Backend\Core\Exceptions\BackendException When the resource can't be created.
      */
-    public function create(\Backend\Core\Interfaces\ModelInterface $model)
+    public function create(array $data)
     {
-        $data   = $model->getProperties();
         $query  = 'INSERT INTO ' . $this->table;
         $params = array();
         $values = array();
@@ -186,29 +185,52 @@ class PDOBinding extends DatabaseBinding
     }
 
     /**
-     * Read a specified instance of the source, and return the instance
+     * Read and return the single, specified instance of the resource.
      *
-     * @param mixed $identifier The unique identifier for the instance.
+     * @param mixed $identifier The unique identifier for the instance, or an
+     * array containing criteria on which to search for the resource.
      *
-     * @return \Backend\Core\Interfaces\ModelInterface The identified model if successful.
+     * @return \Backend\Core\Interfaces\ModelInterface The identified model.
+     * @throws \Backend\Core\Exceptions\BackendException When the resource can't be found.
      */
     public function read($identifier)
     {
         $query = 'SELECT * FROM ' . $this->table . ' WHERE `id` = :id';
         if ($stmt = $this->executeQuery($query, array(':id' => $identifier))) {
-            return $stmt->fetch(\PDO::FETCH_ASSOC);
+            $stmt->setFetchMode(\PDO::FETCH_CLASS|\PDO::FETCH_PROPS_LATE, $this->className);
+            return $stmt->fetch();
         }
         return false;
     }
 
     /**
-     * Update the specified instance of the resource
+     * Refresh the specified instance on the source.
      *
-     * @param \Backend\Core\Interfaces\ModelInterface $model The model to update
+     * This function is the logical counterpart to update, and receives data from the source.
      *
-     * @return \Backend\Core\Interfaces\ModelInterface The updated model if successful.
+     * @param \Backend\Core\Interfaces\ModelInterface $model The model to refresh.
+     * Passed by reference.
+     *
+     * @returns boolean If the refresh was successful or not.
+     * @throws \Backend\Core\Exceptions\BackendException When the resource can't be refreshed.
      */
-    public function update(\Backend\Core\Interfaces\ModelInterface $model)
+    public function refresh(\Backend\Core\Interfaces\ModelInterface &$model)
+    {
+        throw new \Exception('Unimplemented');
+    }
+
+    /**
+     * Update the specified instance of the resource.
+     *
+     * This function is the logical counterpart to refresh, and sends data to the source.
+     *
+     * @param \Backend\Core\Interfaces\ModelInterface $model The model to update.
+     * Passed by reference.
+     *
+     * @returns boolean If the update was successful or not.
+     * @throws \Backend\Core\Exceptions\BackendException When the resource can't be updated.
+     */
+    public function update(\Backend\Core\Interfaces\ModelInterface &$model)
     {
         $data       = $model->getProperties();
         $identifier = $model->getId();
@@ -227,17 +249,20 @@ class PDOBinding extends DatabaseBinding
         return false;
     }
 
-     /**
+    /**
      * Delete the specified instance of the resource
      *
      * @param \Backend\Core\Interfaces\ModelInterface $model The model to delete
      *
      * @return boolean If the deletion was succesful or not.
+     * @throws \Backend\Core\Exceptions\BackendException When the resource can't be deleted.
      */
-    public function delete(\Backend\Core\Interfaces\ModelInterface $model)
+    public function delete(\Backend\Core\Interfaces\ModelInterface &$model)
     {
         $identifier = $model->getId();
         $query = 'DELETE FROM ' . $this->table . ' WHERE `id` = :id';
-        return (bool)$stmt->executeQuery($query, array(':id' => $identifier));
+        $result = (bool)$stmt->executeQuery($query, array(':id' => $identifier));
+        unset($model);
+        return $result;
     }
 }
