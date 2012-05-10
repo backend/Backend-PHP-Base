@@ -150,7 +150,9 @@ class DoctrineBinding extends DatabaseBinding
      */
     public function update(\Backend\Core\Interfaces\ModelInterface &$model)
     {
-        throw new \Exception('Unimplemented');
+        $this->em->persist($model);
+        $this->em->flush();
+        return $this->read($model->getId());
     }
 
     /**
@@ -159,10 +161,10 @@ class DoctrineBinding extends DatabaseBinding
      * @param \Backend\Core\Interfaces\ModelInterface $model The model to delete
      *
      * @return boolean If the deletion was succesful or not.
-     * @throws \Backend\Core\Exceptions\BackendException When the resource can't be deleted.
      */
-    public function delete(\Backend\Core\Interfaces\ModelInterface $model)
+    public function delete(\Backend\Core\Interfaces\ModelInterface &$model)
     {
-        throw new \Exception('Unimplemented');
+        $this->em->remove($model);
+        return $this->em->flush();
     }
 }

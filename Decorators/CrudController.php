@@ -142,7 +142,10 @@ class CrudController extends Decorator
         }
         $modelName = explode('\\', \Backend\Core\Controller::getModelName($this->getOriginalObject()));
         $modelName = end($modelName);
-        return new Renderable('crud/display', array('result' => $result->getOriginalObject(), 'component' => $modelName));
+        if ($result instanceof Decorator) {
+            $result = $result->getOriginalObject();
+        }
+        return new Renderable('crud/display', array('result' => $result, 'component' => $modelName));
     }
 
     /**
