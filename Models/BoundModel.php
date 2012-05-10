@@ -137,8 +137,8 @@ class BoundModel extends \Backend\Core\Model
      */
     public static function read($identifier)
     {
-        $binding = $this->getBinding();
-        if ($model = $binding->read($this->id)) {
+        $binding = self::getBinding();
+        if ($model = $binding->read($identifier)) {
             return $model;
         } else {
             return false;
