@@ -94,5 +94,5 @@ abstract class Binding
      * @return boolean If the deletion was succesful or not.
      * @throws \Backend\Core\Exceptions\BackendException When the resource can't be deleted.
      */
-    abstract public function delete(\Backend\Core\Interfaces\ModelInterface $model);
+    abstract public function delete(\Backend\Core\Interfaces\ModelInterface &$model);
 }

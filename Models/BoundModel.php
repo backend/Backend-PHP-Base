@@ -94,10 +94,6 @@ class BoundModel extends \Backend\Core\Model
         //Don't set the ID and read if it's the same as the current ID
         if ($id != $this->id) {
             $this->id = $id;
-            if (!$this->read()) {
-                //Set the id to null if the read is unsuccesful
-                $this->id = null;
-            }
         }
         return $this;
     }
