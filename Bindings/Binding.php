@@ -19,6 +19,10 @@ namespace Backend\Base\Bindings;
  * on a resource. It's typically used by Models to maintain their state on an
  * outside resource.
  *
+ * They also act as Table Gateways
+ * (http://www.martinfowler.com/eaaCatalog/tableDataGateway.html) to keep all
+ * data source related functionality out of Models.
+ *
  * @category Backend
  * @package  Base/Bindings
  * @author   J Jurgens du Toit <jrgns@jrgns.net>

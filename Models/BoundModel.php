@@ -185,7 +185,7 @@ class BoundModel extends \Backend\Core\Model
     public static function findAll()
     {
         //Bit of a hack to make this static
-        $className = get_called_Class();
+        $className = get_called_class();
         $object    = new $className();
         $binding   = $object->getBinding();
         return $binding->find();
