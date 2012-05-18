@@ -13,7 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Decorators;
-use Backend\Core\Application;
+use Backend\Core\Utilities\ServiceLocator;
 use Backend\Core\Decorators\Decorator;
 use Backend\Core\Interfaces\DecorableInterface;
 /**
@@ -49,8 +49,18 @@ class ProtectedController extends Decorator
         AuthenticatorProviderInterface $authenticator = null,
         AccessControlProviderInterface $accessControl = null
     ) {
-        $this->authenticator = $authenticator ?: Application::getTool('AuthenticatorProvider');
-        $this->accessControl = $accessControl ?: Application::getTool('AccessControlProvider');
+        if ($authenticator === null) {
+            $this->authenticator = ServiceLocator::has('backend.AuthenticatorProvider') ?
+                ServiceLocator::get('backend.AuthenticatorProvider') : null;
+        } else {
+            $this->authenticator = $authenticator;
+        }
+        if ($accessControl === null) {
+            $this->accessControl = ServiceLocator::has('backend.AccessControlProvider') ?
+                ServiceLocator::get('backend.AccessControlProvider') : null;
+        } else {
+            $this->accessControl = $accessControl;
+        }
         parent::__construct($object);
     }
 
@@ -74,7 +84,7 @@ class ProtectedController extends Decorator
         } else {
             $whitelist = array();
         }
-        if (in_array($method, $whitelist)) {
+        if (in_array($method, $whitelist) || substr($method, -6) !== 'Action') {
             return parent::__call($method, $args);
         }
         $result = $this->checkAuthenticated();
