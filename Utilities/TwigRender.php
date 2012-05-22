@@ -37,16 +37,20 @@ class TwigRender
      *
      * The template locations for the Renderer is set in this method
      */
-    public function __construct()
+    public function __construct(array $options = array())
     {
         parent::__construct();
         array_unshift($this->templateLocations, SOURCE_FOLDER);
+        if (array_key_exists('locations', $options)) {
+            $this->templateLocations = array_merge($this->templateLocations, $options['locations']);
+            unset($options['locations']);
+        }
         if (!class_exists('\Twig_Autoloader')) {
             include_once 'Twig/Autoloader.php';
         }
         \Twig_Autoloader::register();
         $loader     = new \Twig_Loader_Filesystem($this->templateLocations);
-        $this->twig = new \Twig_Environment($loader);
+        $this->twig = new \Twig_Environment($loader, $options);
     }
 
     /**
