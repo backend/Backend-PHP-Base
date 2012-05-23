@@ -14,10 +14,10 @@
  */
 namespace Backend\Base\Formats;
 use \Backend\Core\Request;
-use \Backend\Core\Response;
-use \Backend\Core\Decorators\PrettyExceptionDecorator;
-use \Backend\Base\Utilities\Renderable;
+use \Backend\Core\Config;
 use \Backend\Core\Utilities\ServiceLocator;
+use \Backend\Base\Utilities\Renderable;
+use \Backend\Core\Decorators\PrettyExceptionDecorator;
 /**
  * Output a request as HTML.
  *
@@ -43,18 +43,14 @@ class Html extends \Backend\Core\Utilities\Format
     protected $values = array();
 
     /**
-     * @var \Backend\Core\Request The request that was used to generate the View
-     */
-    protected $request = null;
-
-    /**
      * The constructor for the object
      *
-     * @param Request $request The Request to associate with the view
+     * @param \Backend\Core\Request $request The Request to associate with the view
+     * @param \Backend\Core\Config $config Config object to use in setting up values
      */
-    function __construct(Request $request, \Backend\Core\Config $config = null)
+    function __construct(Request $request, Config $config = null)
     {
-        $this->request = $request;
+        parent::__construct($request);
 
         //Get configured values
         $config = $config ?: ServiceLocator::get('backend.Config');
@@ -114,7 +110,6 @@ class Html extends \Backend\Core\Utilities\Format
         }
 
         //Add Headers
-        $response->addHeader('X-Backend-View', get_class($this));
         $response->addHeader('Content-Type', 'text/html; charset=utf-8');
 
         //Transform the Body
