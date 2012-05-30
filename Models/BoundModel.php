@@ -140,9 +140,8 @@ class BoundModel extends \Backend\Core\Model
         $binding = self::getBinding();
         if ($model = $binding->read($identifier)) {
             return $model;
-        } else {
-            return false;
         }
+        return null;
     }
 
     /**

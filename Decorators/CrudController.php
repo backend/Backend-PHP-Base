@@ -16,6 +16,7 @@ namespace Backend\Base\Decorators;
 use \Backend\Core\Decorators\Decorator;
 use \Backend\Core\Response;
 use \Backend\Base\Utilities\Renderable;
+use \Backend\Base\Models\BoundModel;
 /**
  * The Crud Controller is a Decorator that provides basic CRUD functionality to controllers
  *
@@ -38,6 +39,30 @@ use \Backend\Base\Utilities\Renderable;
  */
 class CrudController extends Decorator
 {
+    /**
+     * Use the current Route to generate the Model name and return it
+     *
+     * @param integer $identifier The id of the model required.
+     *
+     * @return ModelInterface The model associated with this controller
+     */
+    public function getModel($identifier = null)
+    {
+        $modelName = self::getModelName();
+        if (!class_exists($modelName, true)) {
+            throw new \Exception('Model does not exist: ' . $modelName);
+        }
+        $model = new $modelName;
+        if ($model instanceof BoundModel && $identifier !== null) {
+            $model = call_user_func(array($modelName, 'read'), $identifier);
+        }
+
+        //Decorate the Model
+        $model = \Backend\Core\Decorable::decorate($model);
+
+        return $model;
+    }
+
     /**
      * CRUD Create functionality for controllers.
      *
@@ -110,7 +135,7 @@ class CrudController extends Decorator
             }
         }
         $model = $this->getModel($identifier);
-        if (is_null($model->getId())) {
+        if ($model === null || $model->getId() === null) {
             //the specified Resource doesn't exist
             return new Response('Not Found', 404);
         }
