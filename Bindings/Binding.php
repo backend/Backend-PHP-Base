@@ -32,6 +32,27 @@ namespace Backend\Base\Bindings;
 abstract class Binding
 {
     /**
+     * The name of the class this binding operates on.
+     *
+     * @var string
+     */
+    protected $className;
+
+    /**
+     * The constructor for the object.
+     *
+     * The settings array should contain at least the name of the table to use.
+     *
+     * @param array $settings The settings for the Binding
+     */
+    public function __construct(array $settings)
+    {
+        if (empty($settings['class'])) {
+            throw new \Backend\Core\Exceptions\BackendException('Missing `class` option for Binding');
+        }
+        $this->className = $settings['class'];
+    }
+    /**
      * Find multiple instances of the resource.
      *
      * Don't specify any criteria to retrieve a full list of instances.

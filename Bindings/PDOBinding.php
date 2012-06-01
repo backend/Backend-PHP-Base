@@ -40,13 +40,6 @@ class PDOBinding extends DatabaseBinding
     protected $table;
 
     /**
-     * The name of the class this binding operates on.
-     *
-     * @var string
-     */
-    protected $className;
-
-    /**
      * The constructor for the object.
      *
      * The settings array should contain at least the name of the table to use.
@@ -59,8 +52,7 @@ class PDOBinding extends DatabaseBinding
         if (empty($settings['table'])) {
             throw new \Exception('Missing Table for Binding ' . get_class($this));
         }
-        $this->table     = $settings['table'];
-        $this->className = $settings['class'];
+        $this->table = $settings['table'];
     }
 
     /**

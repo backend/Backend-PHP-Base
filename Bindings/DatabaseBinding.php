@@ -23,7 +23,6 @@ use \Backend\Core\Utilities\ServiceLocator;
  * @author     J Jurgens du Toit <jrgns@jrgns.net>
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @link       http://backend-php.net
- * @todo This is a rudimentary implementation of the PDOBinding. It can be improved a lot.
  */
 abstract class DatabaseBinding extends Binding
 {
@@ -34,13 +33,11 @@ abstract class DatabaseBinding extends Binding
      */
     public function __construct(array $settings)
     {
-        $connection = empty($settings['connection']) ? 'default' : $settings['connection'];
+        parent::__construct($settings);
 
         $config = ServiceLocator::get('backend.Config');
-        $settings = $config->get('database', $connection);
-        if (empty($settings['connection'])) {
-            throw new \Exception('No Database settings for ' . $connection);
-        }
+        $connection = $settings['connection'];
+        $settings   = $config->get('database', $connection);
         $this->init($settings['connection']);
 
     }
