@@ -38,8 +38,25 @@ class RestBinding extends ServiceBinding
      */
     public function find(array $conditions = array(), array $options = array())
     {
-        $result = curl_exec($this->chandle);
-        var_dump($result); die;
+        list($header, $result) = $this->execute();
+        if (stripos($header, 'Content-Type: application/json') !== false) {
+            $result = json_decode($result);
+            if (is_array($result)) {
+                $result = array_map(array($this, 'mapResult'), $result);
+            }
+            var_dump($result); die;
+        }
+        return $result;
+    }
+
+    protected function mapResult($elm) {
+        if (!is_object($elm) && !is_array($elm)) {
+            return $elm;
+        }
+        $elm = (array)$elm;
+        $object = new $this->className;
+        $object->populate($elm);
+        return $object;
     }
 
     /**
