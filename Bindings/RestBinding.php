@@ -14,6 +14,7 @@
  */
 namespace Backend\Base\Bindings;
 use \Backend\Core\Utilities\ServiceLocator;
+use \Backend\Core\Exceptions\BackendException;
 /**
  * Rest Connection Binding to get information from REST services
  *
@@ -41,10 +42,12 @@ class RestBinding extends ServiceBinding
         list($header, $result) = $this->execute();
         if (stripos($header, 'Content-Type: application/json') !== false) {
             $result = json_decode($result);
+            if ($error = json_last_error()) {
+                throw new BackendException('Error Decoding JSON: ' . $error);
+            }
             if (is_array($result)) {
                 $result = array_map(array($this, 'mapResult'), $result);
             }
-            var_dump($result); die;
         }
         return $result;
     }

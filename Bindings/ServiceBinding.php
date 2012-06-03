@@ -84,9 +84,14 @@ abstract class ServiceBinding extends Binding
         if ($result === false) {
             throw new \Exception('Curl Issue: ' . curl_error($this->chandle), $curl_errno($this->chandle));
         }
-        $code  = curl_getinfo($this->chandle, CURLINFO_HTTP_CODE);
-        if ($code === 200) {
+        $code = curl_getinfo($this->chandle, CURLINFO_HTTP_CODE);
+        switch ($code) {
+        case 200:
             return explode("\r\n\r\n", $result) + array(1 => '');
+            break;
+        default:
+            throw new \Exception('Error making request: HTTP Code ' . $code);
+            break;
         }
         return false;
     }

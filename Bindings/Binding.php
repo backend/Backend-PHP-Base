@@ -52,6 +52,7 @@ abstract class Binding
         }
         $this->className = $settings['class'];
     }
+
     /**
      * Find multiple instances of the resource.
      *
