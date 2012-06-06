@@ -198,6 +198,7 @@ class GdataBinding extends Binding
      */
     public function delete(\Backend\Core\Interfaces\ModelInterface &$model)
     {
+        $identifier = $model->getUsername();
         try {
             $result = $this->client->deleteUser($identifier);
         } catch (\Exception $e) {
