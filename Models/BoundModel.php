@@ -36,7 +36,7 @@ class BoundModel extends \Backend\Core\Model
     /**
      * @var \Backend\Base\Bindings\Binding The binding for the Model
      */
-    private static $_binding = null;
+    protected $_binding = null;
 
     /**
      * @var mixed The identifier for the Model
@@ -123,7 +123,9 @@ class BoundModel extends \Backend\Core\Model
      */
     public static function create(array $data)
     {
-        $binding = self::getBinding();
+        $className = get_called_class();
+        $object    = new $className();
+        $binding   = $object->getBinding();
         return $binding->create($data);
     }
 
@@ -137,7 +139,9 @@ class BoundModel extends \Backend\Core\Model
      */
     public static function read($identifier)
     {
-        $binding = self::getBinding();
+        $className = get_called_class();
+        $object    = new $className();
+        $binding   = $object->getBinding();
         if ($model = $binding->read($identifier)) {
             return $model;
         }
@@ -156,7 +160,7 @@ class BoundModel extends \Backend\Core\Model
         if (!$this->hasChanged()) {
             return $this;
         }
-        $binding = self::getBinding();
+        $binding = $this->getBinding();
         $binding->update($this);
         $this->setChanged(false);
         return $this;
@@ -195,12 +199,12 @@ class BoundModel extends \Backend\Core\Model
      *
      * @return \Backend\Base\Bindings\Binding The Bound Model's Binding
      */
-    public static function getBinding()
+    public function getBinding()
     {
-        if (!self::$_binding) {
-            self::$_binding = BindingFactory::build(get_called_class());
+        if (!$this->_binding) {
+            $this->_binding = BindingFactory::build(get_called_class());
         }
-        return self::$_binding;
+        return $this->_binding;
     }
 
     /**
@@ -210,9 +214,9 @@ class BoundModel extends \Backend\Core\Model
      *
      * @return null;
      */
-    public static function setBinding(Binding $binding)
+    public function setBinding(Binding $binding)
     {
-        self::$_binding = $binding;
+        $this->_binding = $binding;
     }
 
     /**
