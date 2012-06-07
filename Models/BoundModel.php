@@ -25,6 +25,8 @@ use \Backend\Base\Bindings\Binding;
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @link       http://backend-php.net
  * @todo Enable custom identifiers
+ * @todo Do a Name field, with the ability to specify the name field. It will act
+ * as a readable field, so you can do <a href="{{model}}/{{model.id}}">{{model.name}}</a>
  */
 class BoundModel extends \Backend\Core\Model
 {

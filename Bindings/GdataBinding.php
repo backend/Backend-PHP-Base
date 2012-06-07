@@ -144,18 +144,19 @@ class GdataBinding extends Binding
      *
      * @param mixed $identifier The unique identifier for the instance, or an
      * array containing criteria on which to search for the resource.
+     * @param boolean $returnObject Return the UserEntry Object.
      *
      * @return \Backend\Core\Interfaces\ModelInterface The identified model.
      * @throws \Backend\Core\Exceptions\BackendException When the resource can't be found.
      */
-    public function read($identifier)
+    public function read($identifier, $returnObject = false)
     {
         try {
             $result = $this->client->retrieveUser($identifier);
         } catch (\Exception $e) {
             throw new \Backend\Core\Exceptions\BackendException('Cannot retrieve requested information', null, $e);
         }
-        return $this->mapObjectToModel($result);
+        return $returnObject ? $result : $this->mapObjectToModel($result);
     }
 
     /**
@@ -186,6 +187,14 @@ class GdataBinding extends Binding
      */
     public function update(\Backend\Core\Interfaces\ModelInterface &$model)
     {
+        $object = $this->read($model->getId(), true);
+        $object = $this->mapModelToObject($model, $object);
+        try {
+            $object->save();
+        } catch (\Exception $e) {
+            throw new \Backend\Core\Exceptions\BackendException('Cannot update the resourc', null, $e);
+        }
+        return true;
     }
 
     /**
@@ -242,16 +251,18 @@ class GdataBinding extends Binding
      * * getFamilyName()
      *
      * @param \Backend\Core\Interfaces\ModelInterface The model to map.
+     * @param \Zend_Gdata_Gapps_UserEntry The UserEntry object to populate.
      *
      * @return Zend_Gdata_Gapps_UserEntry The object
      */
-    protected function mapModelToObject(\Backend\Core\Interfaces\ModelInterface $model)
+    protected function mapModelToObject(\Backend\Core\Interfaces\ModelInterface $model,
+        \Zend_Gdata_Gapps_UserEntry $user = null)
     {
-        $user = $gdata->newUserEntry();
-        $user->login = $gdata->newLogin();
+        $user = $user === null ? $this->client->newUserEntry() : $user;
+        $user->login = $this->client->newLogin();
         $user->login->username = $model->getUsername();
         $user->login->password = $model->getPassword();
-        $user->name = $gdata->newName();
+        $user->name = $this->client->newName();
         $user->name->givenName = $model->getGivenName();
         $user->name->familyName = $model->getFamilyName();
         return $user;
