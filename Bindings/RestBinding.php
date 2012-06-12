@@ -28,6 +28,19 @@ use \Backend\Core\Exceptions\BackendException;
 class RestBinding extends ServiceBinding
 {
     /**
+     * The constructor for the object.
+     *
+     * @param array $settings The settings for the Service Connection
+     */
+    public function __construct(array $settings)
+    {
+        parent::__construct($settings);
+        if (isset($settings['resource'])) {
+            $this->setUrl($this->url . $settings['resource']);
+        }
+    }
+
+    /**
      * Find multiple instances of the resource.
      *
      * Don't specify any criteria to retrieve a full list of instances.
@@ -39,20 +52,15 @@ class RestBinding extends ServiceBinding
      */
     public function find(array $conditions = array(), array $options = array())
     {
-        list($header, $result) = $this->execute();
-        if (stripos($header, 'Content-Type: application/json') !== false) {
-            $result = json_decode($result);
-            if ($error = json_last_error()) {
-                throw new BackendException('Error Decoding JSON: ' . $error);
-            }
-            if (is_array($result)) {
-                $result = array_map(array($this, 'mapResult'), $result);
-            }
+        $result = $this->execute();
+        if (is_array($result)) {
+            $result = array_map(array($this, 'mapResult'), $result);
         }
         return $result;
     }
 
-    protected function mapResult($elm) {
+    protected function mapResult($elm)
+    {
         if (!is_object($elm) && !is_array($elm)) {
             return $elm;
         }
@@ -85,6 +93,12 @@ class RestBinding extends ServiceBinding
      */
     public function read($identifier)
     {
+        $result = $this->get($identifier);
+        $result = $this->mapResult($result);
+        if ($result instanceof \Backend\Base\Models\BoundModel && $result->getId() === null) {
+            $result->setId($identifier);
+        }
+        return $result;
     }
 
     /**

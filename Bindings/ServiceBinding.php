@@ -40,20 +40,28 @@ abstract class ServiceBinding extends Binding
     public function __construct(array $settings)
     {
         parent::__construct($settings);
-        $connection = $settings['connection'];
-
-        $config = ServiceLocator::get('backend.Config');
-        $settings = $config->get('remote_service', $connection);
         if (empty($settings['url'])) {
-            throw new \Exception('No Service settings for ' . $connection);
+            throw new \Exception('No Service settings for ' . $settings['class']);
         }
         $this->url = $settings['url'];
 
         $this->chandle = curl_init();
 
+        //WARNING: this would prevent curl from detecting a 'man in the middle' attack
+        //TODO Follow http://ademar.name/blog/2006/04/curl-ssl-certificate-problem-v.html to fix this
+        curl_setopt ($this->chandle, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt ($this->chandle, CURLOPT_SSL_VERIFYPEER, 0);
+
         if (isset($settings['username']) && isset($settings['password'])) {
             curl_setopt($this->chandle, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
             curl_setopt($this->chandle, CURLOPT_USERPWD, $settings['username'] . ':' . $settings['password']);
+        }
+        if (isset($settings['headers']) && is_array($settings['headers'])) {
+            $headers = array();
+            foreach($settings['headers'] as $name => $value) {
+                $headers[] = $name . ': ' . $value;
+            }
+            curl_setopt($this->chandle, CURLOPT_HTTPHEADER, $headers);
         }
 
         curl_setopt($this->chandle, CURLOPT_RETURNTRANSFER, true);
@@ -62,14 +70,14 @@ abstract class ServiceBinding extends Binding
 
     public function get($path = null, array $data = array())
     {
-        curl_setopt($this->chandle, CURLOPT_HTTPGET);
+        curl_setopt($this->chandle, CURLOPT_HTTPGET, 1);
         $path .= '?' . http_build_query($data);
         return $this->execute($path);
     }
 
     public function post($path = null, array $data = array())
     {
-        curl_setopt($this->chandle, CURLOPT_POST);
+        curl_setopt($this->chandle, CURLOPT_POST, 1);
         curl_setopt($this->chandle, CURLOPT_POSTFIELDS, $data);
         return $this->execute($path);
     }
@@ -80,19 +88,44 @@ abstract class ServiceBinding extends Binding
             $path = '/' . $path;
         }
         curl_setopt($this->chandle, CURLOPT_URL, $this->url . $path);
+        //curl_setopt($this->chandle, CURLINFO_HEADER_OUT, true);
         $result = curl_exec($this->chandle);
         if ($result === false) {
-            throw new \Exception('Curl Issue: ' . curl_error($this->chandle), $curl_errno($this->chandle));
+            throw new \Exception('Curl Issue: ' . curl_error($this->chandle), curl_errno($this->chandle));
         }
         $code = curl_getinfo($this->chandle, CURLINFO_HTTP_CODE);
         switch ($code) {
         case 200:
-            return explode("\r\n\r\n", $result) + array(1 => '');
+            $header = substr($result, 0, curl_getinfo($this->chandle, CURLINFO_HEADER_SIZE));
+            $body   = substr($result, curl_getinfo($this->chandle, CURLINFO_HEADER_SIZE));
+            return $this->parse($header, $body);
             break;
         default:
+            //var_dump(curl_getinfo($this->chandle));
+            //die("<pre>$result"); 
             throw new \Exception('Error making request: HTTP Code ' . $code);
             break;
         }
         return false;
+    }
+
+    public function parse($header, $body)
+    {
+        if (stripos($header, 'Content-Type: application/json') !== false) {
+            $body = json_decode($body);
+            if ($error = json_last_error()) {
+                throw new BackendException('Error Decoding JSON: ' . $error);
+            }
+        }
+        return $body;
+    }
+
+    public function setUrl($url)
+    {
+        $this->url = $url;
+        if (substr($this->url, -1) != '/') {
+            $this->url .= '/';
+        }
+        return $this;
     }
 }

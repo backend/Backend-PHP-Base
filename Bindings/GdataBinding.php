@@ -74,9 +74,6 @@ class GdataBinding extends Binding
     public function __construct(array $settings)
     {
         parent::__construct($settings);
-        $connection = $settings['connection'];
-        $config = ServiceLocator::get('backend.Config');
-        $settings = $config->get('remote_service', $connection);
         if (empty($settings['username']) || empty($settings['password'])) {
             throw new BackendException('Missing Google Admin User Credentials');
         }
