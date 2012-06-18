@@ -88,6 +88,6 @@ class Application extends CoreApplication implements ApplicationInterface
         RequestInterface $request = null, ConfigInterface $config = null
     ) {
         $config = $config ?: $this->config;
-        parent::getFormatter($request, $config);
+        return parent::getFormatter($request, $config);
     }
 }

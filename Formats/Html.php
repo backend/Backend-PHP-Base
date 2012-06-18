@@ -15,7 +15,7 @@
 namespace Backend\Base\Formats;
 use \Backend\Interfaces\RequestInterface;
 use \Backend\Interfaces\ConfigInterface;
-use \Backend\Core\Utilities\ServiceLocator;
+use \Backend\Interfaces\RenderInterface;
 use \Backend\Base\Utilities\Renderable;
 use \Backend\Core\Decorators\PrettyExceptionDecorator;
 /**
@@ -75,6 +75,14 @@ class Html extends \Backend\Core\Utilities\Formatter
             $this->values = array();
         }
 
+        if ($render) {
+            $this->render = $render;
+        } else if ($this->config
+            && $render = $this->config->services['backend.Render']
+        ) {
+            $this->render = new $render();
+        }
+
         self::_setupConstants();
     }
 
@@ -123,8 +131,7 @@ class Html extends \Backend\Core\Utilities\Formatter
     public function transform($result)
     {
         $response = parent::transform($result);
-        //@todo Remove this dependency
-        if (!ServiceLocator::has('backend.Render')) {
+        if (!($this->render instanceof RenderInterface)) {
             return $response;
         }
 
@@ -158,8 +165,7 @@ class Html extends \Backend\Core\Utilities\Formatter
                 $body = var_export($body, true);
             }
             $this->values['content'] = $body;
-            $body = ServiceLocator::get('backend.Render')
-                ->file('index', $this->values);
+            $body = $this->render->file('index', $this->values);
         }
         return $body;
     }
@@ -190,6 +196,6 @@ class Html extends \Backend\Core\Utilities\Formatter
             $values['exception'] = new PrettyExceptionDecorator($object);
             break;
         }
-        return ServiceLocator::get('backend.Render')->file($template, $values);
+        return $this->render->file($template, $values);
     }
 }
