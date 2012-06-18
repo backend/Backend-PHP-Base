@@ -31,6 +31,13 @@ use \Backend\Core\Decorators\PrettyExceptionDecorator;
 class Html extends \Backend\Core\Utilities\Formatter
 {
     /**
+     * Rendering Utility used by this formatter.
+     *
+     * @var \Backend\Interface\RenderInterface
+     */
+    protected $render;
+
+    /**
      * @var array Handle HTML requests
      */
     public static $handledFormats = array(
@@ -49,9 +56,11 @@ class Html extends \Backend\Core\Utilities\Formatter
      * determine what formatter to return.
      * @param \Backend\Interfaces\ConfigInterface  $config  The current Application
      * configuration.
+     * @param \Backend\Interfaces\RenderInterface  $render  A rendering utility.
      */
     function __construct(
-        RequestInterface $request = null, ConfigInterface $config = null
+        RequestInterface $request = null, ConfigInterface $config = null,
+        RenderInterface $render = null
     ) {
         //Get configured values
         if (!$config) {
