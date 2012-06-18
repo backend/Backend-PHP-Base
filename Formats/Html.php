@@ -13,8 +13,8 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Formats;
-use \Backend\Core\Request;
-use \Backend\Core\Config;
+use \Backend\Interfaces\RequestInterface;
+use \Backend\Interfaces\ConfigInterface;
 use \Backend\Core\Utilities\ServiceLocator;
 use \Backend\Base\Utilities\Renderable;
 use \Backend\Core\Decorators\PrettyExceptionDecorator;
@@ -28,7 +28,7 @@ use \Backend\Core\Decorators\PrettyExceptionDecorator;
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @link       http://backend-php.net
  */
-class Html extends \Backend\Core\Utilities\Format
+class Html extends \Backend\Core\Utilities\Formatter
 {
     /**
      * @var array Handle HTML requests
@@ -45,16 +45,26 @@ class Html extends \Backend\Core\Utilities\Format
     /**
      * The constructor for the object
      *
-     * @param \Backend\Core\Request $request The Request to associate with the view
-     * @param \Backend\Core\Config $config Config object to use in setting up values
+     * @param \Backend\Interfaces\RequestInterface $request The request used to
+     * determine what formatter to return.
+     * @param \Backend\Interfaces\ConfigInterface  $config  The current Application
+     * configuration.
      */
-    function __construct(Request $request, Config $config = null)
-    {
-        parent::__construct($request);
-
+    function __construct(
+        RequestInterface $request = null, ConfigInterface $config = null
+    ) {
         //Get configured values
-        $config = $config ?: ServiceLocator::get('backend.Config');
-        $this->values = $config->get('application', 'values');
+        if (!$config) {
+            //$config = $config ?: ServiceLocator::get('backend.Config');
+        }
+        parent::__construct($request, $config);
+
+
+        if ($this->config) {
+            $this->values = $this->config->get('application', 'values');
+        } else {
+            $this->values = array();
+        }
 
         self::_setupConstants();
     }
@@ -101,9 +111,9 @@ class Html extends \Backend\Core\Utilities\Format
      * @return \Backend\Core\Response The response transformed into a HTML Response
      * @todo Make the content type header customizable
      */
-    public function transform($result, $callback, array $arguments)
+    public function transform($result)
     {
-        $response = parent::transform($result, $callback, $arguments);
+        $response = parent::transform($result);
         //@todo Remove this dependency
         if (!ServiceLocator::has('backend.Render')) {
             return $response;
