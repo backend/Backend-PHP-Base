@@ -24,7 +24,7 @@ use \Backend\Core\Response;
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @link       http://backend-php.net
  */
-class Cli extends \Backend\Core\Utilities\Format
+class Cli extends \Backend\Core\Utilities\Formatter
 {
     /**
      * @var array Handle CLI requests
@@ -40,7 +40,7 @@ class Cli extends \Backend\Core\Utilities\Format
      *
      * @return \Backend\Core\Response The response to transform
      */
-    public function transform($result, $callback, array $arguments)
+    public function transform($result)
     {
         $result = 'Result:' . PHP_EOL;
         $result .= var_export($result, true);

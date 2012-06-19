@@ -26,7 +26,7 @@ use \Backend\Core\Decorators\JsonDecorator;
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @link       http://backend-php.net
  */
-class Json extends \Backend\Core\Utilities\Format
+class Json extends \Backend\Core\Utilities\Formatter
 {
     /**
      * @var array Handle JSON requests
@@ -42,7 +42,7 @@ class Json extends \Backend\Core\Utilities\Format
      *
      * @return \Backend\Core\Response The response to transform
      */
-    public function transform($result, $callback, array $arguments)
+    public function transform($result)
     {
         $response = parent::transform($result, $callback, $arguments);
         $response->addHeader('Content-Type', 'application/json');

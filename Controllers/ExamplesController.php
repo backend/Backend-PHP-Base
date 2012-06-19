@@ -35,7 +35,6 @@ class ExamplesController extends \Backend\Core\Controller
      */
     public function __construct(Request $request = null)
     {
-        $this->addDecorator('\Backend\Base\Decorators\CrudController');
         parent::__construct($request);
     }
 
