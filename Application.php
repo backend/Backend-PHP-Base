@@ -21,8 +21,8 @@ use Backend\Interfaces\CallbackInterface;
 use Backend\Interfaces\ConfigInterface;
 use Backend\Core\Utilities\Router;
 use Backend\Core\Utilities\Formatter;
-use Backend\Modules\Callback;
-use Backend\Modules\Config;
+use Backend\Core\Utilities\Callback;
+use Backend\Core\Utilities\Config;
 /**
  * The main application class.
  *
