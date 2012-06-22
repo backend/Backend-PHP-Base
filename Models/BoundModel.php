@@ -13,8 +13,10 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Models;
+use \Backend\Interfaces\ModelInterface;
+use \Backend\Interfaces\BindingFactoryInterface;
 use \Backend\Base\Utilities\BindingFactory;
-use \Backend\Base\Bindings\Binding;
+use \Backend\Modules\Bindings\Binding;
 /**
  * Class for models that are bound to a specific source
  *
@@ -26,12 +28,15 @@ use \Backend\Base\Bindings\Binding;
  * @link       http://backend-php.net
  * @todo Enable custom identifiers
  * @todo Do a Name field, with the ability to specify the name field. It will act
- * as a readable field, so you can do <a href="{{model}}/{{model.id}}">{{model.name}}</a>
+ * as a readable field, so you can do
+ * <a href="{{model}}/{{model.id}}">{{model.name}}</a>
  */
-class BoundModel extends \Backend\Core\Model
+class BoundModel implements ModelInterface
 {
     /**
-     * @var boolean Property to show if the Model has changed since it's last update / read
+     * Property to show if the Model has changed since it's last update / read
+     *
+     * @var boolean
      */
     private $_changed = false;
 
@@ -50,11 +55,15 @@ class BoundModel extends \Backend\Core\Model
      *
      * This should rarely be used, rather use the static create function.
      *
-     * @param mixed $id The identifier for the Model
+     * @param mixed                                       $id      The identifier
+     * for the Model
+     * @param \Backend\Interfaces\BindingFactoryInterface $factory A Binding
+     * Factory used to create Bindings.
      */
-    public function __construct($id = null)
+    public function __construct($id = null, BindingFactoryInterface $factory = null)
     {
         $this->setId($id);
+        $this->factory = $factory;
     }
 
     /**
@@ -144,16 +153,15 @@ class BoundModel extends \Backend\Core\Model
         $className = get_called_class();
         $object    = new $className();
         $binding   = $object->getBinding();
-        if ($model = $binding->read($identifier)) {
-            return $model;
-        }
-        return null;
+        $model = $binding->read($identifier);
+        return $model ?: null;
     }
 
     /**
      * Update the Bound Model on it's source.
      *
-     * If no changes were made to the model, no update call will be made to the Binding
+     * If no changes were made to the model, no update call will be made to the
+     * Binding
      *
      * @return BoundModel The current Model
      */
@@ -204,7 +212,7 @@ class BoundModel extends \Backend\Core\Model
     public function getBinding()
     {
         if (!$this->_binding) {
-            $this->_binding = BindingFactory::build(get_called_class());
+            $this->_binding = $this->getFactory()->build(get_called_class());
         }
         return $this->_binding;
     }
@@ -241,5 +249,31 @@ class BoundModel extends \Backend\Core\Model
     public function setChanged($changed)
     {
         $this->_changed = $changed;
+    }
+
+
+    /**
+     * Set the Binding Factory.
+     *
+     * @param \Backend\Interfaces\BindingFactoryInterface $factory The Binding
+     * Factory.
+     *
+     * @return \Backend\Base\Models\BoundModel
+     */
+    public function setCallbackFactory(BindingFactoryInterface $factory)
+    {
+        $this->factory = $factory;
+        return $this;
+    }
+
+    /**
+     * Get the Callback Factory.
+     *
+     *  @return \Backend\Interfaces\BindingFactoryInterface
+     */
+    public function getCallbackFactory()
+    {
+        $this->factory = $this->factory ?: new BindingFactory();
+        return $this->factory;
     }
 }

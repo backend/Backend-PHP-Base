@@ -13,6 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Utilities;
+use \Backend\Interfaces\BindingFactoryInterface;
 use \Backend\Core\Utilities\Strings;
 use \Backend\Core\Application;
 /**
@@ -25,7 +26,7 @@ use \Backend\Core\Application;
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @link       http://backend-php.net
  */
-class BindingFactory
+class BindingFactory implements BindingFactoryInterface
 {
     /**
      * Build the binding using  the specified model name
