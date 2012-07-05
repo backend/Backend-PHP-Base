@@ -13,16 +13,12 @@
  */
 namespace Backend\Base;
 use Backend\Core\Application as CoreApplication;
-use Backend\Interfaces\ApplicationInterface;
 use Backend\Interfaces\RouterInterface;
 use Backend\Interfaces\FormatterInterface;
 use Backend\Interfaces\RequestInterface;
-use Backend\Interfaces\CallbackInterface;
 use Backend\Interfaces\ConfigInterface;
-use Backend\Core\Utilities\Router;
-use Backend\Core\Utilities\Formatter;
-use Backend\Core\Utilities\Callback;
 use Backend\Core\Utilities\Config;
+use Backend\Core\Exceptions\ConfigException;
 /**
  * The main application class.
  *
@@ -32,7 +28,7 @@ use Backend\Core\Utilities\Config;
  * @license  http://www.opensource.org/licenses/mit-license.php MIT License
  * @link     http://backend-php.net
  */
-class Application extends CoreApplication implements ApplicationInterface
+class Application extends CoreApplication
 {
     protected $config;
     protected $render;

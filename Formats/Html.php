@@ -94,7 +94,7 @@ class Html extends \Backend\Core\Utilities\Formatter
      */
     private function _setupConstants()
     {
-        $urlParts = parse_url($this->request->getSitePath());
+        $urlParts = parse_url($this->request->getUrl());
 
         if (!defined('SITE_SUB_FOLDER')) {
             define('SITE_SUB_FOLDER', $urlParts['path']);
@@ -107,15 +107,16 @@ class Html extends \Backend\Core\Utilities\Formatter
         $this->values['SITE_DOMAIN'] = SITE_DOMAIN;
 
         if (!defined('SITE_PATH')) {
-            define('SITE_PATH', $this->request->getSitePath());
+            define('SITE_PATH', $this->request->getPath());
         }
         $this->values['SITE_PATH'] = SITE_PATH;
 
         if (!defined('SITE_LINK')) {
-            define('SITE_LINK', $this->request->getSiteUrl());
+            define('SITE_LINK', $this->request->getUrl());
         }
         $this->values['SITE_LINK'] = SITE_LINK;
 
+        var_dump($this->values); die;
         // TODO
         //$this->values['SITE_STATE'] = SITE_STATE;
     }
