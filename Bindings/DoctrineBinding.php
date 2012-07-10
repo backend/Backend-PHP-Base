@@ -50,6 +50,11 @@ class DoctrineBinding extends DatabaseBinding
         $this->entityName = $settings['class'];
     }
 
+    public function getEntityManager()
+    {
+        return $this->em;
+    }
+
     /**
      * Initialize the connection
      *
