@@ -89,7 +89,18 @@ class DoctrineBinding extends DatabaseBinding
      */
     public function find(array $conditions = array(), array $options = array())
     {
-        return $this->em->getRepository($this->entityName)->findAll();
+        $defaults = array(
+            'order'     => false,
+            'direction' => 'ASC',
+        );
+        $options = $options + $defaults;
+        $query = $this->em->createQueryBuilder();
+        $query->select('t');
+        $query->from($this->entityName, 't');
+        if (empty($options['order']) === false) {
+            $query->orderBy($options['order'], $options['direction']);
+        }
+        return $query->getQuery()->getResult();
     }
 
     /**
