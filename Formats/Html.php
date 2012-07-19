@@ -116,7 +116,6 @@ class Html extends \Backend\Core\Utilities\Formatter
         }
         $this->values['SITE_LINK'] = SITE_LINK;
 
-        var_dump($this->values); die;
         // TODO
         //$this->values['SITE_STATE'] = SITE_STATE;
     }
