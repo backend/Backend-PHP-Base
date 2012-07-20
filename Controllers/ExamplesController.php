@@ -27,7 +27,7 @@ use \Backend\Base\Utilities\Renderable;
 class ExamplesController extends \Backend\Core\Controller
 {
     /**
-     * The home function
+     * The home callback
      *
      * @return string Some string
      */
@@ -37,7 +37,7 @@ class ExamplesController extends \Backend\Core\Controller
     }
 
     /**
-     * A function showing how to render a template
+     * A callback showing how to render a template
      *
      * @param mixed $result The result returned from homeAction
      *
@@ -49,7 +49,7 @@ class ExamplesController extends \Backend\Core\Controller
     }
 
     /**
-     * A function showing how to render a template
+     * A callback showing how to render a template
      *
      * @param mixed $result The result returned from homeAction
      *
@@ -61,7 +61,7 @@ class ExamplesController extends \Backend\Core\Controller
     }
 
     /**
-     * A function showing the parameter functionality
+     * A callback showing the parameter functionality
      *
      * @param mixed $id      An id
      * @param mixed $another An optional parameter
@@ -73,4 +73,13 @@ class ExamplesController extends \Backend\Core\Controller
         var_dump($id, $another);
     }
 
+    /**
+     * A callback who'se route is generated using the controllers array.
+     *
+     * @return string
+     */
+    public function listAction()
+    {
+        return 'This is the List Action.';
+    }
 }
