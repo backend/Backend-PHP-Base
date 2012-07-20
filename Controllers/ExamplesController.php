@@ -27,18 +27,6 @@ use \Backend\Base\Utilities\Renderable;
 class ExamplesController extends \Backend\Core\Controller
 {
     /**
-     * Contructor for the Controller.
-     *
-     * Decorate this Controller with CRUD functionality
-     *
-     * @param \Backend\Core\Request $request The request object for the execution of the action
-     */
-    public function __construct(Request $request = null)
-    {
-        parent::__construct($request);
-    }
-
-    /**
      * The home function
      *
      * @return string Some string
