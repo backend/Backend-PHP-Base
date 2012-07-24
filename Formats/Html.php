@@ -59,8 +59,7 @@ class Html extends \Backend\Core\Utilities\Formatter
      * @param \Backend\Interfaces\RenderInterface  $render  A rendering utility.
      */
     function __construct(
-        RequestInterface $request = null, ConfigInterface $config = null,
-        RenderInterface $render = null
+        RequestInterface $request, ConfigInterface $config, RenderInterface $render
     ) {
         //Get configured values
         if (!$config) {
@@ -96,27 +95,23 @@ class Html extends \Backend\Core\Utilities\Formatter
     {
         $urlParts = parse_url($this->request->getUrl());
 
-        if (!defined('SITE_SUB_FOLDER')) {
-            define('SITE_SUB_FOLDER', $urlParts['path']);
+        if (!defined('SITE_FOLDER')) {
+            define('SITE_FOLDER', dirname($urlParts['path']));
         }
-        $this->values['SITE_SUB_FOLDER'] = SITE_SUB_FOLDER;
+        $this->values['SITE_FOLDER'] = SITE_FOLDER;
 
         if (!defined('SITE_DOMAIN')) {
             define('SITE_DOMAIN', $urlParts['host']);
         }
         $this->values['SITE_DOMAIN'] = SITE_DOMAIN;
 
-        if (!defined('SITE_PATH')) {
-            define('SITE_PATH', $this->request->getPath());
-        }
-        $this->values['SITE_PATH'] = SITE_PATH;
-
         if (!defined('SITE_LINK')) {
-            define('SITE_LINK', $this->request->getUrl());
+            $link = $urlParts['scheme'] . '://' . $urlParts['host'];
+            $link .= SITE_FOLDER;
+            define('SITE_LINK', $link);
         }
         $this->values['SITE_LINK'] = SITE_LINK;
 
-        var_dump($this->values); die;
         // TODO
         //$this->values['SITE_STATE'] = SITE_STATE;
     }

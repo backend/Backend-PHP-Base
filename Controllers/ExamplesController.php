@@ -27,19 +27,7 @@ use \Backend\Base\Utilities\Renderable;
 class ExamplesController extends \Backend\Core\Controller
 {
     /**
-     * Contructor for the Controller.
-     *
-     * Decorate this Controller with CRUD functionality
-     *
-     * @param \Backend\Core\Request $request The request object for the execution of the action
-     */
-    public function __construct(Request $request = null)
-    {
-        parent::__construct($request);
-    }
-
-    /**
-     * The home function
+     * The home callback
      *
      * @return string Some string
      */
@@ -49,7 +37,7 @@ class ExamplesController extends \Backend\Core\Controller
     }
 
     /**
-     * A function showing how to render a template
+     * A callback showing how to render a template
      *
      * @param mixed $result The result returned from homeAction
      *
@@ -61,7 +49,7 @@ class ExamplesController extends \Backend\Core\Controller
     }
 
     /**
-     * A function showing how to render a template
+     * A callback showing how to render a template
      *
      * @param mixed $result The result returned from homeAction
      *
@@ -73,7 +61,7 @@ class ExamplesController extends \Backend\Core\Controller
     }
 
     /**
-     * A function showing the parameter functionality
+     * A callback showing the parameter functionality
      *
      * @param mixed $id      An id
      * @param mixed $another An optional parameter
@@ -85,4 +73,13 @@ class ExamplesController extends \Backend\Core\Controller
         var_dump($id, $another);
     }
 
+    /**
+     * A callback who'se route is generated using the controllers array.
+     *
+     * @return string
+     */
+    public function listAction()
+    {
+        return 'This is the List Action.';
+    }
 }
