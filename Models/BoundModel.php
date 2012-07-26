@@ -200,6 +200,17 @@ class BoundModel extends \Backend\Core\Model
         return $binding->find(array(), $options);
     }
 
+    public static function __callStatic($method, $args)
+    {
+        $class = get_called_class();
+        $object = new $class();
+        $binding = $object->getBinding();
+        if (is_callable(array($binding, $method))) {
+            return $binding->$method($args);
+        }
+        throw new \Exception('Unimplemented Static Function: ' . __CLASS__ . '::' . $method);
+    }
+
     /**
      * Get the Bound Model's Binding
      *

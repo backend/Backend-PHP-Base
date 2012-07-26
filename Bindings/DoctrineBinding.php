@@ -50,6 +50,19 @@ class DoctrineBinding extends DatabaseBinding
         $this->entityName = $settings['class'];
     }
 
+    public function __call($method, $args)
+    {
+        if (is_callable(array($this->em, $method))) {
+            array_unshift($args, $this->entityName);
+            return call_user_func_array(array($binding, $method), $args);
+        }
+        $repository = $this->em->getRepository($this->entityName);
+        if (is_callable(array($repository, $method))) {
+            return call_user_func_array(array($repository, $method), $args);
+        }
+        throw new \Exception('Unimplemented Function: ' . __CLASS__ . '::' . $method);
+    }
+
     public function getEntityManager()
     {
         return $this->em;
@@ -60,7 +73,7 @@ class DoctrineBinding extends DatabaseBinding
      *
      * @param array $connection The connection information for the binding
      *
-     * @return Object The current object 
+     * @return Object The current object
      */
     protected function init(array $connection)
     {
