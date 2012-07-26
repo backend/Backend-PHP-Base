@@ -52,9 +52,10 @@ class CrudController extends Decorator
         if (!class_exists($modelName, true)) {
             throw new \Exception('Model does not exist: ' . $modelName);
         }
-        $model = new $modelName;
-        if ($model instanceof BoundModel && $identifier !== null) {
+        if (is_subclass_of($modelName, '\Backend\Base\Models\BoundModel') && $identifier !== null) {
             $model = call_user_func(array($modelName, 'read'), $identifier);
+        } else {
+            $model = new $modelName;
         }
 
         //Decorate the Model

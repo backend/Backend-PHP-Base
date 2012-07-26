@@ -141,9 +141,7 @@ class BoundModel extends \Backend\Core\Model
      */
     public static function read($identifier)
     {
-        $className = get_called_class();
-        $object    = new $className();
-        $binding   = $object->getBinding();
+        $binding   = BindingFactory::build(get_called_class());
         if ($model = $binding->read($identifier)) {
             return $model;
         }
