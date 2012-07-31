@@ -238,8 +238,10 @@ class CrudController extends Decorator
 
         $data = $this->getRequest()->getPayload();
         if ($object = $this->isCallable('updatePrepare')) {
-            $data = $object->updatePrepare($data);
+            $data = $object->updatePrepare($model, $data);
             if ($data instanceof Response) {
+                return $data;
+            } else if (is_array($data) === false) {
                 return $data;
             }
         }
