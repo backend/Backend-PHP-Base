@@ -126,7 +126,7 @@ class CrudController extends Decorator
     {
         //Check for already defined function
         if ($object = $this->isCallable('readAction')) {
-            return $object->readAction();
+            return $object->readAction($identifier);
         }
 
         if ($object = $this->isCallable('readPrepare')) {
@@ -227,7 +227,7 @@ class CrudController extends Decorator
     {
         //Check for already defined function
         if ($object = $this->isCallable('updateAction')) {
-            return $object->updateAction();
+            return $object->updateAction($identifier);
         }
 
         $model = $this->getModel($identifier);
@@ -243,6 +243,7 @@ class CrudController extends Decorator
                 return $data;
             }
         }
+
         //Populate the model and update
         $model->populate($data);
         $model->update();

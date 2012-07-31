@@ -50,6 +50,14 @@ class DoctrineBinding extends DatabaseBinding
         $this->entityName = $settings['class'];
     }
 
+    /**
+     * Magic function used to support find* method calls.
+     *
+     * @param array $method The name of the method.
+     * @param array $args   The arguments for the method.
+     *
+     * @return mixed The result from the method call.
+     */
     public function __call($method, $args)
     {
         if (is_callable(array($this->em, $method))) {
@@ -63,6 +71,11 @@ class DoctrineBinding extends DatabaseBinding
         throw new \Exception('Unimplemented Function: ' . __CLASS__ . '::' . $method);
     }
 
+    /**
+     * Return the Entity Manager used by this binding.
+     *
+     * @return [type] [description]
+     */
     public function getEntityManager()
     {
         return $this->em;
@@ -145,7 +158,9 @@ class DoctrineBinding extends DatabaseBinding
     public function read($identifier)
     {
         if (is_numeric($identifier)) {
-            return $this->em->find($this->entityName, $identifier);
+            $instance = $this->em->find($this->entityName, $identifier);
+            $instance->setBinding($this);
+            return $instance;
         }
         throw new \Exception('Unimplemented');
     }
@@ -155,10 +170,10 @@ class DoctrineBinding extends DatabaseBinding
      *
      * This function is the logical counterpart to update, and receives data from the source.
      *
-     * @param \Backend\Core\Interfaces\ModelInterface $model The model to refresh.
+     * @param \Backend\Core\Interfaces\ModelInterface &$model The model to refresh.
      * Passed by reference.
      *
-     * @returns boolean If the refresh was successful or not.
+     * @return boolean If the refresh was successful or not.
      * @throws \Backend\Core\Exceptions\BackendException When the resource can't be refreshed.
      */
     public function refresh(\Backend\Core\Interfaces\ModelInterface &$model)
@@ -171,10 +186,10 @@ class DoctrineBinding extends DatabaseBinding
      *
      * This function is the logical counterpart to refresh, and sends data to the source.
      *
-     * @param \Backend\Core\Interfaces\ModelInterface $model The model to update.
+     * @param \Backend\Core\Interfaces\ModelInterface &$model The model to update.
      * Passed by reference.
      *
-     * @returns boolean If the update was successful or not.
+     * @return boolean If the update was successful or not.
      * @throws \Backend\Core\Exceptions\BackendException When the resource can't be updated.
      */
     public function update(\Backend\Core\Interfaces\ModelInterface &$model)
@@ -187,7 +202,7 @@ class DoctrineBinding extends DatabaseBinding
     /**
      * Delete the specified instance of the resource
      *
-     * @param \Backend\Core\Interfaces\ModelInterface $model The model to delete
+     * @param \Backend\Core\Interfaces\ModelInterface &$model The model to delete
      *
      * @return boolean If the deletion was succesful or not.
      */
