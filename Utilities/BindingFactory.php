@@ -13,9 +13,11 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Utilities;
-use \Backend\Interfaces\BindingFactoryInterface;
-use \Backend\Core\Utilities\Strings;
-use \Backend\Core\Application;
+use Backend\Interfaces\BindingFactoryInterface;
+use Backend\Interfaces\ConfigInterface;
+use Backend\Core\Utilities\Strings;
+use Backend\Core\Application;
+use Backend\Core\Exceptions\ConfigException;
 /**
  * Factory class to create Bindings
  *
@@ -25,9 +27,36 @@ use \Backend\Core\Application;
  * @author     J Jurgens du Toit <jrgns@backend-php.net>
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @link       http://backend-php.net
+ *
+ * @todo Cache built bindings
  */
 class BindingFactory implements BindingFactoryInterface
 {
+    /**
+     * An array defining the available bindings.
+     *
+     * @var array
+     */
+    protected $bindings;
+
+    /**
+     * The class constructor.
+     *
+     * @param Backend\Interfaces\ConfigInterface|array $config The bindings config as
+     * a Config object or an array
+     */
+    public function __construct($config)
+    {
+        if ($config instanceof ConfigInterface) {
+            $config = $config->get();
+        } else if (is_object($config)) {
+            $config = (array)$config;
+        } else if (is_array($config) === false) {
+            throw new ConfigException('Invalid Bindings Configuration');
+        }
+        $this->bindings = $config;
+    }
+
     /**
      * Build the binding using  the specified model name
      *
@@ -36,15 +65,14 @@ class BindingFactory implements BindingFactoryInterface
      *
      * @return Binding The binding
      */
-    public static function build($modelName)
+    public function build($modelName)
     {
         $modelName = is_object($modelName) ? get_class($modelName) : $modelName;
-        $fileName  = PROJECT_FOLDER . 'configs/bindings.yaml';
-        $bindings  = new \Backend\Core\Utilities\Config($fileName);
 
-        if (!($binding = $bindings->get($modelName))) {
+        if (array_key_exists($modelName, $this->bindings) === false) {
             throw new \Exception('No binding setup for ' . $modelName);
         }
+        $binding = $this->bindings[$modelName];
         if (empty($binding['type'])) {
             throw new \Exception('Missing Type for Binding for ' . $modelName);
         }
@@ -60,8 +88,11 @@ class BindingFactory implements BindingFactoryInterface
         if (empty($binding['connection'])) {
             $binding['connection'] = 'default';
         }
-
-        $bindingObj = new $bindingClass($binding);
+        try {
+            $bindingObj = new $bindingClass($binding);
+        } catch (\Exception $e) {
+            var_dump($e); die;
+        }
         return $bindingObj;
     }
 }
