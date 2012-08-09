@@ -193,15 +193,30 @@ class BoundModel implements ModelInterface
     /**
      * Get a list of all the representations of the Model
      *
+     * @param array $options Options used to affect the records returned.
+     *
      * @return array An array of representations of the Model
      */
-    public static function findAll()
+    public static function findAll(array $options = array())
     {
-        //Bit of a hack to make this static
-        $className = get_called_class();
-        $object    = new $className();
-        $binding   = $object->getBinding();
-        return $binding->find();
+        $defaults = array(
+            'order'     => false,
+            'direction' => 'ASC',
+        );
+        $options = $options + $defaults;
+        $binding = BindingFactory::build(get_called_class());
+        return $binding->find(array(), $options);
+    }
+
+    public static function __callStatic($method, $args)
+    {
+        $class = get_called_class();
+        $object = new $class();
+        $binding = $object->getBinding();
+        if (is_callable(array($binding, $method))) {
+            return $binding->$method($args);
+        }
+        throw new \Exception('Unimplemented Static Function: ' . __CLASS__ . '::' . $method);
     }
 
     /**

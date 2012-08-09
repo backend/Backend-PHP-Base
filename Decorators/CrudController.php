@@ -52,9 +52,10 @@ class CrudController extends Decorator
         if (!class_exists($modelName, true)) {
             throw new \Exception('Model does not exist: ' . $modelName);
         }
-        $model = new $modelName;
-        if ($model instanceof BoundModel && $identifier !== null) {
+        if (is_subclass_of($modelName, '\Backend\Base\Models\BoundModel') && $identifier !== null) {
             $model = call_user_func(array($modelName, 'read'), $identifier);
+        } else {
+            $model = new $modelName;
         }
 
         //Decorate the Model
@@ -125,7 +126,7 @@ class CrudController extends Decorator
     {
         //Check for already defined function
         if ($object = $this->isCallable('readAction')) {
-            return $object->readAction();
+            return $object->readAction($identifier);
         }
 
         if ($object = $this->isCallable('readPrepare')) {
@@ -226,7 +227,7 @@ class CrudController extends Decorator
     {
         //Check for already defined function
         if ($object = $this->isCallable('updateAction')) {
-            return $object->updateAction();
+            return $object->updateAction($identifier);
         }
 
         $model = $this->getModel($identifier);
@@ -237,11 +238,14 @@ class CrudController extends Decorator
 
         $data = $this->getRequest()->getPayload();
         if ($object = $this->isCallable('updatePrepare')) {
-            $data = $object->updatePrepare($data);
+            $data = $object->updatePrepare($model, $data);
             if ($data instanceof Response) {
+                return $data;
+            } else if (is_array($data) === false) {
                 return $data;
             }
         }
+
         //Populate the model and update
         $model->populate($data);
         $model->update();
