@@ -13,10 +13,11 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Models;
-use \Backend\Interfaces\ModelInterface;
-use \Backend\Interfaces\BindingFactoryInterface;
-use \Backend\Base\Utilities\BindingFactory;
-use \Backend\Modules\Bindings\Binding;
+use Backend\Interfaces\ModelInterface;
+use Backend\Interfaces\BindingFactoryInterface;
+use Backend\Core\Utilities\Config;
+use Backend\Base\Utilities\BindingFactory;
+use Backend\Modules\Bindings\Binding;
 /**
  * Class for models that are bound to a specific source
  *
@@ -31,54 +32,26 @@ use \Backend\Modules\Bindings\Binding;
  * as a readable field, so you can do
  * <a href="{{model}}/{{model.id}}">{{model.name}}</a>
  */
-class BoundModel implements ModelInterface
+class BoundModel extends \Backend\Base\Model
 {
     /**
-     * Property to show if the Model has changed since it's last update / read
+     * The identifier for the Model
      *
-     * @var boolean
-     */
-    private $_changed = false;
-
-    /**
-     * @var \Backend\Base\Bindings\Binding The binding for the Model
-     */
-    protected $_binding = null;
-
-    /**
-     * @var mixed The identifier for the Model
+     * @var mixed
      */
     protected $id = null;
 
     /**
      * The constructor for the class.
      *
-     * This should rarely be used, rather use the static create function.
+     * This should rarely be used, rather use the Binding::create function.
      *
-     * @param mixed                                       $id      The identifier
-     * for the Model
-     * @param \Backend\Interfaces\BindingFactoryInterface $factory A Binding
-     * Factory used to create Bindings.
+     * @param mixed $id The identifier for the Model.
      */
-    public function __construct($id = null, BindingFactoryInterface $factory = null)
+    public function __construct($id = null)
     {
         $this->setId($id);
         $this->factory = $factory;
-    }
-
-    /**
-     * Magic __set function
-     *
-     * @param string $propertyName The name of the property being set
-     * @param mixed  $value        The value of the property being set
-     *
-     * @return BoundModel The current Model
-     */
-    public function __set($propertyName, $value)
-    {
-        $result = parent::__set($propertyName, $value);
-        $this->setChanged(true);
-        return $result;
     }
 
     /**
@@ -94,8 +67,6 @@ class BoundModel implements ModelInterface
     /**
      * Set the identifier for the Model
      *
-     * This will trigger a refresh of the model
-     *
      * @param mixed $id The identifier for the Model
      *
      * @return BoundModel The current Model
@@ -107,87 +78,6 @@ class BoundModel implements ModelInterface
             $this->id = $id;
         }
         return $this;
-    }
-
-    /**
-     * Populate the Model with the specified properties.
-     *
-     * The function will use any `set` functions defined.
-     *
-     * @param array $properties An array containing the properties for the model
-     *
-     * @return Object The object that was populated
-     */
-    public function populate(array $properties)
-    {
-        $result = parent::populate($properties);
-        $this->setChanged(true);
-        return $result;
-    }
-
-    /**
-     * Create the Model on it's source
-     *
-     * @param array $data The data that should be used to create the Model
-     *
-     * @return BoundModel The current Model
-     */
-    public static function create(array $data)
-    {
-        $className = get_called_class();
-        $object    = new $className();
-        $binding   = $object->getBinding();
-        return $binding->create($data);
-    }
-
-    /**
-     * Populate the Model by reading from it's source
-     *
-     * @param mixed $identifier The unique identifier for the instance, or an
-     * array containing criteria on which to search for the resource.
-     *
-     * @return BoundModel The current Model
-     */
-    public static function read($identifier)
-    {
-        $className = get_called_class();
-        $object    = new $className();
-        $binding   = $object->getBinding();
-        $model = $binding->read($identifier);
-        return $model ?: null;
-    }
-
-    /**
-     * Update the Bound Model on it's source.
-     *
-     * If no changes were made to the model, no update call will be made to the
-     * Binding
-     *
-     * @return BoundModel The current Model
-     */
-    public function update()
-    {
-        if (!$this->hasChanged()) {
-            return $this;
-        }
-        $binding = $this->getBinding();
-        $binding->update($this);
-        $this->setChanged(false);
-        return $this;
-    }
-
-    /**
-     * Destroy the Bound Model on it's source.
-     *
-     * @return boolean If the Model was succesfully destroyed or not
-     */
-    public function destroy()
-    {
-        if (!$this->id) {
-            throw new \Exception('Cannot load unidentified Bound Model');
-        }
-        $binding = $this->getBinding();
-        return $binding->delete($this);
     }
 
     /**
@@ -204,7 +94,7 @@ class BoundModel implements ModelInterface
             'direction' => 'ASC',
         );
         $options = $options + $defaults;
-        $binding = BindingFactory::build(get_called_class());
+        $binding = static::getBinding();
         return $binding->find(array(), $options);
     }
 
@@ -224,12 +114,12 @@ class BoundModel implements ModelInterface
      *
      * @return \Backend\Base\Bindings\Binding The Bound Model's Binding
      */
-    public function getBinding()
+    public static function getBinding()
     {
-        if (!$this->_binding) {
-            $this->_binding = $this->getFactory()->build(get_called_class());
+        if (empty(static::$_binding)) {
+            static::$_binding = static::getBindingFactory()->build(get_called_class());
         }
-        return $this->_binding;
+        return static::$_binding;
     }
 
     /**
@@ -239,56 +129,8 @@ class BoundModel implements ModelInterface
      *
      * @return null;
      */
-    public function setBinding(Binding $binding)
+    public static function setBinding(Binding $binding)
     {
-        $this->_binding = $binding;
-    }
-
-    /**
-     * Get the Bound Model's Changed state
-     *
-     * @return boolean If the Bound Model was changed since it's last sync / update
-     */
-    public function hasChanged()
-    {
-        return $this->_changed;
-    }
-
-    /**
-     * Set the Bound Model's Changed state
-     *
-     * @param boolean $changed The new changed state for the Bound Model
-     *
-     * @return null
-     */
-    public function setChanged($changed)
-    {
-        $this->_changed = $changed;
-    }
-
-
-    /**
-     * Set the Binding Factory.
-     *
-     * @param \Backend\Interfaces\BindingFactoryInterface $factory The Binding
-     * Factory.
-     *
-     * @return \Backend\Base\Models\BoundModel
-     */
-    public function setCallbackFactory(BindingFactoryInterface $factory)
-    {
-        $this->factory = $factory;
-        return $this;
-    }
-
-    /**
-     * Get the Callback Factory.
-     *
-     *  @return \Backend\Interfaces\BindingFactoryInterface
-     */
-    public function getCallbackFactory()
-    {
-        $this->factory = $this->factory ?: new BindingFactory();
-        return $this->factory;
+        static::$_binding = $binding;
     }
 }
