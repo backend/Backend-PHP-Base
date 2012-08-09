@@ -105,7 +105,7 @@ class ModelController extends Controller
      */
     public function listAction()
     {
-        return $this->getBinding()->findAll();
+        return $this->getBinding()->find();
     }
 
     /**
