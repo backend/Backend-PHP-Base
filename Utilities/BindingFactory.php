@@ -40,21 +40,40 @@ class BindingFactory implements BindingFactoryInterface
     protected $bindings;
 
     /**
+     * An array defining the available connections.
+     *
+     * @var array
+     */
+    protected $connections;
+
+    /**
      * The class constructor.
      *
-     * @param Backend\Interfaces\ConfigInterface|array $config The bindings config as
+     * @param Backend\Interfaces\ConfigInterface|array $bindings    The bindings config as
+     * a Config object or an array
+     * @param Backend\Interfaces\ConfigInterface|array $connections The bindings config as
      * a Config object or an array
      */
-    public function __construct($config)
+    public function __construct($bindings, $connections)
     {
-        if ($config instanceof ConfigInterface) {
-            $config = $config->get();
-        } else if (is_object($config)) {
-            $config = (array)$config;
-        } else if (is_array($config) === false) {
+        // Setup Bindings
+        if ($bindings instanceof ConfigInterface) {
+            $bindings = $bindings->get();
+        } else if (is_object($bindings)) {
+            $bindings = (array)$bindings;
+        } else if (is_array($bindings) === false) {
             throw new ConfigException('Invalid Bindings Configuration');
         }
-        $this->bindings = $config;
+        $this->bindings = $bindings;
+        // Setup Connections
+        if ($connections instanceof ConfigInterface) {
+            $connections = $connections->get();
+        } else if (is_object($connections)) {
+            $connections = (array)$connections;
+        } else if (is_array($connections) === false) {
+            throw new ConfigException('Invalid Bindings Configuration');
+        }
+        $this->connections = $connections;
     }
 
     /**
@@ -88,8 +107,12 @@ class BindingFactory implements BindingFactoryInterface
         if (empty($binding['connection'])) {
             $binding['connection'] = 'default';
         }
+        if (array_key_exists($binding['connection'], $this->connections) === false) {
+            throw new \Exception('Could not find ' . $binding['connection']);
+        }
+        $connection = $this->connections[$binding['connection']] + $binding;
         try {
-            $bindingObj = new $bindingClass($binding);
+            $bindingObj = new $bindingClass($connection);
         } catch (\Exception $e) {
             var_dump($e); die;
         }
