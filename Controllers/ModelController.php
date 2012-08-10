@@ -14,6 +14,7 @@
  */
 namespace Backend\Base\Controllers;
 use Backend\Core\Controller;
+use Backend\Core\Response;
 use Backend\Base\Utilities\Renderable;
 use Backend\Base\Utilities\String;
 /**
@@ -71,19 +72,20 @@ class ModelController extends Controller
     /**
      * CRUD Create functionality for controllers.
      *
-     * @return \Backend\Core\Response A Created / 201 Response
+     * @return \Backend\Core\Response A Created / 201 Response with a redirect
+     * to the created resource.
      */
     public function createAction()
     {
         $data  = $this->getRequest()->getPayload();
         $model = $this->getBinding()->create($data);
-        return new Response($model, 201);
+        $response = new Response($model, 201);
+        $response->addHeader('Location: ' . $this->getRequest()->getPath() . '/' . $model->getId());
+        return $response;
     }
 
     /**
      * The HTML method for the create Action.
-     *
-     * It creates a Redirect Response to the created resource.
      *
      * @param mixed $result The result from the Action method.
      *
@@ -92,8 +94,7 @@ class ModelController extends Controller
     public function createHtml($result)
     {
         if ($result instanceof Response && $result->getStatusCode() == 201) {
-            $redirect = $this->getRequest()->getPath() . $result->getBody()->getId();
-            return $this->redirect($redirect);
+            return $result;
         }
         // TODO
     }
@@ -204,7 +205,8 @@ class ModelController extends Controller
             // The specified Resource doesn't exist
             return $model;
         }
-        return $this->getBinding()->delete($model);
+        $this->getBinding()->delete($model);
+        return new Response('', 204);
     }
 
     /**
@@ -217,8 +219,7 @@ class ModelController extends Controller
     public function deleteHtml($result)
     {
         if ($result instanceof Response && $result->getStatusCode() == 204) {
-            // TODO Fix this redirect. We will need to reverse Routes
-            return $this->redirect(SITE_LINK);
+            return $this->redirect($this->getRequest()->getPath());
         }
         // TODO
     }
