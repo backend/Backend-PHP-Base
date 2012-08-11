@@ -34,7 +34,8 @@ class Model implements \Backend\Interfaces\ModelInterface
      */
     public function __get($propertyName)
     {
-        $funcName = 'get' . Utilities\Strings::className($propertyName);
+        $propertyName = new Utilities\String($propertyName);
+        $funcName = 'get' . $propertyName->camelCase();
         if (method_exists($this, $funcName)) {
             $this->$funcName();
         } else if (property_exists($this, $propertyName)) {
