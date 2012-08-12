@@ -4,14 +4,15 @@
 
 {% block body %}
     <div class="container">
-        <h1>Exception: {{ title }}</h1>
-        <h3>{{ message }}</h3>
+        <h1>{{ title }} - {{ message }}</h1>
+        <h3>{{ exception.getFile }}: {{ exception.line }}</h3>
+        <hr>
         {% if xdebug_message|length > 0 %}
-            <table>
+            <table class="table">
                 {{ xdebug_message|raw }}
             </table>
         {% else %}
-            <pre class="loud">{{ exception }}
+            <pre class="loud">
 {% for line in exception.trace %}
     {{ loop.length - loop.index0 }}. {% if line.file|length > 0 %}{{ line.file }} [ {{ line.line }} ] - {% endif %}{{ line.class }}{{ line.type }}{{ line.function }}()
 {% endfor %}

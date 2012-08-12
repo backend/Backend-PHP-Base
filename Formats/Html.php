@@ -186,10 +186,10 @@ class Html extends \Backend\Core\Utilities\Formatter
             $template            = 'exception';
             $values['title']     = get_class($object);
             $values['message']   = $object->getMessage();
-            if (property_exists('xdebug_message', $object)) {
+            if (property_exists($object, 'xdebug_message')) {
                 $values['xdebug_message'] = $object->xdebug_message;
             }
-            $values['exception'] = new PrettyExceptionDecorator($object);
+            $values['exception'] = $object;
             break;
         }
         return $this->render->file($template, $values);

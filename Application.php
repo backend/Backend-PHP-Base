@@ -13,12 +13,7 @@
  */
 namespace Backend\Base;
 use Backend\Core\Application as CoreApplication;
-use Backend\Interfaces\RouterInterface;
-use Backend\Interfaces\FormatterInterface;
-use Backend\Interfaces\RequestInterface;
-use Backend\Interfaces\ConfigInterface;
-use Backend\Core\Utilities\Config;
-use Backend\Core\Exceptions\ConfigException;
+use Backend\Base\Utilities\Renderable;
 /**
  * The main application class.
  *
@@ -30,4 +25,25 @@ use Backend\Core\Exceptions\ConfigException;
  */
 class Application extends CoreApplication
 {
+    /**
+     * Exception handling function called when ever an exception isn't handled.
+     *
+     * Called by set_exception_handler.
+     *
+     * @param \Exception $exception The thrown exception.
+     * @param bool       $return    Return the response instead of outputting it.
+     *
+     * @return \Backend\Interfaces\ResponseInterface
+     */
+    public function exception(\Exception $exception, $return = false)
+    {
+        $response = parent::exception($exception, true);
+        $response->setBody($exception);
+        $formatter = $this->container->get('backend.formatter');
+        $response  = $formatter->transform($response);
+        if ($return) {
+            return $response;
+        }
+        $response->output() && die;
+    }
 }
