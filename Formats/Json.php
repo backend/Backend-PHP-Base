@@ -37,14 +37,12 @@ class Json extends \Backend\Core\Utilities\Formatter
      * Transform the result into the Format.
      *
      * @param mixed    $result    The result to transform
-     * @param callable $callback  The callback that was executed
-     * @param array    $arguments The arguments that were passed
      *
      * @return \Backend\Core\Response The response to transform
      */
     public function transform($result)
     {
-        $response = parent::transform($result, $callback, $arguments);
+        $response = parent::transform($result);
         $response->addHeader('Content-Type', 'application/json');
 
         $body = $response->getBody();
