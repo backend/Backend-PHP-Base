@@ -98,7 +98,9 @@ class Model implements \Backend\Interfaces\ModelInterface
         $properties = $reflector->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED);
         $result     = array();
         foreach ($properties as $property) {
-            if ($property->isPrivate() || substr($property->getName(), 0, 1) == '_') {
+            if ($property->isStatic() || $property->isPrivate()
+                || substr($property->getName(), 0, 1) == '_'
+            ) {
                 continue;
             }
             $result[$property->getName()] = $this->{$property->getName()};
