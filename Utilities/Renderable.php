@@ -129,6 +129,7 @@ class Renderable
      */
     public function __toString()
     {
+        // TODO Remove this dependency
         return \Backend\Core\Utilities\ServiceLocator::get('backend.Render')
             ->file($this->template, $this->values);
     }

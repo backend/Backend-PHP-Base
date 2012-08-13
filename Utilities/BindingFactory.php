@@ -111,11 +111,7 @@ class BindingFactory implements BindingFactoryInterface
             throw new \Exception('Could not find ' . $binding['connection']);
         }
         $connection = $this->connections[$binding['connection']] + $binding;
-        try {
-            $bindingObj = new $bindingClass($connection);
-        } catch (\Exception $e) {
-            var_dump($e); die;
-        }
+        $bindingObj = new $bindingClass($connection);
         return $bindingObj;
     }
 }
