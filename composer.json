@@ -1,8 +1,27 @@
 {
-    "name": "backend/Backend-PHP-Base",
+    "description": "The Base of the Backend-PHP Framework.",
+    "keywords": ["backend", "framework", "mvc", "soa", "base"],
+    "homepage": "http://backend-php.net",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jurgens du Toit",
+            "email": "jrgns@backend-php.net",
+            "homepage": "http://jrgns.net",
+            "role": "Designer / Developer"
+        }
+    ],
+    "name": "backend/base",
+    "type": "library",
     "require": {
         "php": ">=5.3.0",
-        "backend/Backend-PHP-Interfaces": "0.*",
-        "backend/Backend-PHP-Core": "0.*",
-    }
+        "backend/interfaces": "=>0.1.2",
+        "backend/core": "=>0.3"
+    },
+    "autoload": {
+        "psr-0": {
+            "Backend\\Base": ""
+        }
+    },
+    "target-dir": "Backend/Base"
 }
