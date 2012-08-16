@@ -39,11 +39,13 @@ class Application extends CoreApplication
     {
         $response = parent::exception($exception, true);
         $response->setBody($exception);
-        $formatter = $this->container->get('backend.formatter');
+        $formatter = $this->container->get('formatter');
         $response  = $formatter->transform($response);
         if ($return) {
             return $response;
         }
-        $response->output() && die;
+
+        $response->output();
+        die;
     }
 }

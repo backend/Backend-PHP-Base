@@ -61,12 +61,7 @@ class Html extends \Backend\Core\Utilities\Formatter
     function __construct(
         RequestInterface $request, ConfigInterface $config, RenderInterface $render
     ) {
-        //Get configured values
-        if (!$config) {
-            //$config = $config ?: ServiceLocator::get('backend.Config');
-        }
         parent::__construct($request, $config);
-
 
         if ($this->config) {
             $this->values = $this->config->get('application', 'values');
@@ -77,7 +72,7 @@ class Html extends \Backend\Core\Utilities\Formatter
         if ($render) {
             $this->render = $render;
         } else if ($this->config
-            && $render = $this->config->services['backend.Render']
+            && $render = $this->config->services['render']
         ) {
             $this->render = new $render();
         }
@@ -95,25 +90,24 @@ class Html extends \Backend\Core\Utilities\Formatter
     {
         $urlParts = parse_url($this->request->getUrl());
 
-        if (!defined('SITE_FOLDER')) {
+        if (defined('SITE_FOLDER') === false) {
             define('SITE_FOLDER', dirname($urlParts['path']));
         }
         $this->values['SITE_FOLDER'] = SITE_FOLDER;
 
-        if (!defined('SITE_DOMAIN')) {
+        if (defined('SITE_DOMAIN') === false) {
             define('SITE_DOMAIN', $urlParts['host']);
         }
         $this->values['SITE_DOMAIN'] = SITE_DOMAIN;
 
-        if (!defined('SITE_LINK')) {
+        if (defined('SITE_LINK') === false) {
             $link = $urlParts['scheme'] . '://' . $urlParts['host'];
             $link .= SITE_FOLDER;
             define('SITE_LINK', $link);
         }
         $this->values['SITE_LINK'] = SITE_LINK;
 
-        // TODO
-        //$this->values['SITE_STATE'] = SITE_STATE;
+        $this->values['SITE_STATE'] = defined('BACKEND_SITE_STATE') ? BACKEND_SITE_STATE : 'Unknown';
     }
 
     /**

@@ -13,7 +13,6 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Controllers;
-use \Backend\Base\Utilities\Renderable;
 /**
  * An example controller containing some sample code
  *
@@ -24,7 +23,7 @@ use \Backend\Base\Utilities\Renderable;
  * @license    http://www.opensource.org/licenses/mit-license.php MIT License
  * @link       http://backend-php.net
  */
-class ExamplesController extends \Backend\Core\Controller
+class ExamplesController extends \Backend\Base\Controller
 {
     /**
      * The home callback
@@ -45,7 +44,7 @@ class ExamplesController extends \Backend\Core\Controller
      */
     public function homeHtml($result)
     {
-        return new Renderable('home', array('result' => $result));
+        return $this->render('home', array('result' => $result));
     }
 
     /**
@@ -70,7 +69,7 @@ class ExamplesController extends \Backend\Core\Controller
      */
     public function paramsAction($id, $another = false)
     {
-        var_dump($id, $another);
+        return 'ID: ' . $id . ', Another: ' . var_export($another, true);
     }
 
     /**

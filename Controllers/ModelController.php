@@ -256,7 +256,7 @@ class ModelController extends Controller
     {
         $modelName = $modelName ?: self::getModelName();
         return $this->container
-            ->get('backend.binding_factory')
+            ->get('binding_factory')
             ->build($modelName);
     }
 }
