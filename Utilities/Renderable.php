@@ -26,23 +26,40 @@ namespace Backend\Base\Utilities;
 class Renderable
 {
     /**
-     * @var string The template to render
+     * The Renderer to use.
+     *
+     * @var \Backend\Interfaces\RenderInterface
+     */
+    protected $renderer = null;
+
+    /**
+     * The template to render.
+     * 
+     * @var string
      */
     protected $template = 'index';
 
     /**
-     * @var array The values to use when rendering the template
+     * The values to use when rendering the template.
+     * 
+     * @var array
      */
     protected $values = array();
 
     /**
      * The constructor for the object
      *
-     * @param string $template The name of the template for the object
-     * @param array  $values   The values to use when rendering the template
+     * @param \Backend\Interfaces\RenderInterface $renderer The Rendering Utility
+     * to use.
+     * @param string                              $template The name of the
+     * template for the object
+     * @param array                               $values   The values to use
+     * when rendering the template
      */
-    function __construct($template, array $values = array())
+    function __construct(\Backend\Interfaces\RenderInterface $renderer,
+        $template, array $values = array())
     {
+        $this->renderer = $renderer;
         $this->template = $template;
         $this->values = $values;
     }
@@ -129,8 +146,6 @@ class Renderable
      */
     public function __toString()
     {
-        // TODO Remove this dependency
-        return \Backend\Core\Utilities\ServiceLocator::get('backend.Render')
-            ->file($this->template, $this->values);
+        return $this->renderer->file($this->template, $this->values);
     }
 }
