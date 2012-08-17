@@ -14,6 +14,7 @@
 namespace Backend\Base;
 use Backend\Core\Application as CoreApplication;
 use Backend\Core\Exception as CoreException;
+use Backend\Core\Response;
 /**
  * The main application class.
  *
@@ -64,6 +65,26 @@ class Application extends CoreApplication
      */
     public function exception(\Exception $exception, $return = false)
     {
+        switch ($exception->getCode()) {
+            case 401:
+                $response = new Response('', 302);
+                $location = $this->container->getParameter('user.unauthorized.redirect');
+                $response->addHeader($location, 'Location');
+                break;
+            default:
+                $response = $this->renderException($exception);
+                break;
+        }
+        // Return or Output
+        if ($return) {
+            return $response;
+        }
+        $response->output();
+        die;
+    }
+
+    public function renderException($exception)
+    {
         $response = parent::exception($exception, true);
         $response->setBody($exception);
         try {
@@ -76,14 +97,8 @@ class Application extends CoreApplication
                     . PHP_EOL . PHP_EOL;
                 die($exception);
             }
-            return (string)$exception;
+            return new Response((string)$exception);
         }
-        $response = $formatter->transform($response);
-        if ($return) {
-            return $response;
-        }
-
-        $response->output();
-        die;
+        return $formatter->transform($response);
     }
 }

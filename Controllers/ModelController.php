@@ -13,7 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Controllers;
-use Backend\Core\Controller;
+use Backend\Base\Controller;
 use Backend\Core\Response;
 use Backend\Base\Utilities\Renderable;
 use Backend\Base\Utilities\String;
