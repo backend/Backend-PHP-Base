@@ -31,6 +31,13 @@ use \Backend\Core\Decorators\PrettyExceptionDecorator;
 class Html extends \Backend\Core\Utilities\Formatter
 {
     /**
+     * Relavant configuration options.
+     *
+     * @var \Backend\Interfaces\ConfigInterfaces
+     */
+    protected $config;
+
+    /**
      * Rendering Utility used by this formatter.
      *
      * @var \Backend\Interface\RenderInterface
@@ -61,21 +68,11 @@ class Html extends \Backend\Core\Utilities\Formatter
     function __construct(
         RequestInterface $request, ConfigInterface $config, RenderInterface $render
     ) {
-        parent::__construct($request, $config);
+        parent::__construct($request);
 
-        if ($this->config) {
-            $this->values = $this->config->get('application', 'values');
-        } else {
-            $this->values = array();
-        }
-
-        if ($render) {
-            $this->render = $render;
-        } else if ($this->config
-            && $render = $this->config->services['render']
-        ) {
-            $this->render = new $render();
-        }
+        $this->config = $config;
+        $this->values = $this->config->get('application', 'values');
+        $this->render = $render;
 
         self::_setupConstants();
     }
