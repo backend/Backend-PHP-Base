@@ -92,11 +92,6 @@ class Application extends CoreApplication
         } catch (\Exception $e) {
         }
         if (empty($formatter)) {
-            if ($return === false) {
-                echo 'Trying to handle an exception, but there is no Formatter to Output with.'
-                    . PHP_EOL . PHP_EOL;
-                die($exception);
-            }
             return new Response((string)$exception);
         }
         return $formatter->transform($response);

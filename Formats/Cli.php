@@ -43,8 +43,8 @@ class Cli extends \Backend\Core\Utilities\Formatter
     public function transform($result)
     {
         if ($result instanceof Response) {
+            $code   = $result->getStatusCode();
             $result = $result->getBody();
-            $code   = $result->getCode();
         } else {
             $code = 500;
         }
@@ -56,7 +56,7 @@ class Cli extends \Backend\Core\Utilities\Formatter
                 $body .= 'Line: ' . $result->getLine() . PHP_EOL;
                 break;
             default:
-                $body .= var_export($result, true);
+                $body .= (string) $result;
                 break;
         }
         $body .= PHP_EOL;
