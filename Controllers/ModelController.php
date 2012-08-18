@@ -13,8 +13,8 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Controllers;
-use Backend\Base\Controller;
 use Backend\Core\Response;
+use Backend\Base\Controller;
 use Backend\Base\Utilities\Renderable;
 use Backend\Base\Utilities\String;
 /**
@@ -80,7 +80,6 @@ class ModelController extends Controller
         $data  = $this->getRequest()->getPayload();
         $model = $this->getBinding()->create($data);
         $response = new Response($model, 201);
-        $response->addHeader('Location: ' . $this->getRequest()->getPath() . '/' . $model->getId());
         return $response;
     }
 
@@ -94,9 +93,11 @@ class ModelController extends Controller
     public function createHtml($result)
     {
         if ($result instanceof Response && $result->getStatusCode() == 201) {
-            return $result;
+            $location = $this->getRequest()->getPath() . '/' . $result->getBody()->getId();
+            return $this->redirect($location);
         }
         // TODO
+        return $result;
     }
 
     /**
@@ -247,6 +248,9 @@ class ModelController extends Controller
 
     /**
      * Get the Model Binding, using the name of the controller to determine the binding.
+     *
+     * I would love to make this static, but we need the container to get the factory,
+     * to get the binding.
      *
      * @param string $modelName The name of the model to get the binding for.
      *
