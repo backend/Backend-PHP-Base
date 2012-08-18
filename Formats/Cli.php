@@ -42,9 +42,24 @@ class Cli extends \Backend\Core\Utilities\Formatter
      */
     public function transform($result)
     {
-        $result = 'Result:' . PHP_EOL;
-        $result .= var_export($result, true);
-        $result .= PHP_EOL;
-        return new Response($result);
+        if ($result instanceof Response) {
+            $result = $result->getBody();
+            $code   = $result->getCode();
+        } else {
+            $code = 500;
+        }
+        $body = 'Result:' . PHP_EOL;
+        switch (true) {
+            case $result instanceof \Exception:
+                $body .= 'Exception: ' . $result->getMessage() . ' (' . $result->getCode() . ')' . PHP_EOL;
+                $body .= 'File: ' . $result->getFile() . PHP_EOL;
+                $body .= 'Line: ' . $result->getLine() . PHP_EOL;
+                break;
+            default:
+                $body .= var_export($result, true);
+                break;
+        }
+        $body .= PHP_EOL;
+        return new Response($body, $code);
     }
 }
