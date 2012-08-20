@@ -13,6 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Controllers;
+use Backend\Base\Controller;
 use Backend\Core\Response;
 use Backend\Base\Controller;
 use Backend\Base\Utilities\Renderable;
@@ -66,7 +67,9 @@ class ModelController extends Controller
             return $result;
         }
         // TODO Check the current template folder for $modelName/form
-        return new Renderable('crud/form', array('model' => $result));
+        $component = explode('\\', get_class($result));
+        $component = end($component);
+        return $this->render('crud/form', array('model' => $result, 'component' => $component));
     }
 
     /**
@@ -120,7 +123,9 @@ class ModelController extends Controller
     public function listHtml($result)
     {
         // TODO Check the current template folder for $modelName/list
-        return new Renderable('crud/list', array('list' => $result));
+        $component = explode('\\', self::getModelName());
+        $component = end($component);
+        return $this->render('crud/list', array('list' => $result, 'component' => $component));
     }
 
     /**
@@ -154,7 +159,9 @@ class ModelController extends Controller
             return $result;
         }
         // TODO Check the current template folder for $modelName/display
-        return new Renderable('crud/display', array('result' => $result, 'component' => $modelName));
+        $component = explode('\\', get_class($result));
+        $component = end($component);
+        return $this->render('crud/display', array('result' => $result, 'component' => $component));
     }
 
     /**

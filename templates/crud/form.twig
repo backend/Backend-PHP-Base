@@ -1,0 +1,16 @@
+{% extends "index.twig" %}
+
+{% block body %}
+    <div class="container">
+        <h1>{{ component|default("Component") }} CRUD Form</h1>
+        <form class="form-vertical" method="post" action="{{ SITE_LINK }}/{{ component|lower }}">
+	        {% for key,value in model.properties if key != 'id' %}
+	            <label>{{ key }}</label>
+	            <input name="{{ key }}" id="{{ key }}" value="{{ value }}">
+	        {% endfor %}
+			<div class="form-actions">
+				<input type="submit" class="btn btn-primary" value="{% if model.id %}Save{% else %}Create{% endif %}">
+			</div>
+      	</form>
+    </div>
+{% endblock %}
