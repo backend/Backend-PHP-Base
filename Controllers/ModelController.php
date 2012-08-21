@@ -15,7 +15,6 @@
 namespace Backend\Base\Controllers;
 use Backend\Base\Controller;
 use Backend\Core\Response;
-use Backend\Base\Controller;
 use Backend\Base\Utilities\Renderable;
 use Backend\Base\Utilities\String;
 /**
