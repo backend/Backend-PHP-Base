@@ -87,6 +87,9 @@ class BindingFactory implements BindingFactoryInterface
     public function build($modelName)
     {
         $modelName = is_object($modelName) ? get_class($modelName) : $modelName;
+        if (substr($modelName, 0, 1) !== '\\') {
+            $modelName = '\\' . $modelName;
+        }
 
         if (array_key_exists($modelName, $this->bindings) === false) {
             throw new \Exception('No binding setup for ' . $modelName);
