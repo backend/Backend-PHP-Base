@@ -146,6 +146,10 @@ class Renderable
      */
     public function __toString()
     {
-        return $this->renderer->file($this->template, $this->values);
+        try {
+            return $this->renderer->file($this->template, $this->values);
+        } catch (\Exception $e) {
+            return 'There was an error parsing ' . $this->template .': ' . $e->getMessage();
+        }
     }
 }
