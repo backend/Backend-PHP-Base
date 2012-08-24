@@ -91,10 +91,13 @@ class BindingFactory implements BindingFactoryInterface
             $modelName = '\\' . $modelName;
         }
 
-        if (array_key_exists($modelName, $this->bindings) === false) {
+        if (array_key_exists($modelName, $this->bindings)) {
+            $binding = $this->bindings[$modelName];
+        } else if (array_key_exists('default', $this->bindings)) {
+            $binding = $this->bindings['default'];
+        } else {
             throw new \Exception('No binding setup for ' . $modelName);
         }
-        $binding = $this->bindings[$modelName];
         if (empty($binding['type'])) {
             throw new \Exception('Missing Type for Binding for ' . $modelName);
         }
