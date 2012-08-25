@@ -34,14 +34,16 @@ class Controller extends \Backend\Core\Controller
      */
     public function render($template, array $values = array())
     {
+        $values['session'] = array_key_exists('session', $values) ?
+            $values['session'] : $this->session;
         return new Renderable($this->renderer, $template, $values);
     }
 
     /**
      * Magic method to get properties. Will return the named service if it exists.
-     * 
+     *
      * @param string $property The name of the property or service to get.
-     * 
+     *
      * @return object
      * @throws \ErrorException If the service doesn't exist.
      */
@@ -50,6 +52,6 @@ class Controller extends \Backend\Core\Controller
         if ($this->container->has($property)) {
             return $this->container->get($property);
         }
-        throw new \ErrorException('Undefined property: ' . __CLASS__ , '::$' . $property);
+        throw new \ErrorException('Undefined property: ' . __CLASS__ . '::$' . $property);
     }
 }
