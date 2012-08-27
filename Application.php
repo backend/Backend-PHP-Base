@@ -14,6 +14,8 @@
 namespace Backend\Base;
 use Backend\Core\Application as CoreApplication;
 use Backend\Core\Exception as CoreException;
+use Backend\Interfaces\CallbackInterface;
+use Backend\Interfaces\FormatterInterface;
 use Backend\Core\Response;
 /**
  * The main application class.
@@ -26,6 +28,49 @@ use Backend\Core\Response;
  */
 class Application extends CoreApplication
 {
+    /**
+     * Execute the defined callback.
+     *
+     * The callback will be logged.
+     *
+     * @param Backend\Interfaces\CallbackInterface $callback The callback to execute.
+     *
+     * @return mixed The result from the callback.
+     */
+    protected function executeCallback(CallbackInterface $callback)
+    {
+        // Check Permissions
+        if ($authenticator = $this->container->has('authenticator')) {
+            $this->container->get('authenticator')->check($callback, $this->container);
+        }
+
+        // Log the Callback
+        $this->container->get('logger')->addInfo('Callback: ' . $callback);
+        return parent::executeCallback($callback);
+    }
+
+    /**
+     * Execute the format related callback.
+     *
+     * The callback will be logged.
+     *
+     * @param Backend\Interfaces\CallbackInterface  $callback  The callback on which
+     * the call will be based.
+     * @param Backend\Interfaces\FormatterInterface $formatter The formatter on which
+     * the call will be based.
+     * @param mixed                                 $result    The result from the original
+     * callback.
+     *
+     * @return mixed The result of the format callback.
+     */
+    protected function executeFormatCallback(CallbackInterface $callback,
+        FormatterInterface $formatter, $result
+    ) {
+        // Log the Callback
+        $this->container->get('logger')->addInfo('Format Callback: ' . $callback);
+        return parent::executeFormatCallback($callback, $formatter, $result);
+    }
+
     /**
      * Get the Formatter for the Application.
      *
