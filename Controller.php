@@ -36,6 +36,8 @@ class Controller extends \Backend\Core\Controller
     {
         $values['session'] = array_key_exists('session', $values) ?
             $values['session'] : $this->session;
+        $values['user'] = array_key_exists('user', $values) ?
+            $values['user'] : $this->user_session->readAction();
         return new Renderable($this->renderer, $template, $values);
     }
 
