@@ -34,10 +34,14 @@ class Controller extends \Backend\Core\Controller
      */
     public function render($template, array $values = array())
     {
-        $values['session'] = array_key_exists('session', $values) ?
-            $values['session'] : $this->session;
-        $values['user'] = array_key_exists('user', $values) ?
-            $values['user'] : $this->user_session->readAction();
+        if ($this->container->has('session')) {
+            $values['session'] = array_key_exists('session', $values) ?
+                $values['session'] : $this->session;
+        }
+        if ($this->container->has('user_session')) {
+            $values['user'] = array_key_exists('user', $values) ?
+                $values['user'] : $this->user_session->readAction();
+        }
         return new Renderable($this->renderer, $template, $values);
     }
 
