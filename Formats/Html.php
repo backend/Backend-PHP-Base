@@ -71,7 +71,8 @@ class Html extends \Backend\Core\Utilities\Formatter
         parent::__construct($request);
 
         $this->config = $config;
-        $this->values = $this->config->get('application', 'values');
+        $this->values = $this->config->get('values');
+        $this->values = empty($this->values) ? array() : $this->values;
         $this->render = $render;
 
         self::_setupConstants();
