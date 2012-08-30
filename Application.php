@@ -42,7 +42,7 @@ class Application extends CoreApplication
         $callback = parent::transformCallback($callback);
 
         // Check Permissions
-        if ($authenticator = $this->container->has('authenticator')) {
+        if ($this->container->has('authenticator')) {
             $this->container->get('authenticator')->check($callback, $this->container);
         }
 
@@ -64,7 +64,6 @@ class Application extends CoreApplication
     protected function transformFormatCallback(CallbackInterface $callback,
         FormatterInterface $formatter
     ) {
-        echo $this->arg;
         $callback = parent::transformFormatCallback($callback, $formatter);
 
         // Log the Callback
