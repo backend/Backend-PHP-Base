@@ -114,7 +114,7 @@ class Application extends CoreApplication
         switch ($exception->getCode()) {
             case 401:
                 // Log it
-                $message = 'Unauthorized Request';
+                $message = 'Unauthorized Request:' . $this->getRequest()->getPath();
                 $this->container->get('logger')->addNotice($message);
                 // Reedirect to the predefined location
                 $response = new Response('', 302);
