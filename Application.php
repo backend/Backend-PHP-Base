@@ -37,8 +37,10 @@ class Application extends CoreApplication
      *
      * @return mixed The result from the callback.
      */
-    protected function executeCallback(CallbackInterface $callback)
+    protected function transformCallback(CallbackInterface $callback)
     {
+        $callback = parent::transformCallback($callback);
+
         // Check Permissions
         if ($authenticator = $this->container->has('authenticator')) {
             $this->container->get('authenticator')->check($callback, $this->container);
@@ -46,29 +48,28 @@ class Application extends CoreApplication
 
         // Log the Callback
         $this->container->get('logger')->addInfo('Callback: ' . $callback);
-        return parent::executeCallback($callback);
+        return $callback;
     }
 
     /**
-     * Execute the format related callback.
-     *
-     * The callback will be logged.
+     * Transform the callback in relation with the format.
      *
      * @param Backend\Interfaces\CallbackInterface  $callback  The callback on which
      * the call will be based.
      * @param Backend\Interfaces\FormatterInterface $formatter The formatter on which
      * the call will be based.
-     * @param mixed                                 $result    The result from the original
-     * callback.
      *
-     * @return mixed The result of the format callback.
+     * @return Backend\Interfaces\CallbackInterface The transformed format callback.
      */
-    protected function executeFormatCallback(CallbackInterface $callback,
-        FormatterInterface $formatter, $result
+    protected function transformFormatCallback(CallbackInterface $callback,
+        FormatterInterface $formatter
     ) {
+        echo $this->arg;
+        $callback = parent::transformFormatCallback($callback, $formatter);
+
         // Log the Callback
         $this->container->get('logger')->addInfo('Format Callback: ' . $callback);
-        return parent::executeFormatCallback($callback, $formatter, $result);
+        return $callback;
     }
 
     /**
@@ -112,11 +113,19 @@ class Application extends CoreApplication
     {
         switch ($exception->getCode()) {
             case 401:
+                // Log it
+                $message = 'Unauthorized Request';
+                $this->container->get('logger')->addNotice($message);
+                // Reedirect to the predefined location
                 $response = new Response('', 302);
                 $location = $this->container->getParameter('user.unauthorized.redirect');
                 $response->addHeader($location, 'Location');
                 break;
             default:
+                // Log it
+                $message = 'Unhandled Exception: ' . $exception->getMessage();
+                $this->container->get('logger')->addCritical($message);
+                // Display it
                 $response = $this->renderException($exception);
                 break;
         }
@@ -141,4 +150,21 @@ class Application extends CoreApplication
         }
         return $formatter->transform($response);
     }
+
+    /**
+     * Shutdown function called when ever the script ends
+     *
+     * @return null
+     */
+    public function shutdown()
+    {
+        $e = error_get_last();
+        if ($e !== null && $e['type'] === E_ERROR) {
+            $message = 'Fatal Error: ' . $e['message'];
+
+            $this->container->get('logger')->addAlert('Fatal Error', $e);
+        }
+        parent::shutdown();
+    }
+
 }
