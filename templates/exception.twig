@@ -4,19 +4,24 @@
 
 {% block body %}
     <div class="container">
-        <h1>{{ title }} - {{ message }}</h1>
-        <h3>{{ exception.getFile }}: {{ exception.line }}</h3>
-        <hr>
-        {% if xdebug_message|length > 0 %}
-            <table class="table">
-                {{ xdebug_message|raw }}
-            </table>
+        {% if constant('BACKEND_SITE_STATE') == 'production' %}
+            <h1>Whoops! An unexpected error has occured.</h1>
+            <p>The owners of the site has been notified, please be patient.</p>
         {% else %}
-            <pre class="loud">
+            <h1>{{ title }} - {{ message }}</h1>
+            <h3>{{ exception.getFile }}: {{ exception.line }}</h3>
+            <hr>
+            {% if xdebug_message|length > 0 %}
+                <table class="table">
+                    {{ xdebug_message|raw }}
+                </table>
+            {% else %}
+                <pre class="loud">
 {% for line in exception.trace %}
     {{ loop.length - loop.index0 }}. {% if line.file|length > 0 %}{{ line.file }} [ {{ line.line }} ] - {% endif %}{{ line.class }}{{ line.type }}{{ line.function }}()
 {% endfor %}
 </pre>
-        {% endif %}
+            {% endif %}
+        {% endif %}            
     </div>
 {% endblock %}
