@@ -26,12 +26,13 @@ namespace Backend\Base\Controllers;
 class ExamplesController extends \Backend\Base\Controller
 {
     /**
-     * The home callback
+     * The home callback.
      *
      * @return string Some string
      */
     public function homeAction()
     {
+        $this->flash('info', 'This is a flash message');
         return 'Some string';
     }
 

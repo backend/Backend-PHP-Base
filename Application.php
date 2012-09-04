@@ -29,6 +29,19 @@ use Backend\Core\Response;
 class Application extends CoreApplication
 {
     /**
+     * Initialize the Application.
+     *
+     * @return void
+     */
+    public function init()
+    {
+        parent::init();
+        if ($this->container->has('session')) {
+            $this->container->get('session');
+        }
+    }
+
+    /**
      * Execute the defined callback.
      *
      * The callback will be logged.
@@ -47,7 +60,9 @@ class Application extends CoreApplication
         }
 
         // Log the Callback
-        $this->container->get('logger')->addInfo('Callback: ' . $callback);
+        if ($this->container->has('logger')) {
+            $this->container->get('logger')->addInfo('Callback: ' . $callback);
+        }
         return $callback;
     }
 
@@ -67,7 +82,9 @@ class Application extends CoreApplication
         $callback = parent::transformFormatCallback($callback, $formatter);
 
         // Log the Callback
-        $this->container->get('logger')->addInfo('Format Callback: ' . $callback);
+        if ($this->container->has('logger')) {
+            $this->container->get('logger')->addInfo('Format Callback: ' . $callback);
+        }
         return $callback;
     }
 
@@ -113,8 +130,10 @@ class Application extends CoreApplication
         switch ($exception->getCode()) {
             case 401:
                 // Log it
-                $message = 'Unauthorized Request:' . $this->getRequest()->getPath();
-                $this->container->get('logger')->addNotice($message);
+                if ($this->container->has('logger')) {
+                    $message = 'Unauthorized Request:' . $this->getRequest()->getPath();
+                    $this->container->get('logger')->addNotice($message);
+                }
                 // Reedirect to the predefined location
                 $response = new Response('', 302);
                 $location = $this->container->getParameter('user.unauthorized.redirect');
@@ -122,8 +141,10 @@ class Application extends CoreApplication
                 break;
             default:
                 // Log it
-                $message = 'Unhandled Exception: ' . $exception->getMessage();
-                $this->container->get('logger')->addCritical($message);
+                if ($this->container->has('logger')) {
+                    $message = 'Unhandled Exception: ' . $exception->getMessage();
+                    $this->container->get('logger')->addCritical($message);
+                }
                 // Display it
                 $response = $this->renderException($exception);
                 break;
@@ -136,7 +157,13 @@ class Application extends CoreApplication
         die;
     }
 
-    public function renderException($exception)
+    /**
+     * Render the exception.
+     * 
+     * @param  [type] $exception [description]
+     * @return [type]            [description]
+     */
+    public function renderException(\Exception $exception)
     {
         $response = parent::exception($exception, true);
         $response->setBody($exception);
@@ -160,10 +187,10 @@ class Application extends CoreApplication
         $e = error_get_last();
         if ($e !== null && $e['type'] === E_ERROR) {
             $message = 'Fatal Error: ' . $e['message'];
-
-            $this->container->get('logger')->addAlert('Fatal Error', $e);
+            if ($this->container->has('logger')) {
+                $this->container->get('logger')->addAlert('Fatal Error', $e);
+            }
         }
         parent::shutdown();
     }
-
 }
