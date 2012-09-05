@@ -1,0 +1,48 @@
+# Reference all tools likely to be used in the application here
+parameters:
+
+services:
+    router.config:
+        class: \Backend\Core\Utilities\Config
+        factory_class: \Backend\Core\Utilities\Config
+        factory_method: getNamed
+        arguments:
+            - @parser
+            - %router.config_file%
+    router:
+        class: \Backend\Core\Utilities\Router
+        arguments:
+            - @router.config
+            - @callback_factory
+    parser:
+        class: \Symfony\Component\Yaml\Parser
+    request:
+        class: \Backend\Core\Request
+    callback_factory:
+        class: \Backend\Core\Utilities\CallbackFactory
+    formatter:
+        class: \Backend\Core\Utilities\Formatter
+        factory_class: \Backend\Core\Utilities\Formatter
+        factory_method: factory
+        arguments:
+            - @service_container
+    renderer:
+        class: \Backend\Modules\TwigRender
+    base.formats.html:
+        class: \Backend\Base\Formats\Html
+        arguments:
+            - @request
+            - @application.config
+            - @renderer
+
+# Set application settings here
+application:
+    values:
+        applicationName: "Backend PHP"
+
+# Set DB Connections here
+database:
+    default:
+        connection:
+            driver: sqlite
+            path: /tmp/backend-core.sqlite

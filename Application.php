@@ -50,7 +50,7 @@ class Application extends CoreApplication
      *
      * @return mixed The result from the callback.
      */
-    protected function transformCallback(CallbackInterface $callback)
+    public function transformCallback(CallbackInterface $callback)
     {
         $callback = parent::transformCallback($callback);
 
@@ -61,7 +61,7 @@ class Application extends CoreApplication
 
         // Log the Callback
         if ($this->container->has('logger')) {
-            $this->container->get('logger')->addInfo('Callback: ' . $callback);
+            $this->container->get('logger')->info('Callback: ' . $callback);
         }
         return $callback;
     }
@@ -76,14 +76,14 @@ class Application extends CoreApplication
      *
      * @return Backend\Interfaces\CallbackInterface The transformed format callback.
      */
-    protected function transformFormatCallback(CallbackInterface $callback,
+    public function transformFormatCallback(CallbackInterface $callback,
         FormatterInterface $formatter
     ) {
         $callback = parent::transformFormatCallback($callback, $formatter);
 
         // Log the Callback
         if ($this->container->has('logger')) {
-            $this->container->get('logger')->addInfo('Format Callback: ' . $callback);
+            $this->container->get('logger')->info('Format Callback: ' . $callback);
         }
         return $callback;
     }
@@ -132,18 +132,18 @@ class Application extends CoreApplication
                 // Log it
                 if ($this->container->has('logger')) {
                     $message = 'Unauthorized Request:' . $this->getRequest()->getPath();
-                    $this->container->get('logger')->addNotice($message);
+                    $this->container->get('logger')->notice($message);
                 }
-                // Reedirect to the predefined location
+                // Redirect to the predefined location
                 $response = new Response('', 302);
-                $location = $this->container->getParameter('user.unauthorized.redirect');
+                $location = $this->container->getParameter('unauthorized.redirect');
                 $response->addHeader($location, 'Location');
                 break;
             default:
                 // Log it
                 if ($this->container->has('logger')) {
                     $message = 'Unhandled Exception: ' . $exception->getMessage();
-                    $this->container->get('logger')->addCritical($message);
+                    $this->container->get('logger')->crit($message);
                 }
                 // Display it
                 $response = $this->renderException($exception);
@@ -159,7 +159,7 @@ class Application extends CoreApplication
 
     /**
      * Render the exception.
-     * 
+     *
      * @param  [type] $exception [description]
      * @return [type]            [description]
      */
@@ -188,7 +188,9 @@ class Application extends CoreApplication
         if ($e !== null && $e['type'] === E_ERROR) {
             $message = 'Fatal Error: ' . $e['message'];
             if ($this->container->has('logger')) {
-                $this->container->get('logger')->addAlert('Fatal Error', $e);
+                $this->container->get('logger')->alert(
+                    'Fatal Error', array('exception' => $e)
+                );
             }
         }
         parent::shutdown();

@@ -56,16 +56,16 @@ class Controller extends \Backend\Core\Controller
      * Safely add a flash variable.
      *
      * If the flash service was defined, log the call and ignore.
-     * 
+     *
      * @param string $name  The name of the flash value.
      * @param mixed  $value The flash value.
-     * 
+     *
      * @return \Backend\Base\Controller
      */
     public function flash($name, $value)
     {
         if ($this->container->has('flash')) {
-            $this->flash->set($name, $message);
+            $this->flash->set($name, $value);
         } else if ($this->container->has('logger')) {
             $this->logger->addDebug('Trying to set flash variable without flash service');
         }
