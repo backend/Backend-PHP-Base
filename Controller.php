@@ -67,7 +67,7 @@ class Controller extends \Backend\Core\Controller
         if ($this->container->has('flash')) {
             $this->flash->set($name, $value);
         } else if ($this->container->has('logger')) {
-            $this->logger->addDebug('Trying to set flash variable without flash service');
+            $this->logger->debug('Trying to set flash variable without flash service');
         }
         return $this;
     }
