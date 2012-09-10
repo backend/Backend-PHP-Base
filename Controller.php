@@ -34,22 +34,19 @@ class Controller extends \Backend\Core\Controller
      */
     public function render($template, array $values = array())
     {
-        // Add the session to the values
-        if ($this->container->has('session')) {
-            $values['session'] = array_key_exists('session', $values) ?
-                $values['session'] : $this->session;
+        // Add the session to the values if it doesn't exist yet
+        if ($this->container->has('session') && array_key_exists('session', $values) === false) {
+            $values['session'] = $this->container->get('session');
         }
-        // Add the user session to the values
-        if ($this->container->has('user_session')) {
-            $values['user'] = array_key_exists('user', $values) ?
-                $values['user'] : $this->user_session->readAction();
+        // Add the user session to the values if it doesn't exist yet
+        if ($this->container->has('user_session') && array_key_exists('user', $values) === false) {
+            $values['user']  = $this->container->get('user_session')->readAction();
         }
-        // Add the flash to the values
-        if ($this->container->has('flash')) {
-            $values['flash'] = array_key_exists('flash', $values) ?
-                $values['flash'] : $this->flash;
+        // Add the flash to the values if it doesn't exist yet
+        if ($this->container->has('flash') && array_key_exists('flash', $values) === false) {
+            $values['flash'] = $this->container->get('flash');
         }
-        return new Renderable($this->renderer, $template, $values);
+        return new Renderable($this->container->get('renderer'), $template, $values);
     }
 
     /**

@@ -28,37 +28,42 @@ class Model implements \Backend\Interfaces\ModelInterface
     /**
      * Magic __get function
      *
-     * @param string $propertyName The name of the property being retrieved
+     * @param string $name The name of the property being retrieved
      *
      * @return mixed The value of the property
      */
-    public function __get($propertyName)
+    public function __get($name)
     {
-        $propertyName = new Utilities\String($propertyName);
-        $funcName = 'get' . $propertyName->camelCase();
+        $funcName = new Utilities\String($name);
+        $funcName = 'get' . $funcName->camelCase();
         if (method_exists($this, $funcName)) {
-            $this->$funcName();
-        } else if (property_exists($this, $propertyName)) {
-            return $this->$propertyName;
+            return $this->$funcName();
+        } else if (property_exists($this, $name)) {
+            return $this->$name;
         }
-        return null;
+        throw new \ErrorException('Undefined property: ' . __CLASS__ . '::$' . $name);
     }
 
     /**
      * Magic __set function
      *
-     * @param string $propertyName The name of the property being set
-     * @param mixed  $value        The value of the property being set
+     * @param string $name  The name of the property being set
+     * @param mixed  $value The value of the property being set
      *
      * @return Model The current Model
      */
-    public function __set($propertyName, $value)
+    public function __set($name, $value)
     {
-        $funcName = 'set' . ucwords($propertyName);
+        $funcName = new Utilities\String($name);
+        $funcName = 'set' . $funcName->camelCase();
         if (method_exists($this, $funcName)) {
             $this->$funcName($value);
+        } else if (property_exists($this, $name)) {
+            $this->$name = $value;
         } else {
-            $this->$propertyName = $value;
+            throw new \ErrorException(
+                'Trying to set Undefined property: ' . __CLASS__ . '::$' . $name
+            );
         }
         return $this;
     }
@@ -75,13 +80,16 @@ class Model implements \Backend\Interfaces\ModelInterface
     public function populate(array $properties)
     {
         foreach ($properties as $name => $value) {
-            $funcName = 'set' . ucwords($name);
+            $funcName = new Utilities\String($name);
+            $funcName = 'set' . $funcName->camelCase();
             if (method_exists($this, $funcName)) {
                 $this->$funcName($value);
             } else if (property_exists($this, $name)) {
                 $this->$name = $value;
             } else if ($name[0] !== '_') {
-                throw new \Exception('Undefined property ' . $name . ' for ' . get_class($this));
+                throw new \ErrorException(
+                    'Undefined property: ' . __CLASS__ . '::$' . $name
+                );
             }
         }
         return $this;
