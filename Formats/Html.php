@@ -101,6 +101,9 @@ class Html extends \Backend\Core\Utilities\Formatter
         if (defined('SITE_LINK') === false) {
             $link = $urlParts['scheme'] . '://' . $urlParts['host'];
             $link .= SITE_FOLDER;
+            if (substr($link, -1) === '/') {
+                $link = substr($link, 0, strlen($link) -1 );
+            }
             define('SITE_LINK', $link);
         }
         $this->values['SITE_LINK'] = SITE_LINK;
