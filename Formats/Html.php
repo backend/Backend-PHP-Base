@@ -86,10 +86,20 @@ class Html extends \Backend\Core\Utilities\Formatter
      */
     private function _setupConstants()
     {
-        $urlParts = parse_url($this->request->getUrl());
+        $defaults = array(
+            'scheme' => 'http',
+            'host'   => gethostname(),
+            'path'   => '/',
+        );
+        $urlParts = parse_url($this->request->getUrl()) + $defaults;
 
         if (defined('SITE_FOLDER') === false) {
-            define('SITE_FOLDER', dirname($urlParts['path']));
+            $path = $urlParts['path'];
+            //Check if the last part is a file
+            if (substr($path, -1) !== '/' && strpos(basename($path), '.') !== false) {
+                $path = dirname($path);
+            }
+            define('SITE_FOLDER', $path);
         }
         $this->values['SITE_FOLDER'] = SITE_FOLDER;
 
@@ -99,16 +109,61 @@ class Html extends \Backend\Core\Utilities\Formatter
         $this->values['SITE_DOMAIN'] = SITE_DOMAIN;
 
         if (defined('SITE_LINK') === false) {
-            $link = $urlParts['scheme'] . '://' . $urlParts['host'];
-            $link .= SITE_FOLDER;
-            if (substr($link, -1) === '/') {
-                $link = substr($link, 0, strlen($link) -1 );
-            }
+            $link = $urlParts['scheme'] . '://' . $urlParts['host'] . SITE_FOLDER;
+            $link = substr($link, -1) === '/' ? substr($link, 0, strlen($link) -1) : $link;
             define('SITE_LINK', $link);
         }
         $this->values['SITE_LINK'] = SITE_LINK;
 
         $this->values['SITE_STATE'] = defined('BACKEND_SITE_STATE') ? BACKEND_SITE_STATE : 'Unknown';
+    }
+
+    /**
+     * Return the current configuration.
+     *
+     * @return Backend\Interfaces\ConfigInterface
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * Set the configuration to use.
+     *
+     * @param Backend\Interfaces\ConfigInterface $config The config to set.
+     *
+     * @return Backend\Base\Formats\Html
+     */
+    public function setConfig(\Backend\Interfaces\ConfigInterface $config)
+    {
+        $this->config = $config;
+
+        return $this;
+    }
+
+    /**
+     * Return the current Renderer.
+     *
+     * @return Backend\Interfaces\RenderInterface
+     */
+    public function getRender()
+    {
+        return $this->render;
+    }
+
+    /**
+     * Set the Renderer to use.
+     *
+     * @param Backend\Interfaces\RenderInterface $render The Renderer to set.
+     *
+     * @return Backend\Base\Formats\Html
+     */
+    public function setRender(\Backend\Interfaces\RenderInterface $render)
+    {
+        $this->render = $render;
+
+        return $this;
     }
 
     /**
@@ -122,9 +177,6 @@ class Html extends \Backend\Core\Utilities\Formatter
     public function transform($result)
     {
         $response = parent::transform($result);
-        if (!($this->render instanceof RenderInterface)) {
-            return $response;
-        }
 
         //Add Headers
         $response->addHeader('Content-Type', 'text/html; charset=utf-8');
@@ -185,6 +237,8 @@ class Html extends \Backend\Core\Utilities\Formatter
                 $values['xdebug_message'] = $object->xdebug_message;
             }
             $values['exception'] = $object;
+            break;
+        default:
             break;
         }
         return $this->render->file($template, $values);
