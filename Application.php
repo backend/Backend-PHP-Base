@@ -31,14 +31,17 @@ class Application extends CoreApplication
     /**
      * Initialize the Application.
      *
-     * @return void
+     * @return boolean Returns true if the initialization ran. False otherwise.
      */
     public function init()
     {
-        parent::init();
+        if (parent::init() === false) {
+            return false;
+        }
         if ($this->container->has('session')) {
             $this->container->get('session');
         }
+        return true;
     }
 
     /**
