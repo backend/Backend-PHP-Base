@@ -48,14 +48,6 @@ class Json extends \Backend\Core\Utilities\Formatter
         $body = $response->getBody();
         if (is_callable(array($body, 'toJson'))) {
             $body = $body->toJson();
-        } else if ($body instanceof DecorableInterface) {
-            $body = new JsonDecorator($body);
-            $body = $body->toJson();
-        } else if (is_callable(array($body, 'getProperties'))) {
-            $body = json_encode($body->getProperties());
-            if ($error = json_last_error()) {
-                throw new \Exception('Json Encoding Error: ' . $error);
-            }
         } else {
             $body = json_encode($body);
             if ($error = json_last_error()) {

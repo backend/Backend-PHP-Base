@@ -115,4 +115,18 @@ class Model implements \Backend\Interfaces\ModelInterface
         }
         return $result;
     }
+
+    /**
+     * Convert the Model to JSON.
+     *
+     * @return string The model as a JSON string.
+     */
+    public function toJson()
+    {
+        $json = json_encode($this->getProperties());
+        if ($error = json_last_error()) {
+            throw new \Exception('Json Encoding Error: ' . $error);
+        }
+        return $json;
+    }
 }
