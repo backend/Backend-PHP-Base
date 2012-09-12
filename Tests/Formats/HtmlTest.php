@@ -139,6 +139,8 @@ class HtmlTest extends \PHPUnit_Framework_TestCase
         $renderable = new Renderable($render, 'test', array());
         $result[] = array($renderable);
 
+        $result[] = array(new \Backend\Base\Model);
+
         return $result;
     }
 

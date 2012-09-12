@@ -59,6 +59,9 @@ class Cli extends \Backend\Core\Utilities\Formatter
             case is_object($result) && method_exists($result, '__toString') === false:
                 $body .= 'Object: ' . get_class($result);
                 break;
+            case is_array($result):
+                $body .= var_export($result, true);
+                break;
             default:
                 $body .= (string) $result;
                 break;

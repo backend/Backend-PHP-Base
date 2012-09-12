@@ -53,6 +53,8 @@ class CliTest extends \PHPUnit_Framework_TestCase
         $exception = new \Exception('Test', 404);
         $result[] = array($exception);
 
+        $result[] = array(new \Backend\Base\Model);
+
         return $result;
     }
 

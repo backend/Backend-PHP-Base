@@ -78,7 +78,7 @@ class JsonTest extends \PHPUnit_Framework_TestCase
         $exception = new \Exception('Test', 404);
         $result[] = array($exception);
 
-        // TODO Test the calling of toJson on a object
+        $result[] = array(new \Backend\Base\Model);
 
         return $result;
     }
