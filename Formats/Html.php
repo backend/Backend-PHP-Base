@@ -178,15 +178,25 @@ class Html extends \Backend\Core\Utilities\Formatter
     {
         $response = parent::transform($result);
 
-        //Add Headers
+        // Add Headers
         $response->addHeader('Content-Type', 'text/html; charset=utf-8');
 
-        //Transform the Body
         $body = $response->getBody();
+        // Transform the Response Code
+        if ($body instanceof \Exception) {
+            $code = $body->getCode();
+            if ($code > 600 || $code < 100) {
+                $code = 500;
+            }
+            $response->setStatusCode($code);
+        }
+
+        // Transform the Body
         if (!is_string($body) || strlen($body) === strlen(strip_tags($body))) {
             $body = $this->transformBody($body);
         }
         $response->setBody($body);
+
         return $response;
     }
 

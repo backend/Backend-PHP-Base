@@ -14,6 +14,8 @@
 namespace Backend\Base\Tests\Formats;
 use \Backend\Base\Formats\Html;
 use Backend\Core\Request;
+use Backend\Core\Response;
+use \Backend\Base\Utilities\Renderable;
 
 /**
  * Class to test the \Backend\Base\Formats\Html class
@@ -78,6 +80,35 @@ class HtmlTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test if the correct calls are made to the response.
+     *
+     * @return void
+     */
+    public function testResponseCalls()
+    {
+        $request = $this->getMock('Backend\Interfaces\RequestInterface');
+        $config = $this->getMock('Backend\Interfaces\ConfigInterface');
+        $render   = $this->getMock('Backend\Interfaces\RenderInterface');
+
+        $response = $this->getMock('Backend\Interfaces\ResponseInterface');
+        $response
+            ->expects($this->once())
+            ->method('addHeader')
+            ->with('Content-Type', 'text/html; charset=utf-8');
+        $response
+            ->expects($this->once())
+            ->method('getBody')
+            ->will($this->returnValue('<html><body>Some Body</body></html>'));
+        $response
+            ->expects($this->once())
+            ->method('setBody')
+            ->with($this->isType('string'));
+
+        $html = new Html($request, $config, $render);
+        $result = $html->transform($response);
+    }
+
+    /**
      * Data provider for the transform method.
      *
      * @return array
@@ -94,11 +125,20 @@ class HtmlTest extends \PHPUnit_Framework_TestCase
         $exception->xdebug_message = 'test';
         $result[] = array($exception);
 
-        $renderable = $this->getMock(
-            'Backend\Base\Utilities\Renderable', null, array(),
-            'Backend\Base\Utilities\Renderable', false
-        );
+        $exception = new \Exception('Test', 700);
+        $result[] = array($exception);
+
+        $exception = new \Exception('Test', 99);
+        $result[] = array($exception);
+
+        $exception = new \Exception('Test', 404);
+        $result[] = array($exception);
+
+        $render   = $this->getMock('Backend\Interfaces\RenderInterface');
+
+        $renderable = new Renderable($render, 'test', array());
         $result[] = array($renderable);
+
         return $result;
     }
 
@@ -112,33 +152,36 @@ class HtmlTest extends \PHPUnit_Framework_TestCase
     {
         $request = $this->getMock('Backend\Interfaces\RequestInterface');
         $config = $this->getMock('Backend\Interfaces\ConfigInterface');
-
         $render   = $this->getMock('Backend\Interfaces\RenderInterface');
-        $render
-            ->expects($this->once())
-            ->method('file');
-
-        $response = $this->getMock('Backend\Interfaces\ResponseInterface');
-        $response
-            ->expects($this->once())
-            ->method('addHeader')
-            ->with('Content-Type', 'text/html; charset=utf-8');
-        $response
-            ->expects($this->once())
-            ->method('getBody')
-            ->will($this->returnValue($body));
 
         $html = new Html($request, $config, $render);
-        $html->transform($response);
+        $result = $html->transform($body);
+
+        $this->assertInstanceOf('Backend\Interfaces\ResponseInterface', $result);
+        $this->assertGreaterThanOrEqual(100, $result->getStatusCode());
+        $this->assertLessThan(600, $result->getStatusCode());
     }
 
     /**
-     * Test skipping the transform if we can't render
+     * Test transforming responses
      *
      * @return void
+     * @dataProvider dataTransform
      */
-    public function testSkipTransform()
+    public function testResponseTransform($body)
     {
+        $response = new Response($body);
+
+        $request = $this->getMock('Backend\Interfaces\RequestInterface');
+        $config = $this->getMock('Backend\Interfaces\ConfigInterface');
+        $render   = $this->getMock('Backend\Interfaces\RenderInterface');
+
+        $html = new Html($request, $config, $render);
+
+        $result = $html->transform($response);
+        $this->assertInstanceOf('Backend\Interfaces\ResponseInterface', $result);
+        $this->assertGreaterThanOrEqual(100, $result->getStatusCode());
+        $this->assertLessThan(600, $result->getStatusCode());
 
     }
 }

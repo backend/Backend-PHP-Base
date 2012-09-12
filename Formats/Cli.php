@@ -54,10 +54,17 @@ class Cli extends \Backend\Core\Utilities\Formatter
                 $body .= 'Exception: ' . $result->getMessage() . ' (' . $result->getCode() . ')' . PHP_EOL;
                 $body .= 'File: ' . $result->getFile() . PHP_EOL;
                 $body .= 'Line: ' . $result->getLine() . PHP_EOL;
+                $code = $result->getCode();
+                break;
+            case is_object($result) && method_exists($result, '__toString') === false:
+                $body .= 'Object: ' . get_class($result);
                 break;
             default:
                 $body .= (string) $result;
                 break;
+        }
+        if ($code > 600 || $code < 100) {
+            $code = 500;
         }
         $body .= PHP_EOL;
         return new Response($body, $code);
