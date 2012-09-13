@@ -58,7 +58,7 @@ class HtmlTest extends \PHPUnit_Framework_TestCase
         $html = new Html($request, $config, $render);
 
         $config = $this->getMock('Backend\Interfaces\ConfigInterface');
-        $html->setConfig($config);
+        $this->assertSame($html, $html->setConfig($config));
         $this->assertSame($config, $html->getConfig());
     }
 
