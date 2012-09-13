@@ -120,4 +120,19 @@ class JsonTest extends \PHPUnit_Framework_TestCase
         $this->assertLessThan(600, $result->getStatusCode());
 
     }
+
+    /**
+     * Test json encoding error
+     *
+     * @return void
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Json Encoding Error
+     */
+    public function testJsonEncodingError()
+    {
+        $request = $this->getMock('Backend\Interfaces\RequestInterface');
+        $json = new Json($request);
+
+        $json->transform("\xB1\x31");
+    }
 }

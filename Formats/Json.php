@@ -14,8 +14,6 @@
  */
 namespace Backend\Base\Formats;
 use \Backend\Core\Response;
-use \Backend\Core\Interfaces\DecorableInterface;
-use \Backend\Core\Decorators\JsonDecorator;
 /**
  * Output a request in JavaScript Object Notation.
  *
@@ -51,7 +49,7 @@ class Json extends \Backend\Core\Utilities\Formatter
         } else {
             $body = json_encode($body);
             if ($error = json_last_error()) {
-                throw new \Exception('Json Encoding Error: ' . $error);
+                throw new \RuntimeException('Json Encoding Error: ' . $error);
             }
         }
         $response->setBody($body);

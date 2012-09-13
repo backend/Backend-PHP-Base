@@ -39,8 +39,23 @@ class String
      */
     public function camelCase()
     {
-        $this->string = str_replace(" ", "", ucwords(strtr($this->string, "_-.", "  ")));
+        $this->string = str_replace(" ", "", ucwords(strtr($this->string, "_-.", "   ")));
         return $this;
+    }
+
+    /**
+     * Get the uncameled version of a string, using the optionally specified seperator.
+     *
+     * @return string The transformed string.
+     */
+    public function unCamel($separator = '-')
+    {
+        $array = preg_split('/([A-Z][^A-Z]+)/', $this->string, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        if (is_array($array)) {
+            $array = array_map('trim', array_map('strtolower', $array));
+            $this->string = implode($separator, $array);
+        }
+        return $this->string;
     }
 
     /**
