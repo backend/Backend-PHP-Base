@@ -104,4 +104,31 @@ class ModelTest extends \PHPUnit_Framework_TestCase
         $model = new \TestModel;
         $model->populate($array);
     }
+
+    /**
+     * Test the toJson Method.
+     *
+     * @return void
+     */
+    public function testToJson()
+    {
+        $model = new \TestModel;
+        $model->property = 'value';
+        $json = json_encode(array('property' => 'value', 'accessor' => null));
+        $this->assertEquals($json, $model->toJson());
+    }
+
+    /**
+     * Test invalid JSON.
+     *
+     * @return void
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Json Encoding Error
+     */
+    public function testInvalidJson()
+    {
+        $model = new \TestModel;
+        $model->property = "\xB1\x31";
+        $model->toJson();
+    }
 }

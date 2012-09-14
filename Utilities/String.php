@@ -25,8 +25,18 @@ namespace Backend\Base\Utilities;
  */
 class String
 {
+    /**
+     * The literal string.
+     *
+     * @var string
+     */
     protected $string;
 
+    /**
+     * The class constructor.
+     *
+     * @param string $string The string we're operating on.
+     */
     public function __construct($string)
     {
         $this->string = $string;
@@ -129,11 +139,10 @@ class String
         foreach ($plural as $pattern) {
             if (preg_match($pattern[0], $this->string)) {
                 $this->string = preg_replace($pattern[0], $pattern[1], $this->string);
-                return $this;
+                break;
             }
         }
-        // The last regex will always match, so no need to return this here.
-        // return $this;
+        return $this;
     }
 
     /**
@@ -218,13 +227,18 @@ class String
         foreach ($singular as $pattern) {
             if (preg_match($pattern[0], $this->string)) {
                 $this->string = preg_replace($pattern[0], $pattern[1], $this->string);
-                return $this;
+                break;
             }
         }
 
         return $this;
     }
 
+    /**
+     * Coonvert the String object to a literal string.
+     *
+     * @return string
+     */
     public function __toString()
     {
         return $this->string;

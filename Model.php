@@ -125,7 +125,7 @@ class Model implements \Backend\Interfaces\ModelInterface
     {
         $json = json_encode($this->getProperties());
         if ($error = json_last_error()) {
-            throw new \Exception('Json Encoding Error: ' . $error);
+            throw new \RuntimeException('Json Encoding Error: ' . $error);
         }
         return $json;
     }
