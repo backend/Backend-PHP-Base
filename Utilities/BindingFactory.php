@@ -15,8 +15,6 @@
 namespace Backend\Base\Utilities;
 use Backend\Interfaces\BindingFactoryInterface;
 use Backend\Interfaces\ConfigInterface;
-use Backend\Core\Utilities\Strings;
-use Backend\Core\Application;
 use Backend\Core\Exceptions\ConfigException;
 /**
  * Factory class to create Bindings
@@ -49,31 +47,16 @@ class BindingFactory implements BindingFactoryInterface
     /**
      * The class constructor.
      *
-     * @param Backend\Interfaces\ConfigInterface|array $bindings    The bindings config as
-     * a Config object or an array
-     * @param Backend\Interfaces\ConfigInterface|array $connections The bindings config as
-     * a Config object or an array
+     * @param Backend\Interfaces\ConfigInterface $bindings    The bindings config.
+     * @param Backend\Interfaces\ConfigInterface $connections The connections config.
      */
-    public function __construct($bindings, $connections)
+    public function __construct(ConfigInterface $bindings, ConfigInterface $connections)
     {
         // Setup Bindings
-        if ($bindings instanceof ConfigInterface) {
-            $bindings = $bindings->get();
-        } else if (is_object($bindings)) {
-            $bindings = (array)$bindings;
-        } else if (is_array($bindings) === false) {
-            throw new ConfigException('Invalid Bindings Configuration');
-        }
-        $this->bindings = $bindings;
+        $this->setBindings($bindings);
+
         // Setup Connections
-        if ($connections instanceof ConfigInterface) {
-            $connections = $connections->get();
-        } else if (is_object($connections)) {
-            $connections = (array)$connections;
-        } else if (is_array($connections) === false) {
-            throw new ConfigException('Invalid Bindings Configuration');
-        }
-        $this->connections = $connections;
+        $this->setConnections($connections);
     }
 
     /**
@@ -91,17 +74,14 @@ class BindingFactory implements BindingFactoryInterface
             $modelName = '\\' . $modelName;
         }
 
-        if (array_key_exists($modelName, $this->bindings)) {
-            $binding = $this->bindings[$modelName];
-        } else if (array_key_exists('default', $this->bindings)) {
-            $binding = $this->bindings['default'];
-        } else {
-            throw new \Exception('No binding setup for ' . $modelName);
+        if ($this->bindings->has($modelName) === false) {
+            throw new ConfigException('No binding setup for ' . $modelName);
         }
-        if (empty($binding['type'])) {
-            throw new \Exception('Missing Type for Binding for ' . $modelName);
-        }
+        $binding = $this->getBinding($modelName);
 
+        if (empty($binding['type'])) {
+            throw new ConfigException('Missing Binding Type for ' . $modelName);
+        }
         $bindingClass = $binding['type'];
         unset($binding['type']);
 
@@ -109,15 +89,117 @@ class BindingFactory implements BindingFactoryInterface
         if (empty($binding['class'])) {
             $binding['class'] = $modelName;
         }
+
         //Use the Default Connection
         if (empty($binding['connection'])) {
             $binding['connection'] = 'default';
         }
-        if (array_key_exists($binding['connection'], $this->connections) === false) {
-            throw new \Exception('Could not find ' . $binding['connection']);
+
+        if ($this->connections->has($binding['connection']) === false) {
+            throw new ConfigException('Could not find Binding Connection: ' . $binding['connection']);
         }
-        $connection = $this->connections[$binding['connection']] + $binding;
+        $connection = $this->getConnection($binding['connection']);
+
+        $connection = $connection + $binding;
         $bindingObj = new $bindingClass($connection);
         return $bindingObj;
+    }
+
+    /**
+     * Get the Bindings Configuration.
+     *
+     * @return Backend\Interfaces\ConfigInterface
+     */
+    public function getBindings()
+    {
+        return $this->bindings;
+    }
+
+    /**
+     * Set the Bindings Configuration.
+     *
+     * @param Backend\Interfaces\ConfigInterface
+     *
+     * @return Backend\Base\Utilities\BindingFactory
+     */
+    public function setBindings(ConfigInterface $bindings)
+    {
+        $this->bindings = $bindings;
+        return $this;
+    }
+
+    /**
+     * Get the specified Binding.
+     *
+     * @return array|null The Binding or null if it doesn't exist.
+     */
+    public function getBinding($name)
+    {
+        if ($this->bindings->has($name)) {
+            return $this->bindings->get($name);
+        }
+        return null;
+    }
+
+    /**
+     * Set the values of the specified Binding.
+     *
+     * @param array $binding The Binding described as an array.
+     *
+     * @return Backend\Base\Utilities\BindingFactory
+     */
+    public function setBinding($name, array $binding)
+    {
+        $this->bindings->set($name, $binding);
+        return $this;
+    }
+
+    /**
+     * Get the Connections Configuration.
+     *
+     * @return Backend\Interfaces\ConfigInterface
+     */
+    public function getConnections()
+    {
+        return $this->connections;
+    }
+
+    /**
+     * Set the Connections Configuration.
+     *
+     * @param Backend\Interfaces\ConfigInterface
+     *
+     * @return Backend\Base\Utilities\BindingFactory
+     */
+    public function setConnections(ConfigInterface $connections)
+    {
+        $this->connections = $connections;
+        return $this;
+    }
+
+    /**
+     * Get the specified Connection.
+     *
+     * @return array|null The Connection or null if it doesn't exist.
+     */
+    public function getConnection($name)
+    {
+        if ($this->connections->has($name)) {
+            return $this->connections->get($name);
+        }
+        return null;
+    }
+
+    /**
+     * Set the values of the specified Connection.
+     *
+     * @param array $connection The Connection described as an array.
+     *
+     * @return Backend\Base\Utilities\BindingFactory
+     */
+    public function setConnection($name, array $connection)
+    {
+        $this->connections->set($name, $connection);
+        return $this;
     }
 }
