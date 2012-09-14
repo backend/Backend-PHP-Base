@@ -132,8 +132,8 @@ class String
                 return $this;
             }
         }
-
-        return $this;
+        // The last regex will always match, so no need to return this here.
+        // return $this;
     }
 
     /**
