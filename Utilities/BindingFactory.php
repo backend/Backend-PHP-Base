@@ -74,10 +74,14 @@ class BindingFactory implements BindingFactoryInterface
             $modelName = '\\' . $modelName;
         }
 
-        if ($this->bindings->has($modelName) === false) {
+        if ($this->bindings->has($modelName) === false && $this->bindings->has('default') === false) {
             throw new ConfigException('No binding setup for ' . $modelName);
         }
         $binding = $this->getBinding($modelName);
+        if (empty($binding)) {
+            // Default
+            $binding = $this->getBinding('default');
+        }
 
         if (empty($binding['type'])) {
             throw new ConfigException('Missing Binding Type for ' . $modelName);

@@ -175,7 +175,6 @@ class BindingFactoryTest extends \PHPUnit_Framework_TestCase
         $bindings
             ->expects($this->any())
             ->method('has')
-            ->with('\TestModel')
             ->will($this->returnValue(false));
 
         $actual = $factory->build('TestModel');
@@ -195,6 +194,7 @@ class BindingFactoryTest extends \PHPUnit_Framework_TestCase
         $factory = new BindingFactory($bindings, $connections);
 
         $binding = array(
+            'faulty' => 'binding'
         );
         $connection = array(
             'driver' => 'test',
@@ -202,7 +202,6 @@ class BindingFactoryTest extends \PHPUnit_Framework_TestCase
         $bindings
             ->expects($this->any())
             ->method('has')
-            ->with('\TestModel')
             ->will($this->returnValue(true));
         $bindings
             ->expects($this->once())
@@ -287,10 +286,66 @@ class BindingFactoryTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('get')
             ->with('default')
-            ->will($this->returnValue($binding));
+            ->will($this->returnValue($connection));
 
         $actual = $factory->build('TestModel');
         $this->assertInstanceOf('\Backend\Interfaces\BindingInterface', $actual);
     }
 
+    /**
+     * Test getting the default Binding
+     *
+     * @return void
+     */
+    public function testDefaultBinding()
+    {
+        $bindings = $this->getMock('Backend\Interfaces\ConfigInterface');
+        $connections = $this->getMock('Backend\Interfaces\ConfigInterface');
+        $factory = new BindingFactory($bindings, $connections);
+
+        $binding = array(
+            'type' => '\TestBinding',
+        );
+        $connection = array(
+            'driver' => 'test',
+        );
+        $bindings
+            ->expects($this->at(0))
+            ->method('has')
+            ->with('\TestModel')
+            ->will($this->returnValue(false));
+        $bindings
+            ->expects($this->at(1))
+            ->method('has')
+            ->with('default')
+            ->will($this->returnValue(true));
+        $bindings
+            ->expects($this->at(2))
+            ->method('has')
+            ->with('\TestModel')
+            ->will($this->returnValue(false));
+        $bindings
+            ->expects($this->at(3))
+            ->method('has')
+            ->with('default')
+            ->will($this->returnValue(true));
+        $bindings
+            ->expects($this->once())
+            ->method('get')
+            ->with('default')
+            ->will($this->returnValue($binding));
+        $connections
+            ->expects($this->any())
+            ->method('has')
+            ->with('default')
+            ->will($this->returnValue(true));
+        $connections
+            ->expects($this->once())
+            ->method('get')
+            ->with('default')
+            ->will($this->returnValue($connection));
+
+        $actual = $factory->build('TestModel');
+        $this->assertInstanceOf('\Backend\Interfaces\BindingInterface', $actual);
+    }
 }
