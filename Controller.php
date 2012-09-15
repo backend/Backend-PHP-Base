@@ -82,6 +82,6 @@ class Controller extends \Backend\Core\Controller
         if ($this->container->has($property)) {
             return $this->container->get($property);
         }
-        throw new \ErrorException('Undefined property: ' . __CLASS__ . '::$' . $property);
+        throw new \ErrorException('Undefined property: ' . get_called_class() . '::$' . $property);
     }
 }
