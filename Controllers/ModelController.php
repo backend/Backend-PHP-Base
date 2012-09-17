@@ -225,10 +225,11 @@ class ModelController extends Controller
      */
     public function deleteHtml($result)
     {
+        $redirect = $this->getRequest()->getHeader('referer');
         if ($result instanceof Response && $result->getStatusCode() == 204) {
-            return $this->redirect($this->getRequest()->getPath());
+            return $this->redirect($referer);
         }
-        // TODO
+        return $this->redirect($redirect);
     }
 
     /**
@@ -238,7 +239,7 @@ class ModelController extends Controller
      *
      * @return string The name of the corresponding Model.
      */
-    public static function getModelName($controllerName = false)
+    public static function getModelName($controllerName = null)
     {
         if (is_object($controllerName)) {
             $controllerName = get_class($controllerName);
@@ -249,6 +250,9 @@ class ModelController extends Controller
         $modelName = basename(str_replace('\\', DIRECTORY_SEPARATOR, $controllerName));
         $modelName = new String(preg_replace('/Controller$/', '', $modelName));
         $modelName = $namespace . '\\' . $modelName->singularize()->camelCase();
+        if ($modelName[0] !== '\\') {
+            $modelName = '\\' . $modelName;
+        }
         return $modelName;
     }
 

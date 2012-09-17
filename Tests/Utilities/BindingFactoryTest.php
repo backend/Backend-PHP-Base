@@ -12,7 +12,7 @@
  * @link      http://backend-php.net
  */
 namespace Backend\Base\Tests\Utilities;
-use \Backend\Base\Utilities\BindingFactory;
+use Backend\Base\Utilities\BindingFactory;
 require_once __DIR__ . '/../auxiliary/TestBinding.php';
 /**
  * Class to test the \Backend\Base\Utilities\BindingFactory class

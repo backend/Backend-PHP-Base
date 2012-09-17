@@ -32,7 +32,10 @@ class ExamplesController extends \Backend\Base\Controller
      */
     public function homeAction()
     {
-        $this->flash('info', 'This is a flash message');
+        $this->flash('success', 'This is a success flash message');
+        $this->flash('info', 'This is a info flash message');
+        $this->flash('warning', 'This is a warning flash message');
+        $this->flash('error', 'This is a error flash message');
         return 'Some string';
     }
 

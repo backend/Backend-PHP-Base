@@ -12,7 +12,7 @@
  * @link      http://backend-php.net
  */
 namespace Backend\Base\Tests\Utilities;
-use \Backend\Base\Utilities\String;
+use Backend\Base\Utilities\String;
 
 /**
  * Class to test the \Backend\Base\Utilities\String class

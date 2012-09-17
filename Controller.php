@@ -12,7 +12,7 @@
  * @link      http://backend-php.net
  */
 namespace Backend\Base;
-use \Backend\Base\Utilities\Renderable;
+use Backend\Base\Utilities\Renderable;
 /**
  * A Basic Controller that contains Application Logic.
  *

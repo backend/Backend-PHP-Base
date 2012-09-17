@@ -13,7 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Formats;
-use \Backend\Core\Response;
+use Backend\Core\Response;
 /**
  * Output a request on the Command Line.
  *

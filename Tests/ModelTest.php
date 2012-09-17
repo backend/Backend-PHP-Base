@@ -12,7 +12,7 @@
  * @link      http://backend-php.net
  */
 namespace Backend\Base\Tests;
-use \Backend\Base\Model;
+use Backend\Base\Model;
 require_once __DIR__ . '/auxiliary/TestModel.php';
 /**
  * Class to test the \Backend\Base\Model class

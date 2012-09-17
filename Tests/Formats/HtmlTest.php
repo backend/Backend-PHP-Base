@@ -12,10 +12,10 @@
  * @link      http://backend-php.net
  */
 namespace Backend\Base\Tests\Formats;
-use \Backend\Base\Formats\Html;
+use Backend\Base\Formats\Html;
 use Backend\Core\Request;
 use Backend\Core\Response;
-use \Backend\Base\Utilities\Renderable;
+use Backend\Base\Utilities\Renderable;
 
 /**
  * Class to test the \Backend\Base\Formats\Html class

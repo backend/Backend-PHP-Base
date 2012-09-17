@@ -13,11 +13,10 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Formats;
-use \Backend\Interfaces\RequestInterface;
-use \Backend\Interfaces\ConfigInterface;
-use \Backend\Interfaces\RenderInterface;
-use \Backend\Base\Utilities\Renderable;
-use \Backend\Core\Decorators\PrettyExceptionDecorator;
+use Backend\Interfaces\RequestInterface;
+use Backend\Interfaces\ConfigInterface;
+use Backend\Interfaces\RenderInterface;
+use Backend\Base\Utilities\Renderable;
 /**
  * Output a request as HTML.
  *
@@ -91,7 +90,11 @@ class Html extends \Backend\Core\Utilities\Formatter
             'host'   => gethostname(),
             'path'   => '/',
         );
-        $urlParts = parse_url($this->request->getUrl()) + $defaults;
+        $urlParts = parse_url($this->request->getUrl());
+        if (empty($urlParts)) {
+            throw new \RuntimeException('Unparsable URL Requested');
+        }
+        $urlParts = $urlParts + $defaults;
 
         if (defined('SITE_FOLDER') === false) {
             $path = $urlParts['path'];

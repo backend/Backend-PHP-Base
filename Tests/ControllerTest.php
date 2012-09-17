@@ -12,7 +12,7 @@
  * @link      http://backend-php.net
  */
 namespace Backend\Base\Tests;
-use \Backend\Base\Controller;
+use Backend\Base\Controller;
 /**
  * Class to test the \Backend\Base\Controller class
  *
