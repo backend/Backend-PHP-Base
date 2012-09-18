@@ -15,7 +15,8 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "backend/core": ">=0.4"
+        "backend/core": "dev-master",
+        "backend/interfaces": "dev-master",
     },
     "autoload": {
         "psr-0": {
