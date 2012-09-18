@@ -41,7 +41,7 @@ class JsonTest extends \PHPUnit_Framework_TestCase
         $response = $this->getMock('Backend\Interfaces\ResponseInterface');
         $response
             ->expects($this->once())
-            ->method('addHeader')
+            ->method('setHeader')
             ->with('Content-Type', 'application/json');
         $response
             ->expects($this->once())

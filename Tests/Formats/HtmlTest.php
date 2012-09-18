@@ -93,7 +93,7 @@ class HtmlTest extends \PHPUnit_Framework_TestCase
         $response = $this->getMock('Backend\Interfaces\ResponseInterface');
         $response
             ->expects($this->once())
-            ->method('addHeader')
+            ->method('setHeader')
             ->with('Content-Type', 'text/html; charset=utf-8');
         $response
             ->expects($this->once())

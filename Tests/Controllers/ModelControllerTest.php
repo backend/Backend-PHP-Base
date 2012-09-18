@@ -59,14 +59,55 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testDeleteHtml()
+    public function testResponseDeleteHtml()
     {
         $this->request
             ->expects($this->once())
-            ->method('getPath')
+            ->method('getHeader')
+            ->with('referer')
             ->will($this->returnValue('/test/path'));
-        $result = new Response('', 204);
+        $this->container
+            ->expects($this->once())
+            ->method('getParameter')
+            ->with('response.class')
+            ->will($this->returnValue('\Backend\Core\Response'));
+        $result = $this->getMock('\Backend\Interfaces\ResponseInterface', array(), array('', 204));
+        $result
+            ->expects($this->once())
+            ->method('setHeader')
+            ->with('Location', '/test/path')
+            ->will($this->returnSelf());
+        $result
+            ->expects($this->once())
+            ->method('getStatusCode')
+            ->will($this->returnValue(204));
+
         $actual = $this->controller->deleteHtml($result);
+        $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $actual);
+        $this->assertEquals(302, $actual->getStatusCode());
+        $this->assertContains('Location: /test/path', $actual->getHeaders());
+    }
+
+    /**
+     * Test the deleteHtml method.
+     *
+     * @return void
+     */
+    public function testNoResponseDeleteHtml()
+    {
+        $this->request
+            ->expects($this->once())
+            ->method('getHeader')
+            ->with('referer')
+            ->will($this->returnValue('/test/path'));
+        $this->container
+            ->expects($this->once())
+            ->method('getParameter')
+            ->with('response.class')
+            ->will($this->returnValue('\Backend\Core\Response'));
+
+        $actual = $this->controller->deleteHtml(false);
+
         $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $actual);
         $this->assertEquals(302, $actual->getStatusCode());
         $this->assertContains('Location: /test/path', $actual->getHeaders());
