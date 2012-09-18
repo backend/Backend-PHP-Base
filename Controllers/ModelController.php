@@ -14,7 +14,7 @@
  */
 namespace Backend\Base\Controllers;
 use Backend\Base\Controller;
-use Backend\Core\Response;
+use Backend\Interfaces\ResponseInterface;
 use Backend\Base\Utilities\Renderable;
 use Backend\Base\Utilities\String;
 /**
@@ -62,7 +62,7 @@ class ModelController extends Controller
      */
     public function formHtml($result)
     {
-        if ($result instanceof Response) {
+        if ($result instanceof ResponseInterface) {
             return $result;
         }
         // TODO Check the current template folder for $modelName/form
@@ -74,14 +74,15 @@ class ModelController extends Controller
     /**
      * CRUD Create functionality for controllers.
      *
-     * @return \Backend\Core\Response A Created / 201 Response with a redirect
+     * @return \Backend\Interfaces\ResponseInterface A Created / 201 Response with a redirect
      * to the created resource.
      */
     public function createAction()
     {
         $data  = $this->getRequest()->getPayload();
         $model = $this->getBinding()->create($data);
-        $response = new Response($model, 201);
+        $responseClass = $this->container->getParameter('response.class');
+        $response = new $responseClass($model, 201);
         return $response;
     }
 
@@ -90,11 +91,11 @@ class ModelController extends Controller
      *
      * @param mixed $result The result from the Action method.
      *
-     * @return \Backend\Core\Response A Redirect to the created resource
+     * @return \Backend\Interfaces\ResponseInterface A Redirect to the created resource
      */
     public function createHtml($result)
     {
-        if ($result instanceof Response && $result->getStatusCode() == 201) {
+        if ($result instanceof ResponseInterface && $result->getStatusCode() == 201) {
             $location = $this->getRequest()->getPath() . '/' . $result->getBody()->getId();
             return $this->redirect($location);
         }
@@ -139,7 +140,8 @@ class ModelController extends Controller
         $model = $this->getBinding()->read($id);
         if ($model === null) {
             // The specified Resource doesn't exist
-            return new Response('Not Found', 404);
+            $responseClass = $this->container->getParameter('response.class');
+            return new $responseClass('Not Found', 404);
         }
         return $model;
     }
@@ -153,7 +155,7 @@ class ModelController extends Controller
      */
     public function readHtml($result)
     {
-        if ($result instanceof Response) {
+        if ($result instanceof ResponseInterface) {
             // Not found or similiar response
             return $result;
         }
@@ -168,19 +170,20 @@ class ModelController extends Controller
      *
      * @param mixed $id The identifier. @todo Set to 0 to reference the whole collection
      *
-     * @return \Backend\Core\Response A No Content / 204 Response if successful.
+     * @return \Backend\Interfaces\ResponseInterface A No Content / 204 Response if successful.
      */
     public function updateAction($id)
     {
         $model = $this->readAction($id);
-        if ($model instanceof Response) {
+        if ($model instanceof ResponseInterface) {
             // The specified Resource doesn't exist
             return $model;
         }
         $data = $this->getRequest()->getPayload();
         $model->populate($data);
         $this->getBinding()->update($model);
-        return new Response($model, 204);
+        $responseClass = $this->container->getParameter('response.class');
+        return new $responseClass($model, 204);
     }
 
     /**
@@ -192,7 +195,7 @@ class ModelController extends Controller
      */
     public function updateHtml($result)
     {
-        if ($result instanceof Response && $result->getStatusCode() == 204) {
+        if ($result instanceof ResponseInterface && $result->getStatusCode() == 204) {
             return $this->redirect($this->getRequest()->getPath());
         }
         // TODO
@@ -208,12 +211,13 @@ class ModelController extends Controller
     public function deleteAction($id)
     {
         $model = $this->readAction($id);
-        if ($model instanceof Response) {
+        if ($model instanceof ResponseInterface) {
             // The specified Resource doesn't exist
             return $model;
         }
         $this->getBinding()->delete($model);
-        return new Response('', 204);
+        $responseClass = $this->container->getParameter('response.class');
+        return new $responseClass('', 204);
     }
 
     /**
@@ -221,13 +225,15 @@ class ModelController extends Controller
      *
      * @param mixed $result The result from the Action method.
      *
-     * @return \Backend\Core\Response A Redirect to the resource collection
+     * @return \Backend\Interfaces\ResponseInterface A Redirect to the resource collection
      */
     public function deleteHtml($result)
     {
         $redirect = $this->getRequest()->getHeader('referer');
-        if ($result instanceof Response && $result->getStatusCode() == 204) {
-            return $this->redirect($referer);
+        if ($result instanceof ResponseInterface && $result->getStatusCode() == 204) {
+            $result
+                ->setHeader('Location', $redirect)
+                ->setStatusCode(302);
         }
         return $this->redirect($redirect);
     }

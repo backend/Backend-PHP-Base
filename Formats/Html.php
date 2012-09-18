@@ -182,7 +182,7 @@ class Html extends \Backend\Core\Utilities\Formatter
         $response = parent::transform($result);
 
         // Add Headers
-        $response->addHeader('Content-Type', 'text/html; charset=utf-8');
+        $response->setHeader('Content-Type', 'text/html; charset=utf-8');
 
         $body = $response->getBody();
         // Transform the Response Code

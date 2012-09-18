@@ -140,7 +140,7 @@ class Application extends CoreApplication
                 // Redirect to the predefined location
                 $response = new Response('', 302);
                 $location = $this->container->getParameter('unauthorized.redirect');
-                $response->addHeader($location, 'Location');
+                $response->setHeader('Location', $location);
                 break;
             default:
                 // Log it
