@@ -41,7 +41,7 @@ class Model implements \Backend\Interfaces\ModelInterface
         } else if (property_exists($this, $name)) {
             return $this->$name;
         }
-        throw new \ErrorException('Undefined property: ' . __CLASS__ . '::$' . $name);
+        throw new \ErrorException('Undefined property: ' . get_class($this) . '::$' . $name);
     }
 
     /**
@@ -62,7 +62,7 @@ class Model implements \Backend\Interfaces\ModelInterface
             $this->$name = $value;
         } else {
             throw new \ErrorException(
-                'Trying to set Undefined property: ' . __CLASS__ . '::$' . $name
+                'Trying to set Undefined property: ' . get_class($this) . '::$' . $name
             );
         }
         return $this;
