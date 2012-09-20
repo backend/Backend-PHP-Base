@@ -18,3 +18,5 @@ Base uses [Backend-PHP Interfaces](https://github.com/backend/Backend-PHP-Interf
 Build Status
 ============
 [![Build Status on Travis-CI](https://secure.travis-ci.org/backend/Backend-PHP-Base.png?branch=master)](http://travis-ci.org/backend/Backend-PHP-Base)
+
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/6b18b1e2123729cb8d514727af29f260 "githalytics.com")](http://githalytics.com/backend/Backend-PHP-Base)
