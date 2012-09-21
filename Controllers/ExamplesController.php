@@ -36,7 +36,9 @@ class ExamplesController extends \Backend\Base\Controller
         $this->flash('info', 'This is a info flash message');
         $this->flash('warning', 'This is a warning flash message');
         $this->flash('error', 'This is a error flash message');
-        return 'Some string';
+        $route = $this->router->resolve('\Backend\Base\Controllers\ExamplesController::homeAction');
+        $result = $this->url_generator->generate('value');
+        return $result;
     }
 
     /**

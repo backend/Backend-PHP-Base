@@ -79,7 +79,7 @@ class ModelController extends Controller
      */
     public function createAction()
     {
-        $data  = $this->getRequest()->getPayload();
+        $data  = $this->getRequest()->getBody();
         $model = $this->getBinding()->create($data);
         $responseClass = $this->container->getParameter('response.class');
         $response = new $responseClass($model, 201);
@@ -96,11 +96,13 @@ class ModelController extends Controller
     public function createHtml($result)
     {
         if ($result instanceof ResponseInterface && $result->getStatusCode() == 201) {
-            $location = $this->getRequest()->getPath() . '/' . $result->getBody()->getId();
-            return $this->redirect($location);
+            $redirect = $this->getRequest()->getUrl()  . '/' . $result->getBody()->getId();
+            return $result
+                ->setHeader('Location', $redirect)
+                ->setStatusCode(302);
         }
-        // TODO
-        return $result;
+        // We redirect back to the refer if the request failed
+        return $this->redirect($this->getRequest()->getHeader('referer'));
     }
 
     /**
@@ -179,7 +181,7 @@ class ModelController extends Controller
             // The specified Resource doesn't exist
             return $model;
         }
-        $data = $this->getRequest()->getPayload();
+        $data = $this->getRequest()->getBody();
         $model->populate($data);
         $this->getBinding()->update($model);
         $responseClass = $this->container->getParameter('response.class');
@@ -195,10 +197,14 @@ class ModelController extends Controller
      */
     public function updateHtml($result)
     {
+        // We redirect back to the Resource
+        $redirect = $this->getRequest()->getUrl();
         if ($result instanceof ResponseInterface && $result->getStatusCode() == 204) {
-            return $this->redirect($this->getRequest()->getPath());
+            return $result
+                ->setHeader('Location', $redirect)
+                ->setStatusCode(302);
         }
-        // TODO
+        return $this->redirect($redirect);
     }
 
     /**
@@ -229,9 +235,10 @@ class ModelController extends Controller
      */
     public function deleteHtml($result)
     {
+        // We redirect back to the originator of the request
         $redirect = $this->getRequest()->getHeader('referer');
         if ($result instanceof ResponseInterface && $result->getStatusCode() == 204) {
-            $result
+            return $result
                 ->setHeader('Location', $redirect)
                 ->setStatusCode(302);
         }
