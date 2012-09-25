@@ -43,33 +43,39 @@ class Cli extends \Backend\Core\Utilities\Formatter
     public function transform($result)
     {
         if ($result instanceof Response) {
-            $code   = $result->getStatusCode();
-            $result = $result->getBody();
+            $code = $result->getStatusCode();
+            $body = $result->getBody();
         } else {
-            $code = 500;
+            $code = 200;
+            $body = $result;
+            $result = new Response(null, 200);
         }
-        $body = 'Result:' . PHP_EOL;
+        $content = 'Result:' . PHP_EOL;
         switch (true) {
             case $result instanceof \Exception:
-                $body .= 'Exception: ' . $result->getMessage() . ' (' . $result->getCode() . ')' . PHP_EOL;
-                $body .= 'File: ' . $result->getFile() . PHP_EOL;
-                $body .= 'Line: ' . $result->getLine() . PHP_EOL;
-                $code = $result->getCode();
+                $content .= 'Exception: ' . $body->getMessage() . ' (' . $body->getCode() . ')' . PHP_EOL;
+                $content .= 'File: ' . $body->getFile() . PHP_EOL;
+                $content .= 'Line: ' . $body->getLine() . PHP_EOL;
+
+                $code = $body->getCode();
+                $body = $content;
                 break;
             case is_object($result) && method_exists($result, '__toString') === false:
-                $body .= 'Object: ' . get_class($result);
+                $content .= 'Object: ' . get_class($body);
                 break;
             case is_array($result):
-                $body .= var_export($result, true);
+                $content .= var_export($body, true);
                 break;
             default:
-                $body .= (string) $result;
+                $content .= (string) $result;
                 break;
         }
         if ($code > 600 || $code < 100) {
             $code = 500;
         }
         $body .= PHP_EOL;
-        return new Response($body, $code);
+        return $response
+            ->setBody($body)
+            ->setCode($code);
     }
 }
