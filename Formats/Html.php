@@ -85,36 +85,20 @@ class Html extends \Backend\Core\Utilities\Formatter
      */
     private function _setupConstants()
     {
-        $defaults = array(
-            'scheme' => 'http',
-            'host'   => gethostname(),
-            'path'   => '/',
-        );
-        $urlParts = parse_url($this->request->getUrl());
-        if (empty($urlParts)) {
-            throw new \RuntimeException('Unparsable URL Requested');
-        }
-        $urlParts = $urlParts + $defaults;
+        $context = new \Backend\Core\Utilities\RequestContext($this->request);
 
         if (defined('SITE_FOLDER') === false) {
-            $path = $urlParts['path'];
-            //Check if the last part is a file
-            if (substr($path, -1) !== '/' && strpos(basename($path), '.') !== false) {
-                $path = dirname($path);
-            }
-            define('SITE_FOLDER', $path);
+            define('SITE_FOLDER', $context->getPath());
         }
         $this->values['SITE_FOLDER'] = SITE_FOLDER;
 
         if (defined('SITE_DOMAIN') === false) {
-            define('SITE_DOMAIN', $urlParts['host']);
+            define('SITE_DOMAIN', $context->getHost());
         }
         $this->values['SITE_DOMAIN'] = SITE_DOMAIN;
 
         if (defined('SITE_LINK') === false) {
-            $link = $urlParts['scheme'] . '://' . $urlParts['host'] . SITE_FOLDER;
-            $link = substr($link, -1) === '/' ? substr($link, 0, strlen($link) -1) : $link;
-            define('SITE_LINK', $link);
+            define('SITE_LINK', $context->getLink());
         }
         $this->values['SITE_LINK'] = SITE_LINK;
 
