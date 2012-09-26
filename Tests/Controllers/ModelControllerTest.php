@@ -422,6 +422,7 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
         $result = array();
         $result[] = array($this->controller, '\Backend\Base\Models\Model');
         $result[] = array('\Backend\Base\Controllers\ValuesController', '\Backend\Base\Models\Value');
+
         return $result;
     }
 

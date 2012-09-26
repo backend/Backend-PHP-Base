@@ -34,14 +34,14 @@ class Renderable
 
     /**
      * The template to render.
-     * 
+     *
      * @var string
      */
     protected $template = 'index';
 
     /**
      * The values to use when rendering the template.
-     * 
+     *
      * @var array
      */
     protected $values = array();
@@ -51,12 +51,12 @@ class Renderable
      *
      * @param \Backend\Interfaces\RenderInterface $renderer The Rendering Utility
      * to use.
-     * @param string                              $template The name of the
+     * @param string $template The name of the
      * template for the object
-     * @param array                               $values   The values to use
+     * @param array $values The values to use
      * when rendering the template
      */
-    function __construct(\Backend\Interfaces\RenderInterface $renderer,
+    public function __construct(\Backend\Interfaces\RenderInterface $renderer,
         $template, array $values = array())
     {
         $this->renderer = $renderer;
@@ -84,6 +84,7 @@ class Renderable
     public function setTemplate($template)
     {
         $this->template = $template;
+
         return $this;
     }
 
@@ -108,6 +109,7 @@ class Renderable
     public function setValue($name, $value)
     {
         $this->values[$name] = $value;
+
         return $this;
     }
 
@@ -121,6 +123,7 @@ class Renderable
     public function setValues(array $values)
     {
         $this->values = $values;
+
         return $this;
     }
 
@@ -136,6 +139,7 @@ class Renderable
     public function addValues(array $values)
     {
         $this->values = array_merge($this->values, $values);
+
         return $this;
     }
 

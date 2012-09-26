@@ -60,7 +60,7 @@ class TestBinding implements \Backend\Interfaces\BindingInterface
      * @param array $data The data to create a new resource.
      *
      * @return \Backend\Interfaces\ModelInterface The created model.
-     * @throws \Backend\Modules\Exception When the resource can't be created.
+     * @throws \Backend\Modules\Exception         When the resource can't be created.
      */
     public function create(array $data)
     {
@@ -74,7 +74,7 @@ class TestBinding implements \Backend\Interfaces\BindingInterface
      * array containing criteria on which to search for the resource.
      *
      * @return \Backend\Interfaces\ModelInterface The identified model.
-     * @throws \Backend\Modules\Exception When the resource can't be found.
+     * @throws \Backend\Modules\Exception         When the resource can't be found.
      */
     public function read($identifier)
     {
@@ -90,7 +90,7 @@ class TestBinding implements \Backend\Interfaces\BindingInterface
      * @param \Backend\Interfaces\ModelInterface &$model The model to refresh.
      * Passed by reference.
      *
-     * @return boolean If the refresh was successful or not.
+     * @return boolean                    If the refresh was successful or not.
      * @throws \Backend\Modules\Exception When the resource can't be refreshed.
      */
     public function refresh(\Backend\Interfaces\ModelInterface &$model)
@@ -107,7 +107,7 @@ class TestBinding implements \Backend\Interfaces\BindingInterface
      * @param \Backend\Interfaces\ModelInterface &$model The model to update.
      * Passed by reference.
      *
-     * @return boolean If the update was successful or not.
+     * @return boolean                    If the update was successful or not.
      * @throws \Backend\Modules\Exception When the resource can't be updated.
      */
     public function update(\Backend\Interfaces\ModelInterface &$model)
@@ -120,7 +120,7 @@ class TestBinding implements \Backend\Interfaces\BindingInterface
      *
      * @param \Backend\Interfaces\ModelInterface &$model The model to delete
      *
-     * @return boolean If the deletion was succesful or not.
+     * @return boolean                    If the deletion was succesful or not.
      * @throws \Backend\Modules\Exception When the resource can't be deleted.
      */
     public function delete(\Backend\Interfaces\ModelInterface &$model)
