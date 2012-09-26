@@ -36,6 +36,7 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+
         $this->container = $this->getMockForAbstractClass(
             '\Backend\Interfaces\DependencyInjectionContainerInterface'
         );
@@ -44,6 +45,17 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->method('getParameter')
             ->with('response.class')
             ->will($this->returnValue('\Backend\Core\Response'));
+
+        $requestContext = $this->getMock('\Backend\Interfaces\RequestContextInterface');
+        $requestContext
+            ->expects($this->any())
+            ->method('getLink')
+            ->will($this->returnValue('http://backend-php.net'));
+        $this->container
+            ->expects($this->any())
+            ->method('get')
+            ->with('request_context')
+            ->will($this->returnValue($requestContext));
 
         $this->request = $this->getMockForAbstractClass('\Backend\Interfaces\RequestInterface');
         $this->controller = new ModelController($this->container, $this->request);
