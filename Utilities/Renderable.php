@@ -34,14 +34,14 @@ class Renderable
 
     /**
      * The template to render.
-     * 
+     *
      * @var string
      */
     protected $template = 'index';
 
     /**
      * The values to use when rendering the template.
-     * 
+     *
      * @var array
      */
     protected $values = array();

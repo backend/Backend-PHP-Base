@@ -29,6 +29,8 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
     protected $container;
     protected $request;
     protected $controller;
+    protected $requestContext;
+    protected $bindingFactory;
     /**
      * Set up the test.
      *
@@ -36,6 +38,19 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
+        $this->requestContext = $this->getMock('\Backend\Interfaces\RequestContextInterface');
+        $this->requestContext
+            ->expects($this->any())
+            ->method('getLink')
+            ->will($this->returnValue('http://backend-php.net'));
+
+        $this->bindingFactory = $this->getMockForAbstractClass('\Backend\Interfaces\BindingFactoryInterface');
+
+        $valueMap = array(
+            array('request_context', null, $this->requestContext),
+            array('binding_factory', null, $this->bindingFactory),
+        );
+
         $this->container = $this->getMockForAbstractClass(
             '\Backend\Interfaces\DependencyInjectionContainerInterface'
         );
@@ -44,6 +59,10 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->method('getParameter')
             ->with('response.class')
             ->will($this->returnValue('\Backend\Core\Response'));
+        $this->container
+            ->expects($this->any())
+            ->method('get')
+            ->will($this->returnValueMap($valueMap));
 
         $this->request = $this->getMockForAbstractClass('\Backend\Interfaces\RequestInterface');
         $this->controller = new ModelController($this->container, $this->request);
@@ -57,7 +76,10 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
     protected function tearDown()
     {
         $this->container = null;
+        $this->request = null;
         $this->controller = null;
+        $this->requestContext = null;
+        $this->bindingFactory = null;
     }
 
     /**
@@ -81,21 +103,117 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->with($data)
             ->will($this->returnValue($model));
 
-        $bindingFactory = $this->getMockForAbstractClass('\Backend\Interfaces\BindingFactoryInterface');
-        $bindingFactory
+        $this->bindingFactory
             ->expects($this->once())
             ->method('build')
             ->with('\Backend\Base\Models\Model')
             ->will($this->returnValue($binding));
-        $this->container
-            ->expects($this->once())
-            ->method('get')
-            ->with('binding_factory')
-            ->will($this->returnValue($bindingFactory));
 
         $result = $this->controller->createAction(1);
         $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $result);
         $this->assertEquals(201, $result->getStatusCode());
+    }
+
+    /**
+     * Test the updateHtml method.
+     *
+     * @return void
+     */
+    public function testResponseCreateHtml()
+    {
+        $model = $this->getMock('\Backend\Base\Model');
+
+        $this->request
+            ->expects($this->once())
+            ->method('getHeader')
+            ->with('referer')
+            ->will($this->returnValue('http://backend-php.net/value'));
+
+        $result = $this->getMock('\Backend\Interfaces\ResponseInterface', array(), array('', 204));
+        $result
+            ->expects($this->once())
+            ->method('getStatusCode')
+            ->will($this->returnValue(201));
+        $result
+            ->expects($this->once())
+            ->method('getBody')
+            ->will($this->returnValue($model));
+
+        $result
+            ->expects($this->once())
+            ->method('setStatusCode')
+            ->with(302)
+            ->will($this->returnSelf());
+        $result
+            ->expects($this->once())
+            ->method('setHeader')
+            ->with('Location', 'http://backend-php.net/value')
+            ->will($this->returnSelf());
+
+        $actual = $this->controller->createHtml($result);
+        $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $actual);
+    }
+
+    /**
+     * Test the updateHtml method.
+     *
+     * @return void
+     */
+    public function testResponseModelIdCreateHtml()
+    {
+        $model = $this->getMock('\Backend\Base\Model', array('getId'));
+        $model
+            ->expects($this->once())
+            ->method('getId')
+            ->will($this->returnValue(321));
+
+        $this->request
+            ->expects($this->once())
+            ->method('getUrl')
+            ->will($this->returnValue('http://backend-php.net/value'));
+
+        $result = $this->getMock('\Backend\Interfaces\ResponseInterface', array(), array('', 204));
+        $result
+            ->expects($this->once())
+            ->method('getStatusCode')
+            ->will($this->returnValue(201));
+        $result
+            ->expects($this->once())
+            ->method('getBody')
+            ->will($this->returnValue($model));
+
+        $result
+            ->expects($this->once())
+            ->method('setStatusCode')
+            ->with(302)
+            ->will($this->returnSelf());
+        $result
+            ->expects($this->once())
+            ->method('setHeader')
+            ->with('Location', 'http://backend-php.net/value/321')
+            ->will($this->returnSelf());
+
+        $actual = $this->controller->createHtml($result);
+        $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $actual);
+    }
+
+    /**
+     * Test the updateHtml method.
+     *
+     * @return void
+     */
+    public function testNoResponseCreateHtml()
+    {
+        $this->request
+            ->expects($this->once())
+            ->method('getHeader')
+            ->with('referer')
+            ->will($this->returnValue('http://backend-php.net/value'));
+
+        $actual = $this->controller->createHtml(false);
+
+        $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $actual);
+        $this->assertContains('Location: http://backend-php.net/value', $actual->getHeaders());
     }
 
     /**
@@ -112,7 +230,7 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->with(1)
             ->will($this->returnValue(true));
         $bindingFactory = $this->getMockForAbstractClass('\Backend\Interfaces\BindingFactoryInterface');
-        $bindingFactory
+        $this->bindingFactory
             ->expects($this->once())
             ->method('build')
             ->with('\Backend\Base\Models\Model')
@@ -138,17 +256,11 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->method('read')
             ->with(1)
             ->will($this->returnValue(null));
-        $bindingFactory = $this->getMockForAbstractClass('\Backend\Interfaces\BindingFactoryInterface');
-        $bindingFactory
+        $this->bindingFactory
             ->expects($this->once())
             ->method('build')
             ->with('\Backend\Base\Models\Model')
             ->will($this->returnValue($binding));
-        $this->container
-            ->expects($this->once())
-            ->method('get')
-            ->with('binding_factory')
-            ->will($this->returnValue($bindingFactory));
 
         $result = $this->controller->readAction(1);
         $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $result);
@@ -184,17 +296,11 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->method('update')
             ->with($model);
 
-        $bindingFactory = $this->getMockForAbstractClass('\Backend\Interfaces\BindingFactoryInterface');
-        $bindingFactory
+        $this->bindingFactory
             ->expects($this->exactly(2))
             ->method('build')
             ->with('\Backend\Base\Models\Model')
             ->will($this->returnValue($binding));
-        $this->container
-            ->expects($this->exactly(2))
-            ->method('get')
-            ->with('binding_factory')
-            ->will($this->returnValue($bindingFactory));
 
         $result = $this->controller->updateAction(1);
         $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $result);
@@ -214,17 +320,11 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->method('read')
             ->with(1)
             ->will($this->returnValue(null));
-        $bindingFactory = $this->getMockForAbstractClass('\Backend\Interfaces\BindingFactoryInterface');
-        $bindingFactory
+        $this->bindingFactory
             ->expects($this->once())
             ->method('build')
             ->with('\Backend\Base\Models\Model')
             ->will($this->returnValue($binding));
-        $this->container
-            ->expects($this->once())
-            ->method('get')
-            ->with('binding_factory')
-            ->will($this->returnValue($bindingFactory));
 
         $result = $this->controller->updateAction(1);
         $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $result);
@@ -300,17 +400,11 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->method('delete')
             ->with($model);
 
-        $bindingFactory = $this->getMockForAbstractClass('\Backend\Interfaces\BindingFactoryInterface');
-        $bindingFactory
+        $this->bindingFactory
             ->expects($this->exactly(2))
             ->method('build')
             ->with('\Backend\Base\Models\Model')
             ->will($this->returnValue($binding));
-        $this->container
-            ->expects($this->exactly(2))
-            ->method('get')
-            ->with('binding_factory')
-            ->will($this->returnValue($bindingFactory));
 
         $result = $this->controller->deleteAction(1);
         $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $result);
@@ -330,17 +424,11 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->method('read')
             ->with(1)
             ->will($this->returnValue(null));
-        $bindingFactory = $this->getMockForAbstractClass('\Backend\Interfaces\BindingFactoryInterface');
-        $bindingFactory
+        $this->bindingFactory
             ->expects($this->once())
             ->method('build')
             ->with('\Backend\Base\Models\Model')
             ->will($this->returnValue($binding));
-        $this->container
-            ->expects($this->once())
-            ->method('get')
-            ->with('binding_factory')
-            ->will($this->returnValue($bindingFactory));
 
         $result = $this->controller->deleteAction(1);
         $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $result);
@@ -396,55 +484,6 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $actual);
         $this->assertEquals(302, $actual->getStatusCode());
-        $this->assertContains('Location: /test/path', $actual->getHeaders());
-    }
-
-    /**
-     * data for testGetModelName
-     *
-     * @return array
-     */
-    public function dataGetModelName()
-    {
-        $this->setUp();
-        $result = array();
-        $result[] = array($this->controller, '\Backend\Base\Models\Model');
-        $result[] = array('\Backend\Base\Controllers\ValuesController', '\Backend\Base\Models\Value');
-        return $result;
-    }
-
-    /**
-     * Test the getModelName method.
-     *
-     * @return void
-     * @dataProvider dataGetModelName
-     */
-    public function testGetModelName($argument, $expected)
-    {
-        $actual = ModelController::getModelName($argument);
-        $this->assertEquals($expected, $actual);
-    }
-
-    /**
-     * Test the getBinding method.
-     *
-     * @return void
-     */
-    public function testGetBinding()
-    {
-        $bindingFactory = $this->getMockForAbstractClass(
-            '\Backend\Interfaces\BindingFactoryInterface'
-        );
-        $bindingFactory
-            ->expects($this->once())
-            ->method('build')
-            ->with('\TestModel');
-        $this->container
-            ->expects($this->any())
-            ->method('get')
-            ->with('binding_factory')
-            ->will($this->returnValue($bindingFactory));
-        $this->controller->getBinding('\TestModel');
-
+        $this->assertContains('Location: http://backend-php.net/test/path', $actual->getHeaders());
     }
 }
