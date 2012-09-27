@@ -14,6 +14,7 @@
  */
 namespace Backend\Base\Controllers;
 use Backend\Base\Controller;
+use Backend\Interfaces\ModelInterface;
 use Backend\Interfaces\ResponseInterface;
 use Backend\Base\Utilities\Renderable;
 use Backend\Base\Utilities\String;
@@ -47,7 +48,7 @@ class ModelController extends Controller
         if ($id) {
             $model = $this->readAction($id);
         } else {
-            $modelName = $this->getModelName();
+            $modelName = self::getModelName($this);
             $model = new $modelName();
         }
         return $model;
@@ -89,6 +90,9 @@ class ModelController extends Controller
     /**
      * The HTML method for the create Action.
      *
+     * If a Model is returned by createAction, and it has a getId method, a redirect
+     * to the Model's URL will be issued. Otherwise a redirect to the referer is issued.
+     *
      * @param mixed $result The result from the Action method.
      *
      * @return \Backend\Interfaces\ResponseInterface A Redirect to the created resource
@@ -96,7 +100,12 @@ class ModelController extends Controller
     public function createHtml($result)
     {
         if ($result instanceof ResponseInterface && $result->getStatusCode() == 201) {
-            $redirect = $this->getRequest()->getUrl()  . '/' . $result->getBody()->getId();
+            $body = $result->getBody();
+            if ($body instanceof ModelInterface && method_exists($body, 'getId')) {
+                $redirect = $this->getRequest()->getUrl()  . '/' . $body->getId();
+            } else {
+                $redirect = $this->getRequest()->getHeader('referer');
+            }
             return $result
                 ->setHeader('Location', $redirect)
                 ->setStatusCode(302);
@@ -125,7 +134,7 @@ class ModelController extends Controller
     public function listHtml($result)
     {
         // TODO Check the current template folder for $modelName/list
-        $component = explode('\\', self::getModelName());
+        $component = explode('\\', self::getModelName($this));
         $component = end($component);
         return $this->render('crud/list', array('list' => $result, 'component' => $component));
     }
@@ -162,9 +171,12 @@ class ModelController extends Controller
             return $result;
         }
         // TODO Check the current template folder for $modelName/display
-        $component = explode('\\', get_class($result));
-        $component = end($component);
-        return $this->render('crud/display', array('result' => $result, 'component' => $component));
+        $component = basename(str_replace('\\', DIRECTORY_SEPARATOR, get_class($result)));
+        $values = array(
+            'result' => $result,
+            'component' => $component,
+        );
+        return $this->render($component . '/display', $values);
     }
 
     /**
@@ -189,7 +201,10 @@ class ModelController extends Controller
     }
 
     /**
-     * The HTML method for the update Action
+     * The HTML method for the update Action.
+     *
+     * It redirects to the GET of the URL, as this should give you the updated
+     * response in REST architecture.
      *
      * @param mixed $result The result from the Action method.
      *
@@ -252,12 +267,11 @@ class ModelController extends Controller
      *
      * @return string The name of the corresponding Model.
      */
-    public static function getModelName($controllerName = null)
+    protected static function getModelName($controllerName)
     {
         if (is_object($controllerName)) {
             $controllerName = get_class($controllerName);
         }
-        $controllerName = $controllerName ?: get_called_class();
         $reflector = new \ReflectionClass($controllerName);
         $namespace = preg_replace('/\\\\Controllers$/', '\\Models', $reflector->getNamespaceName());
         $modelName = basename(str_replace('\\', DIRECTORY_SEPARATOR, $controllerName));
@@ -279,9 +293,9 @@ class ModelController extends Controller
      *
      * @return \Backend\Interfaces\BindingInterface
      */
-    public function getBinding($modelName = null)
+    protected function getBinding($modelName = null)
     {
-        $modelName = $modelName ?: self::getModelName();
+        $modelName = $modelName ?: self::getModelName($this);
         return $this->container
             ->get('binding_factory')
             ->build($modelName);
