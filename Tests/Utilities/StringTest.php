@@ -38,6 +38,7 @@ class StringTest extends \PHPUnit_Framework_TestCase
         $result[] = array('strange-function', 'StrangeFunction');
         $result[] = array('test.class', 'TestClass');
         $result[] = array('some_string', 'SomeString');
+
         return $result;
     }
 
@@ -69,6 +70,7 @@ class StringTest extends \PHPUnit_Framework_TestCase
         $result[] = array('StrangeFunction', '-', 'strange-function');
         $result[] = array('TestClass', '.', 'test.class');
         $result[] = array('SomeString', '_', 'some_string');
+
         return $result;
     }
 
@@ -104,6 +106,7 @@ class StringTest extends \PHPUnit_Framework_TestCase
         $result[] = array('thief', 'thieves');
         $result[] = array('octopus', 'octopi');
         $result[] = array('regular', 'regulars');
+
         return $result;
     }
 

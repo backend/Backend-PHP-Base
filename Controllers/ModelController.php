@@ -51,6 +51,7 @@ class ModelController extends Controller
             $modelName = self::getModelName($this);
             $model = new $modelName();
         }
+
         return $model;
     }
 
@@ -69,6 +70,7 @@ class ModelController extends Controller
         // TODO Check the current template folder for $modelName/form
         $component = explode('\\', get_class($result));
         $component = end($component);
+
         return $this->render('crud/form', array('model' => $result, 'component' => $component));
     }
 
@@ -84,6 +86,7 @@ class ModelController extends Controller
         $model = $this->getBinding()->create($data);
         $responseClass = $this->container->getParameter('response.class');
         $response = new $responseClass($model, 201);
+
         return $response;
     }
 
@@ -136,6 +139,7 @@ class ModelController extends Controller
         // TODO Check the current template folder for $modelName/list
         $component = explode('\\', self::getModelName($this));
         $component = end($component);
+
         return $this->render('crud/list', array('list' => $result, 'component' => $component));
     }
 
@@ -152,8 +156,10 @@ class ModelController extends Controller
         if ($model === null) {
             // The specified Resource doesn't exist
             $responseClass = $this->container->getParameter('response.class');
+
             return new $responseClass('Not Found', 404);
         }
+
         return $model;
     }
 
@@ -197,6 +203,7 @@ class ModelController extends Controller
         $model->populate($data);
         $this->getBinding()->update($model);
         $responseClass = $this->container->getParameter('response.class');
+
         return new $responseClass($model, 204);
     }
 
@@ -219,6 +226,7 @@ class ModelController extends Controller
                 ->setHeader('Location', $redirect)
                 ->setStatusCode(302);
         }
+
         return $this->redirect($redirect);
     }
 
@@ -238,6 +246,7 @@ class ModelController extends Controller
         }
         $this->getBinding()->delete($model);
         $responseClass = $this->container->getParameter('response.class');
+
         return new $responseClass('', 204);
     }
 
@@ -257,6 +266,7 @@ class ModelController extends Controller
                 ->setHeader('Location', $redirect)
                 ->setStatusCode(302);
         }
+
         return $this->redirect($redirect);
     }
 
@@ -280,6 +290,7 @@ class ModelController extends Controller
         if ($modelName[0] !== '\\') {
             $modelName = '\\' . $modelName;
         }
+
         return $modelName;
     }
 

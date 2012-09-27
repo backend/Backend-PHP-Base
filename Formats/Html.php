@@ -60,13 +60,12 @@ class Html extends \Backend\Core\Utilities\Formatter
      *
      * @param \Backend\Interfaces\RequestInterface $request The request used to
      * determine what formatter to return.
-     * @param \Backend\Interfaces\ConfigInterface  $config  The current Application
+     * @param \Backend\Interfaces\ConfigInterface $config The current Application
      * configuration.
-     * @param \Backend\Interfaces\RenderInterface  $render  A rendering utility.
+     * @param \Backend\Interfaces\RenderInterface $render A rendering utility.
      */
-    function __construct(
-        RequestInterface $request, ConfigInterface $config, RenderInterface $render
-    ) {
+    public function __construct(RequestInterface $request, ConfigInterface $config, RenderInterface $render)
+    {
         parent::__construct($request);
 
         $this->config = $config;
@@ -207,6 +206,7 @@ class Html extends \Backend\Core\Utilities\Formatter
             $this->values['content'] = $body;
             $body = $this->render->file('index', $this->values);
         }
+
         return $body;
     }
 
@@ -222,22 +222,23 @@ class Html extends \Backend\Core\Utilities\Formatter
         $template = 'base.twig';
         $values   = $this->values;
         switch (true) {
-        case $object instanceof Renderable:
-            $template = $object->getTemplate();
-            $values   = array_merge($values, $object->getValues());
-            break;
-        case $object instanceof \Exception:
-            $template            = 'exception';
-            $values['title']     = get_class($object);
-            $values['message']   = $object->getMessage();
-            if (property_exists($object, 'xdebug_message')) {
-                $values['xdebug_message'] = $object->xdebug_message;
-            }
-            $values['exception'] = $object;
-            break;
-        default:
-            break;
+            case $object instanceof Renderable:
+                $template = $object->getTemplate();
+                $values   = array_merge($values, $object->getValues());
+                break;
+            case $object instanceof \Exception:
+                $template            = 'exception';
+                $values['title']     = get_class($object);
+                $values['message']   = $object->getMessage();
+                if (property_exists($object, 'xdebug_message')) {
+                    $values['xdebug_message'] = $object->xdebug_message;
+                }
+                $values['exception'] = $object;
+                break;
+            default:
+                break;
         }
+
         return $this->render->file($template, $values);
     }
 }

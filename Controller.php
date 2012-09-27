@@ -46,6 +46,7 @@ class Controller extends \Backend\Core\Controller
         if ($this->container->has('flash') && array_key_exists('flash', $values) === false) {
             $values['flash'] = $this->container->get('flash');
         }
+
         return new Renderable($this->container->get('renderer'), $template, $values);
     }
 
@@ -63,9 +64,10 @@ class Controller extends \Backend\Core\Controller
     {
         if ($this->container->has('flash')) {
             $this->flash->set($name, $value);
-        } else if ($this->container->has('logger')) {
+        } elseif ($this->container->has('logger')) {
             $this->logger->debug('Trying to set flash variable without flash service');
         }
+
         return $this;
     }
 

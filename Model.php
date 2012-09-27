@@ -38,7 +38,7 @@ class Model implements \Backend\Interfaces\ModelInterface
         $funcName = 'get' . $funcName->camelCase();
         if (method_exists($this, $funcName)) {
             return $this->$funcName();
-        } else if (property_exists($this, $name)) {
+        } elseif (property_exists($this, $name)) {
             return $this->$name;
         }
         throw new \ErrorException('Undefined property: ' . get_class($this) . '::$' . $name);
@@ -58,13 +58,14 @@ class Model implements \Backend\Interfaces\ModelInterface
         $funcName = 'set' . $funcName->camelCase();
         if (method_exists($this, $funcName)) {
             $this->$funcName($value);
-        } else if (property_exists($this, $name)) {
+        } elseif (property_exists($this, $name)) {
             $this->$name = $value;
         } else {
             throw new \ErrorException(
                 'Trying to set Undefined property: ' . get_class($this) . '::$' . $name
             );
         }
+
         return $this;
     }
 
@@ -84,14 +85,15 @@ class Model implements \Backend\Interfaces\ModelInterface
             $funcName = 'set' . $funcName->camelCase();
             if (method_exists($this, $funcName)) {
                 $this->$funcName($value);
-            } else if (property_exists($this, $name)) {
+            } elseif (property_exists($this, $name)) {
                 $this->$name = $value;
-            } else if ($name[0] !== '_') {
+            } elseif ($name[0] !== '_') {
                 throw new \ErrorException(
                     'Undefined property: ' . __CLASS__ . '::$' . $name
                 );
             }
         }
+
         return $this;
     }
 
@@ -111,6 +113,7 @@ class Model implements \Backend\Interfaces\ModelInterface
             }
             $result[$property->getName()] = $this->{$property->getName()};
         }
+
         return $result;
     }
 
@@ -125,6 +128,7 @@ class Model implements \Backend\Interfaces\ModelInterface
         if ($error = json_last_error()) {
             throw new \RuntimeException('Json Encoding Error: ' . $error);
         }
+
         return $json;
     }
 }

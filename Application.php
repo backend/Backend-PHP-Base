@@ -41,6 +41,7 @@ class Application extends CoreApplication
         if ($this->container->has('session')) {
             $this->container->get('session');
         }
+
         return true;
     }
 
@@ -66,28 +67,29 @@ class Application extends CoreApplication
         if ($this->container->has('logger')) {
             $this->container->get('logger')->info('Callback: ' . $callback);
         }
+
         return $callback;
     }
 
     /**
      * Transform the callback in relation with the format.
      *
-     * @param Backend\Interfaces\CallbackInterface  $callback  The callback on which
+     * @param Backend\Interfaces\CallbackInterface $callback The callback on which
      * the call will be based.
      * @param Backend\Interfaces\FormatterInterface $formatter The formatter on which
      * the call will be based.
      *
      * @return Backend\Interfaces\CallbackInterface The transformed format callback.
      */
-    public function transformFormatCallback(CallbackInterface $callback,
-        FormatterInterface $formatter
-    ) {
+    public function transformFormatCallback(CallbackInterface $callback, FormatterInterface $formatter)
+    {
         $callback = parent::transformFormatCallback($callback, $formatter);
 
         // Log the Callback
         if ($this->container->has('logger')) {
             $this->container->get('logger')->info('Format Callback: ' . $callback);
         }
+
         return $callback;
     }
 
@@ -164,7 +166,7 @@ class Application extends CoreApplication
      * Render the exception.
      *
      * @param  [type] $exception [description]
-     * @return [type]            [description]
+     * @return [type] [description]
      */
     public function renderException(\Exception $exception)
     {
@@ -175,8 +177,9 @@ class Application extends CoreApplication
         } catch (\Exception $e) {
         }
         if (empty($formatter)) {
-            return new Response((string)$exception);
+            return new Response((string) $exception);
         }
+
         return $formatter->transform($response);
     }
 

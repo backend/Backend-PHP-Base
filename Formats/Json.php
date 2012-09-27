@@ -34,7 +34,7 @@ class Json extends \Backend\Core\Utilities\Formatter
     /**
      * Transform the result into the Format.
      *
-     * @param mixed    $result    The result to transform
+     * @param mixed $result The result to transform
      *
      * @return \Backend\Core\Response The response to transform
      */
@@ -53,6 +53,7 @@ class Json extends \Backend\Core\Utilities\Formatter
             }
         }
         $response->setBody($body);
+
         return $response;
     }
 }

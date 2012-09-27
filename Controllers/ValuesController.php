@@ -32,7 +32,10 @@ class ValuesController extends \Backend\Base\Controllers\ModelController
             return parent::listAction();
         } catch (\RuntimeException $e) {
             if (substr($e->getMessage(), 0, strlen('Query Error: no such table')) === 'Query Error: no such table') {
-                $result = $this->getBinding()->exec('CREATE TABLE `values` (`id` INTEGER PRIMARY KEY, `name` TEXT, `value` TEXT)');
+                $result = $this->getBinding()->exec(
+                    'CREATE TABLE `values` (`id` INTEGER PRIMARY KEY, `name` TEXT, `value` TEXT)'
+                );
+
                 return $this->redirect($this->getRequest()->getUrl() . '/value');
             }
             throw $e;

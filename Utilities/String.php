@@ -50,6 +50,7 @@ class String
     public function camelCase()
     {
         $this->string = str_replace(" ", "", ucwords(strtr($this->string, "_-.", "   ")));
+
         return $this;
     }
 
@@ -65,6 +66,7 @@ class String
             $array = array_map('trim', array_map('strtolower', $array));
             $this->string = implode($separator, $array);
         }
+
         return $this->string;
     }
 
@@ -131,6 +133,7 @@ class String
         foreach ($irregular as $noun) {
             if (strtolower($this->string) == $noun[0]) {
                 $this->string = $noun[1];
+
                 return $this;
             }
         }
@@ -142,6 +145,7 @@ class String
                 break;
             }
         }
+
         return $this;
     }
 
@@ -219,6 +223,7 @@ class String
         foreach ($irregular as $noun) {
             if (strtolower($this->string) == $noun[1]) {
                 $this->string = $noun[0];
+
                 return $this;
             }
         }

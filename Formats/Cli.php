@@ -74,6 +74,7 @@ class Cli extends \Backend\Core\Utilities\Formatter
             $code = 500;
         }
         $body .= PHP_EOL;
+
         return $response
             ->setBody($body)
             ->setCode($code);

@@ -106,6 +106,7 @@ class BindingFactory implements BindingFactoryInterface
 
         $connection = $connection + $binding;
         $bindingObj = new $bindingClass($connection);
+
         return $bindingObj;
     }
 
@@ -129,6 +130,7 @@ class BindingFactory implements BindingFactoryInterface
     public function setBindings(ConfigInterface $bindings)
     {
         $this->bindings = $bindings;
+
         return $this;
     }
 
@@ -142,6 +144,7 @@ class BindingFactory implements BindingFactoryInterface
         if ($this->bindings->has($name)) {
             return $this->bindings->get($name);
         }
+
         return null;
     }
 
@@ -155,6 +158,7 @@ class BindingFactory implements BindingFactoryInterface
     public function setBinding($name, array $binding)
     {
         $this->bindings->set($name, $binding);
+
         return $this;
     }
 
@@ -178,6 +182,7 @@ class BindingFactory implements BindingFactoryInterface
     public function setConnections(ConfigInterface $connections)
     {
         $this->connections = $connections;
+
         return $this;
     }
 
@@ -191,6 +196,7 @@ class BindingFactory implements BindingFactoryInterface
         if ($this->connections->has($name)) {
             return $this->connections->get($name);
         }
+
         return null;
     }
 
@@ -204,6 +210,7 @@ class BindingFactory implements BindingFactoryInterface
     public function setConnection($name, array $connection)
     {
         $this->connections->set($name, $connection);
+
         return $this;
     }
 }
