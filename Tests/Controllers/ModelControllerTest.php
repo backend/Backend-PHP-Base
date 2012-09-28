@@ -31,6 +31,7 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
     protected $controller;
     protected $requestContext;
     protected $bindingFactory;
+    protected $renderer;
     /**
      * Set up the test.
      *
@@ -45,10 +46,12 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('http://backend-php.net'));
 
         $this->bindingFactory = $this->getMockForAbstractClass('\Backend\Interfaces\BindingFactoryInterface');
+        $this->renderer = $this->getMockForAbstractClass('\Backend\Interfaces\RenderInterface');
 
         $valueMap = array(
             array('request_context', null, $this->requestContext),
             array('binding_factory', null, $this->bindingFactory),
+            array('renderer', null, $this->renderer),
         );
 
         $this->container = $this->getMockForAbstractClass(
@@ -80,6 +83,97 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
         $this->controller = null;
         $this->requestContext = null;
         $this->bindingFactory = null;
+        $this->renderer = null;
+    }
+
+    /**
+     * Data provider for Test that check Html Methods for invalid responses
+     *
+     * @return array
+     */
+    public function dataNoResponseHtml()
+    {
+        $result = array();
+        $result[] = array(new \stdClass);
+        $result[] = array(array());
+        $result[] = array(false);
+        $result[] = array(true);
+        $result[] = array(null);
+        $result[] = array(1);
+        $result[] = array(0);
+        $result[] = array('string');
+        return $result;
+    }
+
+    /**
+     * Test the form action with an id.
+     *
+     * @return void
+     */
+    public function testFormWithId()
+    {
+        $binding = $this->getMockForAbstractClass('\Backend\Interfaces\BindingInterface');
+        $binding
+            ->expects($this->once())
+            ->method('read')
+            ->with(1)
+            ->will($this->returnValue(true));
+        $this->bindingFactory
+            ->expects($this->once())
+            ->method('build')
+            ->with('\Backend\Base\Models\Model')
+            ->will($this->returnValue($binding));
+        $this->assertTrue($this->controller->formAction(1));
+    }
+
+    /**
+     * Test the form action without an id.
+     *
+     * @return void
+     */
+    public function testFormWithoutId()
+    {
+        $this->markTestIncomplete();
+        $actual = $this->controller->formAction();
+    }
+
+    /**
+     * Test the formHtml method.
+     *
+     * @return void
+     */
+    public function testFormHtml()
+    {
+        $model = new \TestModel;
+        $actual = $this->controller->formHtml($model);
+        $this->assertInstanceOf('\Backend\Base\Utilities\Renderable', $actual);
+        $this->assertEquals('TestModel/form', $actual->getTemplate());
+        $this->assertContains($model, $actual->getValues());
+    }
+
+    /**
+     * Test the formHtml method.
+     *
+     * @return void
+     */
+    public function testResponseFormHtml()
+    {
+        $result = $this->getMock('\Backend\Interfaces\ResponseInterface', array(), array('', 200));
+        $actual = $this->controller->formHtml($result);
+        $this->assertSame($result, $actual);
+    }
+
+    /**
+     * Test the formHtml method with an invalid Response.
+     *
+     * @return void
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Unknown Read Action Result
+     * @dataProvider dataNoResponseHtml
+     */
+    public function testNoResponseFormHtml($result)
+    {
+        $actual = $this->controller->formHtml($result);
     }
 
     /**
@@ -115,7 +209,7 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test the updateHtml method.
+     * Test the createHtml method with a standard response.
      *
      * @return void
      */
@@ -155,7 +249,7 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test the updateHtml method.
+     * Test the createHtml method with a Model with an Id.
      *
      * @return void
      */
@@ -198,7 +292,7 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test the updateHtml method.
+     * Test the createHtml method with no Response.
      *
      * @return void
      */
@@ -229,18 +323,51 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->method('read')
             ->with(1)
             ->will($this->returnValue(true));
-        $bindingFactory = $this->getMockForAbstractClass('\Backend\Interfaces\BindingFactoryInterface');
         $this->bindingFactory
             ->expects($this->once())
             ->method('build')
             ->with('\Backend\Base\Models\Model')
             ->will($this->returnValue($binding));
-        $this->container
-            ->expects($this->once())
-            ->method('get')
-            ->with('binding_factory')
-            ->will($this->returnValue($bindingFactory));
         $this->assertTrue($this->controller->readAction(1));
+    }
+
+    /**
+     * Test the readHtml method with a standard response.
+     *
+     * @return void
+     */
+    public function testResponseReadHtml()
+    {
+        $result = $this->getMock('\Backend\Interfaces\ResponseInterface', array(), array('', 204));
+        $actual = $this->controller->readHtml($result);
+        $this->assertSame($result, $actual);
+    }
+
+    /**
+     * Test the readHtml method with a Model.
+     *
+     * @return void
+     */
+    public function testModelReadHtml()
+    {
+        $model = new \TestModel;
+        $actual = $this->controller->readHtml($model);
+        $this->assertInstanceOf('\Backend\Base\Utilities\Renderable', $actual);
+        $this->assertEquals('TestModel/display', $actual->getTemplate());
+        $this->assertContains($model, $actual->getValues());
+    }
+
+    /**
+     * Test the readHtml method with an invalid response.
+     *
+     * @return void
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Unknown Read Action Result
+     * @dataProvider dataNoResponseHtml
+     */
+    public function testNoResponseReadHtml($result)
+    {
+        $actual = $this->controller->readHtml($result);
     }
 
     /**

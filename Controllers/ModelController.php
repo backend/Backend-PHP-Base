@@ -66,12 +66,21 @@ class ModelController extends Controller
     {
         if ($result instanceof ResponseInterface) {
             return $result;
+        } elseif ($result instanceof ModelInterface) {
+            $component = basename(str_replace('\\', DIRECTORY_SEPARATOR, get_class($result)));
+            $values = array(
+                'model' => $result,
+                'component' => $component,
+            );
+            return $this->render($component . '/form', $values);
+        } else {
+            if (is_object($result)) {
+                $type = 'Object: ' . get_class($result);
+            } else {
+                $type = gettype($result);
+            }
+            throw new \RuntimeException('Unknown Read Action Result: ' . $type);
         }
-        // TODO Check the current template folder for $modelName/form
-        $component = explode('\\', get_class($result));
-        $component = end($component);
-
-        return $this->render('crud/form', array('model' => $result, 'component' => $component));
     }
 
     /**
@@ -175,14 +184,21 @@ class ModelController extends Controller
         if ($result instanceof ResponseInterface) {
             // Not found or similiar response
             return $result;
+        } elseif ($result instanceof ModelInterface) {
+            $component = basename(str_replace('\\', DIRECTORY_SEPARATOR, get_class($result)));
+            $values = array(
+                'result' => $result,
+                'component' => $component,
+            );
+            return $this->render($component . '/display', $values);
+        } else {
+            if (is_object($result)) {
+                $type = 'Object: ' . get_class($result);
+            } else {
+                $type = gettype($result);
+            }
+            throw new \RuntimeException('Unknown Read Action Result: ' . $type);
         }
-        // TODO Check the current template folder for $modelName/display
-        $component = basename(str_replace('\\', DIRECTORY_SEPARATOR, get_class($result)));
-        $values = array(
-            'result' => $result,
-            'component' => $component,
-        );
-        return $this->render($component . '/display', $values);
     }
 
     /**
