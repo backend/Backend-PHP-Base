@@ -87,7 +87,7 @@ class Html extends \Backend\Core\Utilities\Formatter
         $context = new \Backend\Core\Utilities\RequestContext($this->request);
 
         if (defined('SITE_FOLDER') === false) {
-            define('SITE_FOLDER', $context->getPath());
+            define('SITE_FOLDER', $context->getFolder());
         }
         $this->values['SITE_FOLDER'] = SITE_FOLDER;
 

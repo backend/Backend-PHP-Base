@@ -52,7 +52,7 @@ class Cli extends \Backend\Core\Utilities\Formatter
         }
         $content = 'Result:' . PHP_EOL;
         switch (true) {
-            case $result instanceof \Exception:
+            case $body instanceof \Exception:
                 $content .= 'Exception: ' . $body->getMessage() . ' (' . $body->getCode() . ')' . PHP_EOL;
                 $content .= 'File: ' . $body->getFile() . PHP_EOL;
                 $content .= 'Line: ' . $body->getLine() . PHP_EOL;
@@ -60,23 +60,23 @@ class Cli extends \Backend\Core\Utilities\Formatter
                 $code = $body->getCode();
                 $body = $content;
                 break;
-            case is_object($result) && method_exists($result, '__toString') === false:
+            case is_object($body) && is_callable(array($body, '__toString')) === false:
                 $content .= 'Object: ' . get_class($body);
                 break;
-            case is_array($result):
+            case is_array($body):
                 $content .= var_export($body, true);
                 break;
             default:
-                $content .= (string) $result;
+                $content .= (string) $body;
                 break;
         }
         if ($code > 600 || $code < 100) {
             $code = 500;
         }
-        $body .= PHP_EOL;
+        $content .= PHP_EOL;
 
         return $result
-            ->setBody($body)
+            ->setBody($content)
             ->setStatusCode($code);
     }
 }
