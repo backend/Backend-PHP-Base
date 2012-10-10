@@ -104,15 +104,19 @@ class Model implements \Backend\Interfaces\ModelInterface
      */
     public function getProperties()
     {
-        $reflector  = new \ReflectionClass($this);
-        $properties = $reflector->getProperties();
-        $result     = array();
-        foreach ($properties as $property) {
-            if ($property->isStatic()  || substr($property->getName(), 0, 1) == '_') {
-                continue;
+        $result    = array();
+        $reflector = new \ReflectionClass($this);
+        do {
+            $properties = $reflector->getProperties();
+            foreach ($properties as $property) {
+                $name = $property->getName();
+                if ($property->isStatic() || substr($name, 0, 1) == '_' || array_key_exists($name, $result)) {
+                    continue;
+                }
+                $result[$property->getName()] = $this->{$property->getName()};
             }
-            $result[$property->getName()] = $this->{$property->getName()};
-        }
+            $reflector = $reflector->getParentClass();
+        } while (empty($reflector) === false && $reflector->name != 'Backend\Base\Model');
 
         return $result;
     }
