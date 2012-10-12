@@ -142,6 +142,10 @@ class Application extends CoreApplication
                 // Redirect to the predefined location
                 $response = new Response('', 302);
                 $location = $this->container->getParameter('unauthorized.redirect');
+                if ($location[0] === '/' && (empty($location[1]) || $location[1] !== '/')) {
+                    // Relative Redirect
+                    $location = $this->container->get('request_context')->getLink() . $location;
+                }
                 $response->setHeader('Location', $location);
                 break;
             default:
