@@ -142,13 +142,20 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('/secure'));
         $this->application->setRequest($request);
 
+        $requestContext = $this->getMockForAbstractClass('\Backend\Interfaces\RequestContextInterface');
+        $requestContext
+            ->expects($this->once())
+            ->method('getLink')
+            ->will($this->returnValue('http://backend-php.net'));
+        $this->container->set('request_context', $requestContext);
+
         $this->container->setParameter('unauthorized.redirect', '/');
 
         $exception = new \Exception('Unauthorized', 401);
         $result = $this->application->exception($exception, true);
         $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $result);
         $this->assertEquals(302, $result->getStatusCode());
-        $this->assertContains('Location: /', $result->getHeaders());
+        $this->assertContains('Location: http://backend-php.net/', $result->getHeaders());
     }
 
     /**

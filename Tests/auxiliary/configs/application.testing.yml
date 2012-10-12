@@ -1,6 +1,7 @@
 # Reference all tools likely to be used in the application here
 parameters:
     response.class: \Backend\Core\Response
+    request.context.class: \Backend\Core\Utilities\RequestContext
 
 services:
     router.config:
