@@ -37,6 +37,13 @@ use Backend\Base\Utilities\String;
 class ModelController extends Controller
 {
     /**
+     * The class name of the Model this Controller is connected with.
+     *
+     * @var string
+     */
+    protected static $modelName = null;
+
+    /**
      * Get a Form for the Model.
      *
      * @param mixed $id The identifier
@@ -133,7 +140,35 @@ class ModelController extends Controller
      */
     public function listAction()
     {
-        return $this->getBinding()->find();
+        $defaults = array(
+            'page' => null,
+            'order' => null,
+            'limit' => null,
+            'offset' => null,
+        );
+        $body = $this->getRequest()->getBody();
+        $options = $body + $defaults;
+
+        // Process the options
+        if (is_string($options['order'])) {
+            $options['order'] = array_map('trim', explode(',', $options['order']));
+        }
+        if (is_string($options['page'])) {
+            $options['page'] = (int)$options['page'];
+        }
+        if (is_string($options['limit'])) {
+            $options['limit'] = (int)$options['limit'];
+        }
+        if (is_string($options['offset'])) {
+            $options['offset'] = (int)$options['offset'];
+        }
+        $options = array_filter(
+            $options,
+            // Check for empty values
+            function($elm) { return empty($elm) === false; }
+        );
+
+        return $this->getBinding()->find(array(), $options);
     }
 
     /**
@@ -145,11 +180,16 @@ class ModelController extends Controller
      */
     public function listHtml($result)
     {
-        // TODO Check the current template folder for $modelName/list
-        $component = explode('\\', self::getModelName($this));
-        $component = end($component);
-
-        return $this->render('crud/list', array('list' => $result, 'component' => $component));
+        if ($result instanceof ResponseInterface) {
+            // Not found or similiar response
+            return $result;
+        }
+        $component = basename(str_replace('\\', DIRECTORY_SEPARATOR, self::getModelName()));
+        $values = array(
+            'list'      => $result,
+            'component' => $component,
+        );
+        return $this->render($component . '/list', $values);
     }
 
     /**
@@ -287,27 +327,43 @@ class ModelController extends Controller
     }
 
     /**
-     * Return the Model name derived from the Controller
+     * Return the Model name derived from the given Controller
      *
      * @param mixed $controllerName The name of the controller, or the controller itself
      *
      * @return string The name of the corresponding Model.
      */
-    protected static function getModelName($controllerName)
+    public static function getModelName($controllerName = null)
     {
-        if (is_object($controllerName)) {
-            $controllerName = get_class($controllerName);
+        if (static::$modelName === null) {
+            if (is_object($controllerName)) {
+                $controllerName = get_class($controllerName);
+            } else if ($controllerName === null) {
+                $controllerName = get_called_class();
+            }
+            $reflector = new \ReflectionClass($controllerName);
+            $namespace = preg_replace('/\\\\Controllers$/', '\\Models', $reflector->getNamespaceName());
+            $modelName = basename(str_replace('\\', DIRECTORY_SEPARATOR, $controllerName));
+            $modelName = new String(preg_replace('/Controller$/', '', $modelName));
+            static::setModelName($namespace . '\\' . $modelName->singularize()->camelCase());
+
         }
-        $reflector = new \ReflectionClass($controllerName);
-        $namespace = preg_replace('/\\\\Controllers$/', '\\Models', $reflector->getNamespaceName());
-        $modelName = basename(str_replace('\\', DIRECTORY_SEPARATOR, $controllerName));
-        $modelName = new String(preg_replace('/Controller$/', '', $modelName));
-        $modelName = $namespace . '\\' . $modelName->singularize()->camelCase();
-        if ($modelName[0] !== '\\') {
+        return static::$modelName;
+    }
+
+    /**
+     * Set the model name for this Controller Class.
+     *
+     * @param string $modelName
+     *
+     * @return void
+     */
+    public static function setModelName($modelName)
+    {
+        if (is_string($modelName) && $modelName[0] !== '\\') {
             $modelName = '\\' . $modelName;
         }
-
-        return $modelName;
+        static::$modelName = $modelName;
     }
 
     /**

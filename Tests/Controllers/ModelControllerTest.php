@@ -69,6 +69,9 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
 
         $this->request = $this->getMockForAbstractClass('\Backend\Interfaces\RequestInterface');
         $this->controller = new ModelController($this->container, $this->request);
+
+        // Explicitly empty this
+        ModelController::setModelName(null);
     }
 
     /**
@@ -133,8 +136,9 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormWithoutId()
     {
-        $this->markTestIncomplete();
+        ModelController::setModelName('\TestModel');
         $actual = $this->controller->formAction();
+        $this->assertInstanceOf('\TestModel', $actual);
     }
 
     /**
@@ -308,6 +312,100 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $actual);
         $this->assertContains('Location: http://backend-php.net/value', $actual->getHeaders());
+    }
+
+    /**
+     * Test a simple List.
+     *
+     * @return void
+     */
+    public function testListAction()
+    {
+        $this->request
+            ->expects($this->once())
+            ->method('getBody')
+            ->will($this->returnValue(array()));
+
+        $binding = $this->getMockForAbstractClass('\Backend\Interfaces\BindingInterface');
+        $binding
+            ->expects($this->once())
+            ->method('find')
+            ->with(array(), array())
+            ->will($this->returnValue(array()));
+        $this->bindingFactory
+            ->expects($this->once())
+            ->method('build')
+            ->with('\Backend\Base\Models\Model')
+            ->will($this->returnValue($binding));
+        $this->assertEquals(array(), $this->controller->listAction());
+    }
+
+    /**
+     * Test a List with Options.
+     *
+     * @return void
+     */
+    public function testListActionWithOptions()
+    {
+        $options = array(
+            'page' => '1',
+            'offset' => '1',
+            'limit' => '10',
+            'order' => 'test',
+            'empty' => '',
+            'null' => null,
+        );
+        $conditions = array();
+        $this->request
+            ->expects($this->once())
+            ->method('getBody')
+            ->will($this->returnValue($options));
+
+        $options['page'] = 1;
+        $options['offset'] = 1;
+        $options['limit'] = 10;
+        $options['order'] = array('test');
+        unset($options['empty']);
+        unset($options['null']);
+
+        $binding = $this->getMockForAbstractClass('\Backend\Interfaces\BindingInterface');
+        $binding
+            ->expects($this->once())
+            ->method('find')
+            ->with($conditions, $options)
+            ->will($this->returnValue(array()));
+        $this->bindingFactory
+            ->expects($this->once())
+            ->method('build')
+            ->with('\Backend\Base\Models\Model')
+            ->will($this->returnValue($binding));
+        $this->assertEquals(array(), $this->controller->listAction());
+    }
+
+    /**
+     * Test the listHtml method with a standard response.
+     *
+     * @return void
+     */
+    public function testListHtml()
+    {
+        $result = array();
+        $actual = $this->controller->listHtml($result);
+        $this->assertInstanceOf('\Backend\Base\Utilities\Renderable', $actual);
+        $this->assertEquals('Model/list', $actual->getTemplate());
+        $this->assertContains($result, $actual->getValues());
+    }
+
+    /**
+     * Test the listHtml method with a Response.
+     *
+     * @return void
+     */
+    public function testResponseListHtml()
+    {
+        $result = $this->getMock('\Backend\Interfaces\ResponseInterface', array(), array('', 200));
+        $actual = $this->controller->listHtml($result);
+        $this->assertSame($result, $actual);
     }
 
     /**
@@ -612,5 +710,19 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $actual);
         $this->assertEquals(302, $actual->getStatusCode());
         $this->assertContains('Location: http://backend-php.net/test/path', $actual->getHeaders());
+    }
+
+    /**
+     * Test the ModelName getter and setter.
+     *
+     * @return void
+     */
+    public function testModelNameAccessors()
+    {
+        ModelController::setModelName('Some\Model');
+        $this->assertEquals('\Some\Model', ModelController::getModelName());
+        ModelController::setModelName(null);
+        $modelName = ModelController::getModelName();
+        $this->assertEquals('\Backend\Base\Models\Model', $modelName);
     }
 }
