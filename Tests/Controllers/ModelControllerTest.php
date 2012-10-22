@@ -71,7 +71,7 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
         $this->controller = new ModelController($this->container, $this->request);
 
         // Explicitly empty this
-        ModelController::setModelName(null);
+        $this->controller->setModelName(null);
     }
 
     /**
@@ -136,7 +136,7 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormWithoutId()
     {
-        ModelController::setModelName('\TestModel');
+        $this->controller->setModelName('\TestModel');
         $actual = $this->controller->formAction();
         $this->assertInstanceOf('\TestModel', $actual);
     }
@@ -719,10 +719,10 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
      */
     public function testModelNameAccessors()
     {
-        ModelController::setModelName('Some\Model');
-        $this->assertEquals('\Some\Model', ModelController::getModelName());
-        ModelController::setModelName(null);
-        $modelName = ModelController::getModelName();
+        $this->controller->setModelName('Some\Model');
+        $this->assertEquals('\Some\Model', $this->controller->getModelName());
+        $this->controller->setModelName(null);
+        $modelName = $this->controller->getModelName();
         $this->assertEquals('\Backend\Base\Models\Model', $modelName);
     }
 }

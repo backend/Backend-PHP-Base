@@ -41,7 +41,7 @@ class ModelController extends Controller
      *
      * @var string
      */
-    protected static $modelName = null;
+    private $modelName = null;
 
     /**
      * Get a Form for the Model.
@@ -55,7 +55,7 @@ class ModelController extends Controller
         if ($id) {
             $model = $this->readAction($id);
         } else {
-            $modelName = self::getModelName($this);
+            $modelName = $this->getModelName();
             $model = new $modelName();
         }
 
@@ -184,7 +184,7 @@ class ModelController extends Controller
             // Not found or similiar response
             return $result;
         }
-        $component = basename(str_replace('\\', DIRECTORY_SEPARATOR, self::getModelName()));
+        $component = basename(str_replace('\\', DIRECTORY_SEPARATOR, $this->getModelName()));
         $values = array(
             'list'      => $result,
             'component' => $component,
@@ -333,9 +333,9 @@ class ModelController extends Controller
      *
      * @return string The name of the corresponding Model.
      */
-    public static function getModelName($controllerName = null)
+    public function getModelName($controllerName = null)
     {
-        if (static::$modelName === null || $controllerName !== null) {
+        if ($this->modelName === null || $controllerName !== null) {
             if (is_object($controllerName)) {
                 $controllerName = get_class($controllerName);
             } else if ($controllerName === null) {
@@ -350,13 +350,13 @@ class ModelController extends Controller
                 $modelName = '\\' . $modelName;
             }
             if ($controllerName === null) {
-                static::setModelName($modelName);
+                $this->setModelName($modelName);
             } else {
                 return $modelName;
             }
 
         }
-        return static::$modelName;
+        return $this->modelName;
     }
 
     /**
@@ -366,12 +366,12 @@ class ModelController extends Controller
      *
      * @return void
      */
-    public static function setModelName($modelName)
+    public function setModelName($modelName)
     {
         if (is_string($modelName) && $modelName[0] !== '\\') {
             $modelName = '\\' . $modelName;
         }
-        static::$modelName = $modelName;
+        $this->modelName = $modelName;
     }
 
     /**
@@ -386,7 +386,7 @@ class ModelController extends Controller
      */
     protected function getBinding($modelName = null)
     {
-        $modelName = $modelName ?: self::getModelName($this);
+        $modelName = $modelName ?: $this->getModelName();
         return $this->container
             ->get('binding_factory')
             ->build($modelName);
