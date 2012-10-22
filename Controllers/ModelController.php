@@ -335,7 +335,7 @@ class ModelController extends Controller
      */
     public static function getModelName($controllerName = null)
     {
-        if (static::$modelName === null) {
+        if (static::$modelName === null || $controllerName !== null) {
             if (is_object($controllerName)) {
                 $controllerName = get_class($controllerName);
             } else if ($controllerName === null) {
@@ -345,7 +345,15 @@ class ModelController extends Controller
             $namespace = preg_replace('/\\\\Controllers$/', '\\Models', $reflector->getNamespaceName());
             $modelName = basename(str_replace('\\', DIRECTORY_SEPARATOR, $controllerName));
             $modelName = new String(preg_replace('/Controller$/', '', $modelName));
-            static::setModelName($namespace . '\\' . $modelName->singularize()->camelCase());
+            $modelName = $namespace . '\\' . $modelName->singularize()->camelCase();
+            if (is_string($modelName) && $modelName[0] !== '\\') {
+                $modelName = '\\' . $modelName;
+            }
+            if ($controllerName === null) {
+                static::setModelName($modelName);
+            } else {
+                return $modelName;
+            }
 
         }
         return static::$modelName;
