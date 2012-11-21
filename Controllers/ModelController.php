@@ -145,6 +145,7 @@ class ModelController extends Controller
             'order' => null,
             'limit' => null,
             'offset' => null,
+            'filter' => array(),
         );
         $body = $this->getRequest()->getBody();
         $options = $body + $defaults;
@@ -162,13 +163,12 @@ class ModelController extends Controller
         if (is_string($options['offset'])) {
             $options['offset'] = (int)$options['offset'];
         }
-        $options = array_filter(
-            $options,
-            // Check for empty values
-            function($elm) { return empty($elm) === false; }
-        );
+        $filter = $options['filter'];
+        unset($options['filter']);
 
-        return $this->getBinding()->find(array(), $options);
+        $options = array_filter($options);
+
+        return $this->getBinding()->find($filter, $options);
     }
 
     /**
