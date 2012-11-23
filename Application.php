@@ -32,6 +32,7 @@ class Application extends CoreApplication
      * Initialize the Application.
      *
      * @return boolean Returns true if the initialization ran. False otherwise.
+     * @todo Use the event infrastructure for this.
      */
     public function init()
     {
@@ -53,6 +54,7 @@ class Application extends CoreApplication
      * @param Backend\Interfaces\CallbackInterface $callback The callback to execute.
      *
      * @return mixed The result from the callback.
+     * @todo Use the event infrastructure for this.
      */
     public function transformCallback(CallbackInterface $callback)
     {
@@ -80,6 +82,7 @@ class Application extends CoreApplication
      * the call will be based.
      *
      * @return Backend\Interfaces\CallbackInterface The transformed format callback.
+     * @todo Use the event infrastructure for this.
      */
     public function transformFormatCallback(CallbackInterface $callback, FormatterInterface $formatter)
     {
@@ -94,32 +97,6 @@ class Application extends CoreApplication
     }
 
     /**
-     * Get the Formatter for the Application.
-     *
-     * @return \Backend\Interfaces\FormatterInterface
-     * @todo Do this with the DIC at some point
-     */
-    public function getFormatter()
-    {
-        try {
-            parent::getFormatter();
-        } catch (CoreException $e) {
-            try {
-                if ($e->getCode() === 415 && $this->container->has('backend.base.formats.html')) {
-                    $this->formatter = $this->container->get('backend.base.formats.html');
-                }
-            } catch (\Exception $e) {
-                // Can't even get the backup formatter.
-            }
-        }
-        if (empty($this->formatter)) {
-            throw new CoreException('Unsupported format requested', 415);
-        }
-
-        return $this->formatter;
-    }
-
-    /**
      * Exception handling function called when ever an exception isn't handled.
      *
      * Called by set_exception_handler. It will try to transform the exception
@@ -129,6 +106,7 @@ class Application extends CoreApplication
      * @param bool       $return    Return the response instead of outputting it.
      *
      * @return \Backend\Interfaces\ResponseInterface
+     * @todo Use the event infrastructure for this.
      */
     public function exception(\Exception $exception, $return = false)
     {
@@ -154,8 +132,6 @@ class Application extends CoreApplication
                     $message = 'Unhandled Exception: ' . $exception->getMessage();
                     $this->container->get('logger')->crit($message);
                 }
-                // Display it
-                $response = $this->renderException($exception);
                 break;
         }
         // Return or Output
@@ -167,30 +143,10 @@ class Application extends CoreApplication
     }
 
     /**
-     * Render the exception.
-     *
-     * @param  [type] $exception [description]
-     * @return [type] [description]
-     */
-    public function renderException(\Exception $exception)
-    {
-        $response = parent::exception($exception, true);
-        $response->setBody($exception);
-        try {
-            $formatter = $this->getFormatter();
-        } catch (\Exception $e) {
-        }
-        if (empty($formatter)) {
-            return new Response((string) $exception);
-        }
-
-        return $formatter->transform($response);
-    }
-
-    /**
      * Shutdown function called when ever the script ends
      *
      * @return null
+     * @todo Use the event infrastructure for this.
      */
     public function shutdown()
     {
