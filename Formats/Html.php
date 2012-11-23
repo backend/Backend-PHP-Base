@@ -195,7 +195,6 @@ class Html extends \Backend\Core\Utilities\Formatter
      */
     protected function transformBody($body)
     {
-        $this->values['buffered'] = '';
         //Check for an Object
         if (is_object($body)) {
             $body = $this->transformObject($body);
@@ -240,5 +239,18 @@ class Html extends \Backend\Core\Utilities\Formatter
         }
 
         return $this->render->file($template, $values);
+    }
+
+    /**
+     * Set a value to the values array.
+     *
+     * @param string $name  The name of the value
+     * @param mixed  $value The value
+     *
+     * @return \Backend\Base\Formats\Html The current object.
+     */
+    public function setValue($name, $value)
+    {
+        $this->values[$name] = $value;
     }
 }
