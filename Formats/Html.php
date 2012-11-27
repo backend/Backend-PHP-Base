@@ -101,6 +101,8 @@ class Html extends \Backend\Core\Utilities\Formatter
         }
         $this->values['SITE_LINK'] = SITE_LINK;
 
+        $this->values['context'] = $context;
+
         $this->values['SITE_STATE'] = defined('BACKEND_SITE_STATE') ? BACKEND_SITE_STATE : 'Unknown';
     }
 
