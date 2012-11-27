@@ -83,7 +83,7 @@ class Model implements \Backend\Interfaces\ModelInterface
         foreach ($properties as $name => $value) {
             $funcName = new Utilities\String($name);
             $funcName = 'set' . $funcName->camelCase();
-            if (method_exists($this, $funcName)) {
+            if (is_callable(array($this, $funcName))) {
                 $this->$funcName($value);
             } elseif (property_exists($this, $name)) {
                 $this->$name = $value;
