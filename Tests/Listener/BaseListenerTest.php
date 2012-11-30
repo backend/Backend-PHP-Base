@@ -74,6 +74,40 @@ class BaseListenerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers Backend\Base\Listener\BaseListener::coreRequestEvent
+     * @return void
+     */
+    public function testLogRequestOnRequestEvent()
+    {
+        $logger = $this->getMockForAbstractClass('\Backend\Interfaces\LoggerInterface');
+
+        $logger
+            ->expects($this->once())
+            ->method('info');
+
+        $this->container->set('logger', $logger);
+
+        $request = $this->getMockForAbstractClass('\Backend\Interfaces\RequestInterface');
+
+        $event = $this->getMock(
+            'Backend\Core\Event\RequestEvent',
+            array('getRequest'),
+            array($request)
+        );
+        $event
+            ->expects($this->never())
+            ->method('stopPropagation');
+
+        $event
+            ->expects($this->once())
+            ->method('getRequest')
+            ->will($this->returnValue($request));
+
+        $listener = new BaseListener($this->container);
+        $listener->coreRequestEvent($event);
+    }
+
+    /**
      * @covers Backend\Base\Listener\BaseListener::coreCallbackEvent
      * @return void
      */

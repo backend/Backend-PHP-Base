@@ -65,6 +65,23 @@ class BaseListener
     }
 
     /**
+     * Method to handle core.request Events.
+     *
+     * Just log the request coming in.
+     *
+     * @param  \Backend\Core\Event\RequestEvent $event The event to handle.
+     * @return void
+     */
+    public function coreRequestEvent(\Backend\Core\Event\RequestEvent $event)
+    {
+        if ($this->container->has('logger')) {
+            $request = $event->getRequest();
+            $message = $request->getMethod() . ' ' . $request->getPath();
+            $this->container->get('logger')->info('Request: ' . $message);
+        }
+    }
+
+    /**
      * Method to handle core.callback Events.
      *
      * It applies a couple of transforms on the object, ensuring consistency.
