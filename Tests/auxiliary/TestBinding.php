@@ -48,9 +48,9 @@ class TestBinding implements \Backend\Interfaces\BindingInterface
      * @return array An array of representations of the resource.
      */
     public function find(
-        array $conditions = array(), array $options = array()
-    )
-    {
+        array $conditions = array(),
+        array $options = array()
+    ) {
 
     }
 

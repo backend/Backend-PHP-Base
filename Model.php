@@ -12,6 +12,7 @@
  * @link      http://backend-php.net
  */
 namespace Backend\Base;
+
 /**
  * The main Model class.
  *

@@ -13,6 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Utilities;
+
 /**
  * Utility String class
  *
@@ -126,7 +127,7 @@ class String
 
         // save some time in the case that singular and plural are the same
         if (in_array(strtolower($this->string), $uncountable)) {
-            return $this;;
+            return $this;
         }
 
         // check for irregular singular forms

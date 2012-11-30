@@ -1,5 +1,6 @@
 <?php
 namespace Backend\Base\Models;
+
 class Value extends \Backend\Base\Model
 {
     protected $id;

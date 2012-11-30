@@ -1,6 +1,6 @@
 <?php
 /**
- * File defining \Backend\Base\Listener\CoreListener
+ * File defining \Backend\Base\Listener\BaseListener
  *
  * PHP Version 5.3
  *
@@ -156,7 +156,8 @@ class BaseListener
             $message = 'Fatal Error: ' . $e['message'];
             if ($this->container->has('logger')) {
                 $this->container->get('logger')->crit(
-                    'Fatal Error', array('error' => $e)
+                    'Fatal Error',
+                    array('error' => $e)
                 );
             }
         }

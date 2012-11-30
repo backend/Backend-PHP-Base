@@ -1,12 +1,32 @@
 <?php
+/**
+ * File defining Backend\Base\Tests\Listener\BaseListenerTest
+ *
+ * PHP Version 5.3
+ *
+ * @category  Backend
+ * @package   BaseTests
+ * @author    J Jurgens du Toit <jrgns@backend-php.net>
+ * @copyright 2011 - 2012 Jade IT (cc)
+ * @license   http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link      http://backend-php.net
+ */
 namespace Backend\Base\Tests\Listener;
 
 use Backend\Base\Listener\BaseListener;
 use Backend\Core\Utilities\Config;
 use Backend\Core\Utilities\DependencyInjectionContainer;
 
+/**
+ * Class to test the \Backend\Base\Listener\BaseListener class
+ *
+ * @category Backend
+ * @package  BaseTests
+ * @author   J Jurgens du Toit <jrgns@backend-php.net>
+ * @license  http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link     http://backend-php.net
+ */
 class BaseListenerTest extends \PHPUnit_Framework_TestCase
-
 {
     protected $container = null;
 

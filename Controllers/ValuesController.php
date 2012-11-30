@@ -13,6 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Controllers;
+
 /**
  * A simple ModelController showing how to use Bindings and mapping REST actions
  * to CRUD methods.

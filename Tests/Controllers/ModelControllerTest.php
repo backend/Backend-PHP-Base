@@ -12,9 +12,10 @@
  * @link      http://backend-php.net
  */
 namespace Backend\Base\Tests\Controllers;
+
 use Backend\Base\Controllers\ModelController;
 use Backend\Core\Response;
-require_once __DIR__ . '/../auxiliary/TestModel.php';
+
 /**
  * Class to test the \Backend\Base\Controllers\ModelController class
  *
@@ -136,6 +137,8 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormWithoutId()
     {
+        require_once __DIR__ . '/../auxiliary/TestModel.php';
+
         $this->controller->setModelName('\TestModel');
         $actual = $this->controller->formAction();
         $this->assertInstanceOf('\TestModel', $actual);
@@ -148,6 +151,8 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
      */
     public function testFormHtml()
     {
+        require_once __DIR__ . '/../auxiliary/TestModel.php';
+
         $model = new \TestModel;
         $actual = $this->controller->formHtml($model);
         $this->assertInstanceOf('\Backend\Base\Utilities\Renderable', $actual);
@@ -448,6 +453,8 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
      */
     public function testModelReadHtml()
     {
+        require_once __DIR__ . '/../auxiliary/TestModel.php';
+
         $model = new \TestModel;
         $actual = $this->controller->readHtml($model);
         $this->assertInstanceOf('\Backend\Base\Utilities\Renderable', $actual);

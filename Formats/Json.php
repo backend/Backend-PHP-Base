@@ -13,7 +13,9 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Formats;
+
 use Backend\Core\Response;
+
 /**
  * Output a request in JavaScript Object Notation.
  *
