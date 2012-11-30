@@ -13,11 +13,13 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Controllers;
+
 use Backend\Base\Controller;
 use Backend\Interfaces\ModelInterface;
 use Backend\Interfaces\ResponseInterface;
 use Backend\Base\Utilities\Renderable;
 use Backend\Base\Utilities\String;
+
 /**
  * The Model Controller provides basic CRUD functionality on Models to Controllers.
  *
@@ -338,7 +340,7 @@ class ModelController extends Controller
         if ($this->modelName === null || $controllerName !== null) {
             if (is_object($controllerName)) {
                 $controllerName = get_class($controllerName);
-            } else if ($controllerName === null) {
+            } elseif ($controllerName === null) {
                 $controllerName = get_called_class();
             }
             $reflector = new \ReflectionClass($controllerName);

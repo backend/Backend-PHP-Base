@@ -12,6 +12,7 @@
  * @link      http://backend-php.net
  */
 namespace Backend\Base\Utilities;
+
 /**
  * An object that can be Rendered by the Render Utility
  *
@@ -56,9 +57,11 @@ class Renderable
      * @param array $values The values to use
      * when rendering the template
      */
-    public function __construct(\Backend\Interfaces\RenderInterface $renderer,
-        $template, array $values = array())
-    {
+    public function __construct(
+        \Backend\Interfaces\RenderInterface $renderer,
+        $template,
+        array $values = array()
+    ) {
         $this->renderer = $renderer;
         $this->template = $template;
         $this->values = $values;

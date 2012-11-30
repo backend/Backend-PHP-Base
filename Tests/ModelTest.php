@@ -12,8 +12,9 @@
  * @link      http://backend-php.net
  */
 namespace Backend\Base\Tests;
+
 use Backend\Base\Model;
-require_once __DIR__ . '/auxiliary/TestModel.php';
+
 /**
  * Class to test the \Backend\Base\Model class
  *
@@ -32,6 +33,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase
      */
     public function testMagic()
     {
+        require_once __DIR__ . '/auxiliary/TestModel.php';
+
         $model = new \TestModel;
         $model->property = 'value';
         $this->assertEquals('value', $model->property);
@@ -44,6 +47,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase
      */
     public function testMagicThroughAccessor()
     {
+        require_once __DIR__ . '/auxiliary/TestModel.php';
+
         $model = new \TestModel;
         $model->accessor = 'value';
         $this->assertEquals('value', $model->accessor);
@@ -58,6 +63,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetUndefinedProperty()
     {
+        require_once __DIR__ . '/auxiliary/TestModel.php';
+
         $model = new \TestModel;
         var_dump($model->some_property);
     }
@@ -71,6 +78,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetUndefinedProperty()
     {
+        require_once __DIR__ . '/auxiliary/TestModel.php';
+
         $model = new \TestModel;
         $model->some_property = 'value';
     }
@@ -82,6 +91,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase
      */
     public function testPopulateAndGetProperties()
     {
+        require_once __DIR__ . '/auxiliary/TestModel.php';
+
         $array = array(
             'property' => 'property',
             'accessor' => 'accessor',
@@ -100,6 +111,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase
      */
     public function testExceptionOnPopulate()
     {
+        require_once __DIR__ . '/auxiliary/TestModel.php';
+
         $array = array('some_value' => 'value');
         $model = new \TestModel;
         $model->populate($array);
@@ -112,6 +125,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase
      */
     public function testToJson()
     {
+        require_once __DIR__ . '/auxiliary/TestModel.php';
+
         $model = new \TestModel;
         $model->property = 'value';
         $json = json_encode(array('property' => 'value', 'accessor' => null));
@@ -127,6 +142,8 @@ class ModelTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidJson()
     {
+        require_once __DIR__ . '/auxiliary/TestModel.php';
+
         $model = new \TestModel;
         $model->property = "\xB1\x31";
         $model->toJson();

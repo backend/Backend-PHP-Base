@@ -13,6 +13,7 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Controllers;
+
 /**
  * An example controller containing some sample code
  *
@@ -39,7 +40,16 @@ class ExamplesController extends \Backend\Base\Controller
         $route = $this->router->resolve('\Backend\Base\Controllers\ExamplesController::homeAction');
         $result = $this->url_generator->generate('value');
 
-        return $result;
+        $restBinding = new \Backend\Modules\Bindings\RestBinding(
+            array(
+                'url' => 'https://api.github.com',
+                'resource' => '/repos/backend/Backend-PHP-Core/issues',
+                'class' => '\Backend\Base\Models\GithubIssue',
+            )
+        );
+        $coreIssues = $restBinding->find();
+
+        return $coreIssues;
     }
 
     /**

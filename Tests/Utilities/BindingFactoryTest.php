@@ -12,8 +12,9 @@
  * @link      http://backend-php.net
  */
 namespace Backend\Base\Tests\Utilities;
+
 use Backend\Base\Utilities\BindingFactory;
-require_once __DIR__ . '/../auxiliary/TestBinding.php';
+
 /**
  * Class to test the \Backend\Base\Utilities\BindingFactory class
  *
@@ -162,6 +163,8 @@ class BindingFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testUnconfiguredBinding()
     {
+        require_once __DIR__ . '/../auxiliary/TestBinding.php';
+
         $bindings = $this->getMock('Backend\Interfaces\ConfigInterface');
         $connections = $this->getMock('Backend\Interfaces\ConfigInterface');
         $factory = new BindingFactory($bindings, $connections);
@@ -221,6 +224,8 @@ class BindingFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testMissingConnection()
     {
+        require_once __DIR__ . '/../auxiliary/TestBinding.php';
+
         $bindings = $this->getMock('Backend\Interfaces\ConfigInterface');
         $connections = $this->getMock('Backend\Interfaces\ConfigInterface');
         $factory = new BindingFactory($bindings, $connections);
@@ -257,6 +262,8 @@ class BindingFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testSuccessfulBuild()
     {
+        require_once __DIR__ . '/../auxiliary/TestBinding.php';
+
         $bindings = $this->getMock('Backend\Interfaces\ConfigInterface');
         $connections = $this->getMock('Backend\Interfaces\ConfigInterface');
         $factory = new BindingFactory($bindings, $connections);
@@ -299,6 +306,8 @@ class BindingFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testDefaultBinding()
     {
+        require_once __DIR__ . '/../auxiliary/TestBinding.php';
+
         $bindings = $this->getMock('Backend\Interfaces\ConfigInterface');
         $connections = $this->getMock('Backend\Interfaces\ConfigInterface');
         $factory = new BindingFactory($bindings, $connections);

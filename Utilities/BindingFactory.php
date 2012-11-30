@@ -13,9 +13,11 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Utilities;
+
 use Backend\Interfaces\BindingFactoryInterface;
 use Backend\Interfaces\ConfigInterface;
 use Backend\Core\Exceptions\ConfigException;
+
 /**
  * Factory class to create Bindings
  *

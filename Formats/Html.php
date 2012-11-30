@@ -13,10 +13,12 @@
  * @link       http://backend-php.net
  */
 namespace Backend\Base\Formats;
+
 use Backend\Interfaces\RequestInterface;
 use Backend\Interfaces\ConfigInterface;
 use Backend\Interfaces\RenderInterface;
 use Backend\Base\Utilities\Renderable;
+
 /**
  * Output a request as HTML.
  *
@@ -73,7 +75,7 @@ class Html extends \Backend\Core\Utilities\Formatter
         $this->values = empty($this->values) ? array() : $this->values;
         $this->render = $render;
 
-        self::_setupConstants();
+        self::setupConstants();
     }
 
     /**
@@ -82,7 +84,7 @@ class Html extends \Backend\Core\Utilities\Formatter
      *
      * @return null
      */
-    private function _setupConstants()
+    private function setupConstants()
     {
         $context = new \Backend\Core\Utilities\RequestContext($this->request);
 

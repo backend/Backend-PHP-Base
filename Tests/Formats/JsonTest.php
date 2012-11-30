@@ -12,6 +12,7 @@
  * @link      http://backend-php.net
  */
 namespace Backend\Base\Tests\Formats;
+
 use Backend\Base\Formats\Json;
 use Backend\Core\Request;
 use Backend\Core\Response;
