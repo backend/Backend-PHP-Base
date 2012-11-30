@@ -97,37 +97,45 @@ class BaseListenerTest extends \PHPUnit_Framework_TestCase
 
         $this->container->set('logger', $logger);
 
+        $exception = new \Exception('Message', 500);
+
         $event = $this->getMock(
             'Backend\Core\Event\CallbackEvent',
             null,
-            array($callback, $this->container)
+            array($callback)
         );
         $event
             ->expects($this->never())
             ->method('stopPropagation');
 
         $listener = new BaseListener($this->container);
-        $listener->coreInitEvent($event);
+        $listener->coreCallbackEvent($event);
     }
 
     /**
      * @covers Backend\Base\Listener\BaseListener::coreExceptionEvent
      * @return void
      */
-    public function testUnauthorizedOnExceptionEvent()
+    public function testUnauthorizedWithNoRedirectOnExceptionEvent()
     {
+        $requestContext = $this->getMock('\Backend\Interfaces\RequestContextInterface');
+        $requestContext
+            ->expects($this->any())
+            ->method('getLink')
+            ->will($this->returnValue('http://backend-php.net'));
+        $this->container->set('request_context', $requestContext);
+
         $logger = $this->getMockForAbstractClass('\Backend\Interfaces\LoggerInterface');
         $logger
             ->expects($this->once())
             ->method('notice');
-
         $this->container->set('logger', $logger);
 
         $exception = new \Exception('Message', 401);
 
         $event = $this->getMock(
             'Backend\Core\Event\ExceptionEvent',
-            null,
+            array('getException'),
             array($exception)
         );
         $event
@@ -140,6 +148,49 @@ class BaseListenerTest extends \PHPUnit_Framework_TestCase
 
         $listener = new BaseListener($this->container);
         $listener->coreExceptionEvent($event);
+
+        $response = $event->getResponse();
+        $this->assertInstanceOf('\Backend\Core\Response', $response);
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals('http://backend-php.net', $response->getHeader('Location'));
+    }
+
+    /**
+     * @covers Backend\Base\Listener\BaseListener::coreExceptionEvent
+     * @return void
+     */
+    public function testUnauthorizedWithRedirectOnExceptionEvent()
+    {
+        $requestContext = $this->getMock('\Backend\Interfaces\RequestContextInterface');
+        $requestContext
+            ->expects($this->any())
+            ->method('getLink')
+            ->will($this->returnValue('http://backend-php.net'));
+        $this->container->set('request_context', $requestContext);
+
+        $this->container->setParameter('unauthorized.redirect', '/test');
+
+        $exception = new \Exception('Message', 401);
+
+        $event = $this->getMock(
+            'Backend\Core\Event\ExceptionEvent',
+            array(),
+            array($exception)
+        );
+        $event
+            ->expects($this->never())
+            ->method('stopPropagation');
+        $event
+            ->expects($this->once())
+            ->method('getException')
+            ->will($this->returnValue($exception));
+        $event
+            ->expects($this->once())
+            ->method('setResponse')
+            ->with($this->isInstanceOf('\Backend\Core\Response'));
+
+        $listener = new BaseListener($this->container);
+        $listener->coreExceptionEvent($event);
     }
 
     /**
@@ -148,6 +199,30 @@ class BaseListenerTest extends \PHPUnit_Framework_TestCase
      */
     public function testLoggingOnExceptionEvent()
     {
+        $exception = new \Exception('Message', 500);
+
+        $event = $this->getMock(
+            'Backend\Core\Event\ExceptionEvent',
+            array(),
+            array($exception)
+        );
+        $event
+            ->expects($this->never())
+            ->method('stopPropagation');
+        $event
+            ->expects($this->once())
+            ->method('getException')
+            ->will($this->returnValue($exception));
+
+        $logger = $this->getMockForAbstractClass('\Backend\Interfaces\LoggerInterface');
+        $logger
+            ->expects($this->once())
+            ->method('crit');
+
+        $this->container->set('logger', $logger);
+
+        $listener = new BaseListener($this->container);
+        $listener->coreExceptionEvent($event);
     }
 
     /**
@@ -156,5 +231,21 @@ class BaseListenerTest extends \PHPUnit_Framework_TestCase
      */
     public function testErrorCheckOnShutdownEvent()
     {
+        $event = $this->getMock('\Symfony\Component\EventDispatcher\Event');
+
+        $logger = $this->getMockForAbstractClass('\Backend\Interfaces\LoggerInterface');
+        $logger
+            ->expects($this->once())
+            ->method('crit');
+
+        $this->container->set('logger', $logger);
+
+        $error = array(
+            'type' => E_ERROR,
+            'message' => 'Test Base Shutdown Event'
+        );
+
+        $listener = new BaseListener($this->container);
+        $listener->coreShutdownEvent($event, $error);
     }
 }

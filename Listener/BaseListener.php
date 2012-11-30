@@ -146,16 +146,17 @@ class BaseListener
      * It checks if a fatal error has occured and logs it.
      *
      * @param  \Backend\Core\Event\CallbackEvent $event The event to handle
+     * @param  array                             $e     A dummy error used for testing.
      * @return void
      */
-    public function coreShutdownEvent(\Symfony\Component\EventDispatcher\Event $event)
+    public function coreShutdownEvent(\Symfony\Component\EventDispatcher\Event $event, $e = null)
     {
-        $e = error_get_last();
-        if ($e !== null && $e['type'] === E_ERROR) {
+        $e = $e ?: error_get_last();
+        if ($e !== null && in_array($e['type'], array(E_ERROR, E_USER_ERROR))) {
             $message = 'Fatal Error: ' . $e['message'];
             if ($this->container->has('logger')) {
-                $this->container->get('logger')->alert(
-                    'Fatal Error', array('exception' => $e)
+                $this->container->get('logger')->crit(
+                    'Fatal Error', array('error' => $e)
                 );
             }
         }
