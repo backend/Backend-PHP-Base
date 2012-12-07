@@ -107,6 +107,39 @@ class BaseListener
     }
 
     /**
+     * Method to handle core.result Events.
+     *
+     * It will try to get a default format if none is specified.
+     *
+     * @param  \Backend\Core\Event\CallbackEvent $event The event to handle
+     * @return void
+     */
+    public function coreResultEvent(\Backend\Core\Event\ResultEvent $event)
+    {
+        $response = $event->getResponse();
+        if (empty($response) === false) {
+            return;
+        }
+        $result = $event->getResult();
+
+        // Get the Formatter
+        if ($this->container->has('formatter') === false || $this->container->get('formatter') === null) {
+            $defaultFormatter = $this->container->hasParameter('formatter.default')
+                ? $this->container->getParameter('formatter.default')
+                : 'backend.base.formats.html';
+            if ($this->container->has($defaultFormatter) === false) {
+                throw new \Backend\Core\Exception('Unsupported format requested', 415);
+            }
+            $this->container->set('formatter', $this->container->get($defaultFormatter));
+        }
+
+        $response = $this->container->get('formatter')->transform($result);
+
+        $event->setResponse($response);
+
+    }
+
+    /**
      * Method to handle core.exception Events.
      *
      * It will log the exception and redirect in special cases.
