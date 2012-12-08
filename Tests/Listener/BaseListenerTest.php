@@ -167,6 +167,313 @@ class BaseListenerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers Backend\Base\Listener\BaseListener::coreResultEvent
+     * @covers Backend\Base\Listener\BaseListener::callbackFormat
+     * @return void
+     */
+    public function testResultEventWithEmptyMethod()
+    {
+        $result = new \stdClass;
+
+        $response = $this->getMockForAbstractClass('\Backend\Interfaces\ResponseInterface');
+
+        $formatter = $this->getMockForAbstractClass('\Backend\Interfaces\FormatterInterface');
+        $formatter
+            ->expects($this->once())
+            ->method('transform')
+            ->with($result)
+            ->will($this->returnValue($response));
+
+        $this->container->set('formatter', $formatter);
+
+        $event = $this->getMock(
+            'Backend\Core\Event\ResultEvent',
+            null,
+            array($result)
+        );
+
+        $callback = $this->getMockForAbstractClass(
+            '\Backend\Interfaces\CallbackInterface'
+        );
+        $this->container->set('callback', $callback);
+
+        $event
+            ->expects($this->never())
+            ->method('stopPropagation');
+
+        $listener = new BaseListener($this->container);
+        $listener->coreResultEvent($event);
+    }
+
+    /**
+     * @return void
+     * @covers Backend\Base\Listener\BaseListener::coreResultEvent
+     * @expectedException Backend\Core\Exception
+     * @expectedExceptionMessage Unsupported format requested
+     * @expectedExceptionCode 415
+     */
+    public function testUnsupportedFormatResultEvent()
+    {
+        $event = $this->getMock(
+            'Backend\Core\Event\ResultEvent',
+            null,
+            array(true)
+        );
+        $event
+            ->expects($this->never())
+            ->method('stopPropagation');
+
+        $request = $this->getMockForAbstractClass(
+            '\Backend\Interfaces\RequestInterface'
+        );
+        $this->container->set('request', $request);
+
+        $listener = new BaseListener($this->container);
+        $listener->coreResultEvent($event);
+    }
+
+    /**
+     * @return void
+     * @covers Backend\Base\Listener\BaseListener::coreResultEvent
+     */
+    public function testDefaultFormatterResultEvent()
+    {
+        $result = new \stdClass;
+
+        $event = $this->getMock(
+            'Backend\Core\Event\ResultEvent',
+            null,
+            array($result)
+        );
+        $event
+            ->expects($this->never())
+            ->method('stopPropagation');
+
+        $response = $this->getMockForAbstractClass('\Backend\Interfaces\ResponseInterface');
+
+        $formatter = $this->getMockForAbstractClass('\Backend\Interfaces\FormatterInterface');
+        $formatter
+            ->expects($this->once())
+            ->method('transform')
+            ->with($result)
+            ->will($this->returnValue($response));
+
+        $this->container->set('backend.base.formats.html', $formatter);
+
+        $callback = $this->getMockForAbstractClass(
+            '\Backend\Interfaces\CallbackInterface'
+        );
+        $this->container->set('callback', $callback);
+
+        $listener = new BaseListener($this->container);
+        $listener->coreResultEvent($event);
+
+        $this->assertSame($response, $event->getResponse());
+    }
+
+    /**
+     * @return void
+     * @covers Backend\Base\Listener\BaseListener::coreResultEvent
+     */
+    public function testResponseResultEvent()
+    {
+        $result = $this->getMockForAbstractClass('\Backend\Interfaces\ResponseInterface');
+
+        $event = $this->getMock(
+            'Backend\Core\Event\ResultEvent',
+            null,
+            array($result)
+        );
+        $event
+            ->expects($this->never())
+            ->method('stopPropagation');
+
+        $listener = new BaseListener($this->container);
+        $listener->coreResultEvent($event);
+
+        $this->assertSame($result, $event->getResponse());
+    }
+
+    /**
+     * @return void
+     * @covers Backend\Base\Listener\BaseListener::coreResultEvent
+     * @covers Backend\Base\Listener\BaseListener::callbackFormat
+     */
+    public function testResultEventWithFormatting()
+    {
+        $result = new \stdClass;
+
+        $event = $this->getMock(
+            'Backend\Core\Event\ResultEvent',
+            null,
+            array($result)
+        );
+        $event
+            ->expects($this->never())
+            ->method('stopPropagation');
+
+        $request = $this->getMockForAbstractClass(
+            '\Backend\Interfaces\RequestInterface'
+        );
+        $this->container->set('request', $request);
+
+        $callback = $this->getMockForAbstractClass(
+            '\Backend\Interfaces\CallbackInterface'
+        );
+        $callback
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('actionFormat'));
+        $callback
+            ->expects($this->once())
+            ->method('execute')
+            ->with(array($result))
+            ->will($this->returnValue($result));
+
+        $this->container->set('callback', $callback);
+
+        $response = $this->getMockForAbstractClass('\Backend\Interfaces\ResponseInterface');
+
+        $formatter = $this->getMockForAbstractClass('\Backend\Interfaces\FormatterInterface');
+        $formatter
+            ->expects($this->once())
+            ->method('transform')
+            ->with($result)
+            ->will($this->returnValue($response));
+
+        $this->container->set('formatter', $formatter);
+
+        $listener = new BaseListener($this->container);
+        $listener->coreResultEvent($event);
+
+        $this->assertSame($response, $event->getResponse());
+    }
+
+    /**
+     * @return void
+     * @covers Backend\Base\Listener\BaseListener::coreResultEvent
+     */
+    public function testAddsBufferResultEvent()
+    {
+        $result = new \stdClass;
+
+        $event = $this->getMock(
+            'Backend\Core\Event\ResultEvent',
+            null,
+            array($result)
+        );
+        $event
+            ->expects($this->never())
+            ->method('stopPropagation');
+
+        $request = $this->getMockForAbstractClass(
+            '\Backend\Interfaces\RequestInterface'
+        );
+        $this->container->set('request', $request);
+
+        $callback = $this->getMockForAbstractClass(
+            '\Backend\Interfaces\CallbackInterface'
+        );
+        $callback
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('actionFormat'));
+        $callback
+            ->expects($this->once())
+            ->method('execute')
+            ->with(array($result))
+            ->will($this->returnValue($result));
+
+        $this->container->set('callback', $callback);
+
+        $response = $this->getMockForAbstractClass('\Backend\Interfaces\ResponseInterface');
+
+        $formatter = $this->getMock(
+            '\Backend\Interfaces\FormatterInterface',
+            array('setValue', 'transform')
+        );
+        $formatter
+            ->expects($this->once())
+            ->method('setValue')
+            ->with('buffered');
+
+        $response = $this->getMockForAbstractClass('\Backend\Interfaces\ResponseInterface');
+        $formatter
+            ->expects($this->once())
+            ->method('transform')
+            ->with($result)
+            ->will($this->returnValue($response));
+
+        $this->container->set('formatter', $formatter);
+
+        ob_start();
+        echo 'buffer';
+        $listener = new BaseListener($this->container);
+        $listener->coreResultEvent($event);
+    }
+
+    /**
+     * @return void
+     * @covers Backend\Base\Listener\BaseListener::coreResultEvent
+     */
+    public function testDoesNotAddGZippedBufferResultEvent()
+    {
+        $result = new \stdClass;
+
+        $event = $this->getMock(
+            'Backend\Core\Event\ResultEvent',
+            null,
+            array($result)
+        );
+        $event
+            ->expects($this->never())
+            ->method('stopPropagation');
+
+        $request = $this->getMockForAbstractClass(
+            '\Backend\Interfaces\RequestInterface'
+        );
+        $this->container->set('request', $request);
+
+        $callback = $this->getMockForAbstractClass(
+            '\Backend\Interfaces\CallbackInterface'
+        );
+        $callback
+            ->expects($this->once())
+            ->method('getMethod')
+            ->will($this->returnValue('actionFormat'));
+        $callback
+            ->expects($this->once())
+            ->method('execute')
+            ->with(array($result))
+            ->will($this->returnValue($result));
+
+        $this->container->set('callback', $callback);
+
+        $response = $this->getMockForAbstractClass('\Backend\Interfaces\ResponseInterface');
+
+        $formatter = $this->getMock(
+            '\Backend\Interfaces\FormatterInterface',
+            array('setValue', 'transform')
+        );
+        $formatter
+            ->expects($this->never())
+            ->method('setValue');
+
+        $response = $this->getMockForAbstractClass('\Backend\Interfaces\ResponseInterface');
+        $formatter
+            ->expects($this->once())
+            ->method('transform')
+            ->with($result)
+            ->will($this->returnValue($response));
+
+        $this->container->set('formatter', $formatter);
+
+        ob_start('ob_gzhandler');
+        $listener = new BaseListener($this->container);
+        $listener->coreResultEvent($event);
+    }
+
+    /**
      * @covers Backend\Base\Listener\BaseListener::coreExceptionEvent
      * @return void
      */

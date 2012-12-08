@@ -15,6 +15,7 @@
 namespace Backend\Base\Listener;
 
 use Backend\Interfaces\DependencyInjectionContainerInterface;
+use Backend\Interfaces\ResponseInterface;
 use Backend\Core\Response;
 use \Symfony\Component\DependencyInjection\Exception\ParameterNotFoundException;
 
@@ -51,13 +52,14 @@ class BaseListener
     /**
      * Method to handle core.init Events.
      *
-     * It starts an output buffer.
+     * It starts an output buffer and checks for the session.
      *
      * @param  \Symfony\Component\EventDispatcher\Event $event The event to handle.
      * @return void
      */
     public function coreInitEvent(\Symfony\Component\EventDispatcher\Event $event)
     {
+        ob_start();
         if ($this->container->has('session')) {
             // Initialize the session
             $this->container->get('session');
@@ -116,11 +118,10 @@ class BaseListener
      */
     public function coreResultEvent(\Backend\Core\Event\ResultEvent $event)
     {
-        $response = $event->getResponse();
-        if (empty($response) === false) {
-            return;
-        }
         $result = $event->getResult();
+        if ($result instanceof ResponseInterface) {
+            return $result;
+        }
 
         // Get the Formatter
         if ($this->container->has('formatter') === false || $this->container->get('formatter') === null) {
@@ -133,10 +134,55 @@ class BaseListener
             $this->container->set('formatter', $this->container->get($defaultFormatter));
         }
 
-        $response = $this->container->get('formatter')->transform($result);
+        // Allow the controller to format the result
+        $result = $this->callbackFormat($result);
 
+        // Pass the result to the formatter
+        $formatter = $this->container->get('formatter');
+
+        // Check for any open buffers
+        // TODO This isn't optimal. We don't close any unclosed sessions
+        if (ob_get_level() > 1 && in_array('ob_gzhandler', ob_list_handlers()) === false) {
+            $buffered = ob_get_clean();
+            if (is_callable(array($formatter, 'setValue'))) {
+                $formatter->setValue('buffered', $buffered);
+            }
+        }
+
+        $response = $formatter->transform($result);
         $event->setResponse($response);
+    }
 
+    /**
+     * Helper method to run the Callback's formatting.
+     *
+     * @param mixed $result The result from the callback
+     *
+     * @return mixed The transformed result.
+     */
+    protected function callbackFormat($result)
+    {
+        // Get and Check the initial callback
+        $callback = $this->container->get('callback');
+        // Check the Method
+        $method = $callback->getMethod();
+        if (empty($method)) {
+            return $result;
+        }
+
+        $formatter = $this->container->get('formatter');
+        // Setup the formatting callback
+        $class = explode('\\', get_class($formatter));
+        $method = str_replace('Action', end($class), $method);
+        $callback->setMethod($method);
+
+        // Execute
+        try {
+            $result = $callback->execute(array($result));
+        } catch (CoreException $e) {
+            // If the callback is invalid, it won't be called, result won't change
+        }
+        return $result;
     }
 
     /**
