@@ -120,12 +120,10 @@ class BaseListener
     public function coreResultEvent(\Backend\Core\Event\ResultEvent $event)
     {
         $result = $event->getResult();
-        if ($result instanceof ResponseInterface) {
-            return $result;
-        }
 
         // Get the Formatter
-        if ($this->container->has('formatter') === false || $this->container->get('formatter') === null) {
+        $formatter = $this->container->has('formatter') ? $this->container->get('formatter') : null;
+        if (empty($formatter)) {
             $defaultFormatter = $this->container->hasParameter('formatter.default')
                 ? $this->container->getParameter('formatter.default')
                 : 'backend.base.formats.html';
@@ -133,13 +131,8 @@ class BaseListener
                 throw new \Backend\Core\Exception('Unsupported format requested', 415);
             }
             $this->container->set('formatter', $this->container->get($defaultFormatter));
+            $formatter = $this->container->get('formatter');
         }
-
-        // Allow the controller to format the result
-        $result = $this->callbackFormat($result);
-
-        // Pass the result to the formatter
-        $formatter = $this->container->get('formatter');
 
         // Check for any open buffers
         // TODO This isn't optimal. We don't close any unclosed sessions
@@ -150,7 +143,11 @@ class BaseListener
             }
         }
 
-        $response = $formatter->transform($result);
+        // Allow the controller to format the result
+        $result = $this->callbackFormat($result);
+
+        // Transform the result into a response if necessary
+        $response = $result instanceof ResponseInterface ? $result : $formatter->transform($result);
         $event->setResponse($response);
     }
 

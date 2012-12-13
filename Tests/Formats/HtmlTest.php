@@ -187,4 +187,26 @@ class HtmlTest extends \PHPUnit_Framework_TestCase
         $this->assertLessThan(600, $result->getStatusCode());
 
     }
+
+    /**
+     * Test setting a value/
+     *
+     * @return void
+     */
+    public function testSetValue()
+    {
+        $request = $this->getMock('Backend\Interfaces\RequestInterface');
+        $config = $this->getMock('Backend\Interfaces\ConfigInterface');
+        $render   = $this->getMock('Backend\Interfaces\RenderInterface');
+
+        $html = new Html($request, $config, $render);
+
+        $this->assertSame($html, $html->setValue('test', 'value'));
+        $values = $html->getValue();
+        $this->assertArrayHasKey('test', $values);
+        $this->assertEquals('value', $values['test']);
+        $this->assertEquals('value', $html->getValue('test'));
+
+    }
 }
+

@@ -256,5 +256,21 @@ class Html extends \Backend\Core\Utilities\Formatter
     public function setValue($name, $value)
     {
         $this->values[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * Get the specified value, or all of the values if none is specified.
+     *
+     * @param string $name The name of the value. Omit to get all of the values.
+     *
+     * @return mixed The value, or an array of all the values.
+     */
+    public function getValue($name = null)
+    {
+        if ($name === null) {
+            return $this->values;
+        }
+        return array_key_exists($name, $this->values) ? $this->values[$name] : null;
     }
 }
