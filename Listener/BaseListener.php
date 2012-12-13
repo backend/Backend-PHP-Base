@@ -146,8 +146,8 @@ class BaseListener
         // Allow the controller to format the result
         $result = $this->callbackFormat($result);
 
-        // Transform the result into a response if necessary
-        $response = $result instanceof ResponseInterface ? $result : $formatter->transform($result);
+        // Transform the result into a response
+        $response = $formatter->transform($result);
         $event->setResponse($response);
     }
 
