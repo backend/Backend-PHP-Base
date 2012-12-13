@@ -17,6 +17,7 @@ namespace Backend\Base\Listener;
 use Backend\Interfaces\DependencyInjectionContainerInterface;
 use Backend\Interfaces\ResponseInterface;
 use Backend\Core\Response;
+use Backend\Core\Exception as CoreException;
 use \Symfony\Component\DependencyInjection\Exception\ParameterNotFoundException;
 
 /**
@@ -180,6 +181,7 @@ class BaseListener
         try {
             $result = $callback->execute(array($result));
         } catch (CoreException $e) {
+
             // If the callback is invalid, it won't be called, result won't change
         }
         return $result;
