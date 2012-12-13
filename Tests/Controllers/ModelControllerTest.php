@@ -252,6 +252,10 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->method('setHeader')
             ->with('Location', 'http://backend-php.net/value')
             ->will($this->returnSelf());
+        $result
+            ->expects($this->once())
+            ->method('setBody')
+            ->will($this->returnSelf());
 
         $actual = $this->controller->createHtml($result);
         $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $actual);
@@ -294,6 +298,10 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('setHeader')
             ->with('Location', 'http://backend-php.net/value/321')
+            ->will($this->returnSelf());
+        $result
+            ->expects($this->once())
+            ->method('setBody')
             ->will($this->returnSelf());
 
         $actual = $this->controller->createHtml($result);
@@ -536,7 +544,7 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
 
         $result = $this->controller->updateAction(1);
         $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $result);
-        $this->assertEquals(204, $result->getStatusCode());
+        $this->assertEquals(200, $result->getStatusCode());
     }
 
     /**
@@ -588,6 +596,10 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('setHeader')
             ->with('Location', 'http://backend-php.net/value/1')
+            ->will($this->returnSelf());
+        $result
+            ->expects($this->once())
+            ->method('setBody')
             ->will($this->returnSelf());
 
         $actual = $this->controller->updateHtml($result);
@@ -694,6 +706,10 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
             ->method('setHeader')
             ->with('Location', '/test/path')
             ->will($this->returnSelf());
+        $result
+            ->expects($this->once())
+            ->method('setBody')
+            ->will($this->returnSelf());
 
         $actual = $this->controller->deleteHtml($result);
         $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $actual);
@@ -728,8 +744,15 @@ class ModelControllerTest extends \PHPUnit_Framework_TestCase
     {
         $this->controller->setModelName('Some\Model');
         $this->assertEquals('\Some\Model', $this->controller->getModelName());
+
         $this->controller->setModelName(null);
         $modelName = $this->controller->getModelName();
+        $this->assertEquals('\Backend\Base\Models\Model', $modelName);
+
+        $this->controller->setModelName(null);
+        $dic = $this->getMockForAbstractClass('\Backend\Interfaces\DependencyInjectionContainerInterface');
+        $controller = new \Backend\Base\Controllers\ModelController($dic);
+        $modelName = $this->controller->getModelName($controller);
         $this->assertEquals('\Backend\Base\Models\Model', $modelName);
     }
 }

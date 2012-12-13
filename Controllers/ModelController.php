@@ -128,6 +128,7 @@ class ModelController extends Controller
                 $redirect = $this->getRequest()->getHeader('referer');
             }
             return $result
+                ->setBody('Redirect to <a href="' . $redirect . '">' . $redirect . '</a>')
                 ->setHeader('Location', $redirect)
                 ->setStatusCode(302);
         }
@@ -248,7 +249,7 @@ class ModelController extends Controller
      *
      * @param mixed $id The identifier. @todo Set to 0 to reference the whole collection
      *
-     * @return \Backend\Interfaces\ResponseInterface A No Content / 204 Response if successful.
+     * @return \Backend\Interfaces\ResponseInterface A OK / 200 Response if successful.
      */
     public function updateAction($id)
     {
@@ -262,7 +263,7 @@ class ModelController extends Controller
         $this->getBinding()->update($model);
         $responseClass = $this->container->getParameter('response.class');
 
-        return new $responseClass($model, 204);
+        return new $responseClass($model, 200);
     }
 
     /**
@@ -281,6 +282,7 @@ class ModelController extends Controller
         $redirect = $this->getRequest()->getUrl();
         if ($result instanceof ResponseInterface && $result->getStatusCode() == 204) {
             return $result
+                ->setBody('Redirect to <a href="' . $redirect . '">' . $redirect . '</a>')
                 ->setHeader('Location', $redirect)
                 ->setStatusCode(302);
         }
@@ -305,6 +307,7 @@ class ModelController extends Controller
         $this->getBinding()->delete($model);
         $responseClass = $this->container->getParameter('response.class');
 
+        // 204 Responses MUST NOT have a message body
         return new $responseClass('', 204);
     }
 
@@ -321,6 +324,7 @@ class ModelController extends Controller
         $redirect = $this->getRequest()->getHeader('referer');
         if ($result instanceof ResponseInterface && $result->getStatusCode() == 204) {
             return $result
+                ->setBody('Redirect to <a href="' . $redirect . '">' . $redirect . '</a>')
                 ->setHeader('Location', $redirect)
                 ->setStatusCode(302);
         }
@@ -351,12 +355,7 @@ class ModelController extends Controller
             if (is_string($modelName) && $modelName[0] !== '\\') {
                 $modelName = '\\' . $modelName;
             }
-            if ($controllerName === null) {
-                $this->setModelName($modelName);
-            } else {
-                return $modelName;
-            }
-
+            return $modelName;
         }
         return $this->modelName;
     }
