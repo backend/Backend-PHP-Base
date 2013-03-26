@@ -33,24 +33,17 @@ class JsonTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testResponseCalls()
+    public function testResponseHeaderAndBody()
     {
         $request = $this->getMock('Backend\Interfaces\RequestInterface');
         $config = $this->getMock('Backend\Interfaces\ConfigInterface');
         $render   = $this->getMock('Backend\Interfaces\RenderInterface');
 
-        $response = $this->getMock('Backend\Interfaces\ResponseInterface');
-        $response
-            ->expects($this->once())
-            ->method('setHeader')
-            ->with('Content-Type', 'application/json');
-        $response
-            ->expects($this->once())
-            ->method('setBody')
-            ->with($this->isType('string'));
-
         $json = new Json($request, $config, $render);
-        $result = $json->transform($response);
+        $result = $json->transform('string');
+        $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $result);
+        $this->assertEquals('application/json', $result->getHeader('Content-Type'));
+        $this->assertEquals('"string"', $result->getBody());
     }
 
     /**

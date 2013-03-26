@@ -85,28 +85,22 @@ class HtmlTest extends \PHPUnit_Framework_TestCase
      *
      * @return void
      */
-    public function testResponseCalls()
+    public function testResponseHeaderAndBody()
     {
         $request = $this->getMock('Backend\Interfaces\RequestInterface');
         $config = $this->getMock('Backend\Interfaces\ConfigInterface');
         $render   = $this->getMock('Backend\Interfaces\RenderInterface');
-
-        $response = $this->getMock('Backend\Interfaces\ResponseInterface');
-        $response
+        $render
             ->expects($this->once())
-            ->method('setHeader')
-            ->with('Content-Type', 'text/html; charset=utf-8');
-        $response
-            ->expects($this->once())
-            ->method('getBody')
-            ->will($this->returnValue('<html><body>Some Body</body></html>'));
-        $response
-            ->expects($this->once())
-            ->method('setBody')
-            ->with($this->isType('string'));
+            ->method('file')
+            ->will($this->returnValue('<html><body>html string</body></html>'));
 
         $html = new Html($request, $config, $render);
-        $result = $html->transform($response);
+        $result = $html->transform('html string');
+
+        $this->assertInstanceOf('\Backend\Interfaces\ResponseInterface', $result);
+        $this->assertEquals('text/html; charset=utf-8', $result->getHeader('Content-Type'));
+        $this->assertEquals('<html><body>html string</body></html>', $result->getBody());
     }
 
     /**
