@@ -15,6 +15,7 @@
 namespace Backend\Base\Formats;
 
 use Backend\Core\Response;
+use Backend\Interfaces\ResponseInterface;
 
 /**
  * Output a request in JavaScript Object Notation.
@@ -42,6 +43,11 @@ class Json extends \Backend\Core\Utilities\Formatter
      */
     public function transform($result)
     {
+        // Check for an already created response
+        if ($result instanceof ResponseInterface) {
+            return parent::transform($result);
+        }
+
         $response = parent::transform($result);
         $response->setHeader('Content-Type', 'application/json');
 

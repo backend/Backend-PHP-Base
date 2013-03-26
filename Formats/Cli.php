@@ -15,6 +15,7 @@
 namespace Backend\Base\Formats;
 
 use Backend\Core\Response;
+use Backend\Interfaces\ResponseInterface;
 
 /**
  * Output a request on the Command Line.
@@ -44,7 +45,7 @@ class Cli extends \Backend\Core\Utilities\Formatter
      */
     public function transform($result)
     {
-        if ($result instanceof Response) {
+        if ($result instanceof ResponseInterface) {
             $code = $result->getStatusCode();
             $body = $result->getBody();
         } else {

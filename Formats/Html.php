@@ -15,6 +15,7 @@
 namespace Backend\Base\Formats;
 
 use Backend\Interfaces\RequestInterface;
+use Backend\Interfaces\ResponseInterface;
 use Backend\Interfaces\ConfigInterface;
 use Backend\Interfaces\RenderInterface;
 use Backend\Base\Utilities\Renderable;
@@ -166,9 +167,12 @@ class Html extends \Backend\Core\Utilities\Formatter
      */
     public function transform($result)
     {
-        $response = parent::transform($result);
+        // Check for an already created response
+        if ($result instanceof ResponseInterface) {
+            return parent::transform($result);
+        }
 
-        // Add Headers
+        $response = parent::transform($result);
         $response->setHeader('Content-Type', 'text/html; charset=utf-8');
 
         $body = $response->getBody();
