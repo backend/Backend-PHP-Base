@@ -43,13 +43,16 @@ class Json extends \Backend\Core\Utilities\Formatter
      */
     public function transform($result)
     {
-        // Check for an already created response
-        if ($result instanceof ResponseInterface) {
-            return parent::transform($result);
+        $response = parent::transform($result);
+
+        if ($response->getHeader('Content-Type') === null) {
+            $response->setHeader('Content-Type', 'application/json');
         }
 
-        $response = parent::transform($result);
-        $response->setHeader('Content-Type', 'application/json');
+        // Check for an already created response
+        if ($result instanceof ResponseInterface && is_string($result->getBody())) {
+            return $response;
+        }
 
         $body = $response->getBody();
         if (is_callable(array($body, 'toJson'))) {
